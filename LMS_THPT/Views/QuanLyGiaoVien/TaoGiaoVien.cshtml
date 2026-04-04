@@ -1,0 +1,213 @@
+﻿@model LMS_THPT.Models.NguoiDung
+@{
+    ViewData["Title"] = "Thêm giáo viên mới";
+}
+
+<style>
+    .form-container {
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        max-width: 850px;
+        margin: 20px auto;
+    }
+    .form-title {
+        color: #1a1a2e;
+        font-weight: 700;
+        margin-bottom: 25px;
+        border-left: 5px solid #1a1a2e;
+        padding-left: 15px;
+        text-transform: uppercase;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #444;
+        font-size: 14px;
+        margin-bottom: 8px;
+        display: block;
+    }
+    .input-custom {
+        border-radius: 8px;
+        padding: 10px;
+        border: 1px solid #d1d5db;
+        width: 100%;
+    }
+    .input-custom:focus {
+        border-color: #1a1a2e;
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(26, 26, 46, 0.1);
+    }
+    .btn-save {
+        background: #1a1a2e;
+        color: #fff;
+        padding: 10px 25px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+    .btn-back { color: #6c757d; text-decoration: none; font-size: 14px; }
+    .btn-save:hover {
+        background: #2a2a4e;
+        transform: translateY(-2px);
+        color: white;
+    }
+</style>
+
+<div class="container">
+    <div class="mt-4 mb-3">
+        <a asp-action="Index" class="btn-back">
+            ← Quay lại danh sách giáo viên
+        </a>
+    </div>
+
+    <div class="form-container">
+        <h3 class="form-title">Thêm Giáo viên mới</h3>
+
+        @* ✅ HIỂN THỊ LỖI *@
+        @if (TempData["Error"] != null)
+        {
+            <div style="background:#ffebee;color:#c62828;padding:12px;border-radius:8px;margin-bottom:15px;">
+                ⚠ @TempData["Error"]
+            </div>
+        }
+
+        <form asp-action="TaoGiaoVien" method="post" onsubmit="return validateForm()">
+            @Html.AntiForgeryToken()
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mã giáo viên</label>
+                   <input name="maGV" id="MaGV" class="input-custom" required 
+       placeholder="Ví dụ: GV202601"
+       oninput="handleMaGVInput()" />
+
+<small id="maGV-error" style="color:red; display:none;"></small>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mật khẩu mặc định</label>
+                    <input type="text" id="MatKhau" class="input-custom" readonly 
+                           style="background:#f8f9fa;color:#666;" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Họ và tên</label>
+                <input name="hoTen" class="input-custom" required />
+            </div>
+
+            <div class="row">
+                <!-- Mục 'Môn dạy' đã loại bỏ — sử dụng phần "Chọn môn trong khối" phía dưới để phân công nhiều môn -->
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Chức vụ</label>
+                    <select name="chucVu" class="form-select input-custom">
+                        <option value="Giáo viên">Giáo viên</option>
+                        <option value="Tổ trưởng">Tổ trưởng</option>
+                        <option value="Ban giám hiệu">Ban giám hiệu</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md mb-3">
+                <label class="form-label">Phân công lớp</label>
+                <select name="lopId" class="form-select input-custom">
+                    <option value="">-- Không phân công --</option>
+                    @foreach (var lop in (ViewBag.LopTrong ?? new List<dynamic>()))
+                    {
+                        <option value="@lop.Id">Lớp @lop.TenLop</option>
+                    }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Chọn môn trong khối (nếu muốn phân công nhiều môn)</label>
+                <select name="monHocIds" multiple class="form-select input-custom" style="height:140px;">
+                    @{ var allMon = ViewBag.TatCaMonHoc as IEnumerable<dynamic>; if (allMon != null) {
+                        foreach(var m in allMon) { <option value="@m.Id">@m.TenMonHoc (Khối: @m.Khoi?.TenKhoi)</option>; }
+                    } }
+                </select>
+                <div class="form-text">Giữ Ctrl/Shift để chọn nhiều môn. Nếu không chọn, giáo viên sẽ không được thêm tự động vào môn.</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Giới tính</label>
+                    <select name="gioiTinh" class="form-select input-custom">
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Ngày sinh</label>
+                    <input name="ngaySinh" type="date" class="input-custom" />
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Địa chỉ</label>
+                <input name="diaChi" class="input-custom" />
+            </div>
+
+            <div class="text-end">
+                <a asp-action="Index" class="btn btn-light">Hủy</a>
+                <button type="submit" class="btn-save">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+let timeout = null;
+
+function handleMaGVInput() {
+    syncPassword();
+
+    clearTimeout(timeout);
+
+    timeout = setTimeout(checkMaGV, 500); // debounce 0.5s
+}
+
+function syncPassword() {
+    var maGVInput = document.getElementById('MaGV');
+    var matKhauInput = document.getElementById('MatKhau');
+
+    if (!maGVInput || !matKhauInput) return;
+
+    let value = maGVInput.value.trim().toUpperCase();
+    maGVInput.value = value;
+    matKhauInput.value = value;
+}
+
+function checkMaGV() {
+    const maGV = document.getElementById('MaGV').value;
+    const errorEl = document.getElementById('maGV-error');
+
+    if (!maGV) {
+        errorEl.style.display = "none";
+        return;
+    }
+
+    fetch(`/QuanLyGiaoVien/CheckMaGV?maGV=${maGV}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.exists) {
+                errorEl.innerText = "❌ Mã giáo viên đã tồn tại!";
+                errorEl.style.display = "block";
+            } else {
+                errorEl.innerText = "✔ Mã hợp lệ";
+                errorEl.style.color = "green";
+                errorEl.style.display = "block";
+            }
+        })
+        .catch(() => {
+            errorEl.innerText = "⚠ Không kiểm tra được!";
+            errorEl.style.display = "block";
+        });
+}
+</script>
+}

@@ -1,0 +1,261 @@
+﻿@model LMS_THPT.Models.Lop
+@{
+    ViewData["Title"] = "Học sinh lớp " + Model.TenLop;
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+<style>
+    /* --- GIỮ NGUYÊN CÁCH TRANG TRÍ CỦA BẠN --- */
+    .btn-custom-group { display: flex; gap: 10px; align-items: center; }
+
+    .btn-back-custom {
+        display: inline-flex; align-items: center; padding: 8px 20px;
+        background-color: #f8f9fa; color: #1a1a2e;
+        border: 1px solid #d1d5db; border-radius: 8px;
+        text-decoration: none; font-weight: 500; font-size: 15px; transition: 0.2s;
+    }
+
+    .btn-them-custom {
+        display: inline-flex; align-items: center; padding: 8px 20px;
+        background-color: #1a1a2e; color: #ffffff;
+        border: none; border-radius: 8px;
+        text-decoration: none; font-weight: 500; font-size: 15px; transition: 0.2s;
+    }
+
+    .btn-back-custom:hover { background-color: #f1f1f1; color: #000; text-decoration: none; }
+    .btn-them-custom:hover { opacity: 0.9; color: #fff; text-decoration: none; }
+
+    .table-wrapper { 
+        background: #fff; border-radius: 10px; 
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06); 
+        overflow-x: auto; margin-top: 20px; 
+    }
+    .table-hs { width: 100%; border-collapse: collapse; min-width: 1100px; }
+    .table-hs thead { background: #1a1a2e; color: #fff; }
+    .table-hs th { padding: 15px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .table-hs td { padding: 14px 15px; border-bottom: 1px solid #f0f0f0; font-size: 14px; vertical-align: middle; color: #333; }
+
+    .password-mask {
+        letter-spacing: 2px;
+        font-weight: bold;
+        color: #999;
+        background: #f8f9fa;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+    }
+
+    .action-group { display: inline-flex; border: 1px solid #d0d0d0; border-radius: 6px; overflow: hidden; }
+   .btn-action { 
+    padding: 6px 14px; border: none; background: #fff; 
+    cursor: pointer; border-right: 1px solid #d0d0d0; 
+    font-size: 13px; transition: 0.2s;
+    color: #333;
+}
+    .btn-action:last-child { border-right: none; }
+    .btn-edit:hover { background: #E65100; color: #fff; }
+    .btn-del:hover { background: #B71C1C; color: #fff; }
+</style>
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 style="font-weight:700; color:#1a1a2e; margin:0;">Lớp @Model.TenLop</h2>
+        <div class="text-muted" style="font-size: 14px;">Danh sách toàn bộ thông tin học sinh</div>
+    </div>
+    <div class="btn-custom-group">
+        <a asp-action="Lops" asp-route-khoiId="@Model.MaKhoi" class="btn-back-custom">
+            &larr; Quay lại
+        </a>
+        <button type="button" class="btn-back-custom" data-bs-toggle="modal" data-bs-target="#modalImport">
+            <i class="fa-solid fa-file-excel me-1 text-success"></i> Nhập Excel
+        </button>
+        <a asp-action="TaoHocSinh" asp-route-lopId="@Model.Id" class="btn-them-custom">
+            + Thêm mới
+        </a>
+    </div>
+</div>
+
+<div class="table-wrapper">
+    <table class="table-hs">
+        <thead>
+            <tr>
+                <th width="50" class="text-center">STT</th>
+                <th>Họ và Tên</th>
+                <th>Mã học sinh</th>
+                <th>Giới tính</th>
+                <th>Ngày sinh</th>
+                <th>Địa chỉ</th>
+                <th>Mật khẩu</th>
+                <th width="150" class="text-center">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.HocSinhs != null && Model.HocSinhs.Any())
+            {
+                int stt = 1;
+                // --- THÊM LOGIC SẮP XẾP TẠI ĐÂY ---
+                var sortedHocSinhs = Model.HocSinhs.OrderBy(h => h.HoTen).ToList();
+
+                foreach (var hs in sortedHocSinhs)
+                {
+                    <tr>
+                        <td class="text-center" style="color:#999;">@stt</td>
+                        <td><strong style="color:#1a1a2e;">@hs.HoTen</strong></td>
+                        <td><code style="color:#d63384; font-weight: 600;">@hs.MaHocSinh</code></td>
+                        <td>
+                            @if(hs.GioiTinh == "Nam") { <span class="badge bg-primary">Nam</span> }
+                            else { <span class="badge bg-danger">Nữ</span> }
+                        </td>
+                        <td>@(hs.NgaySinh?.ToString("dd/MM/yyyy") ?? "—")</td>
+                        <td>@(string.IsNullOrEmpty(hs.DiaChi) ? "—" : hs.DiaChi)</td>
+                        <td>
+                            <span class="password-mask">******</span>
+                        </td>
+                        <td align="center">
+                            <div class="action-group">
+                                <button type="button" class="btn-action btn-edit" onclick="editStudent('@hs.Id')">Sửa</button>
+                                <form asp-action="XoaHocSinh" method="post" onsubmit="return confirm('Xác nhận xóa học sinh @hs.HoTen?');" style="display:contents;">
+                                    <input type="hidden" name="id" value="@hs.Id" />
+                                    <input type="hidden" name="lopId" value="@Model.Id" />
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-action btn-del">Xóa</button>
+                                </form>
+                                <form asp-action="ToggleHocSinhActive" method="post" style="display:inline; margin-left:6px;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@hs.Id" />
+                                    <input type="hidden" name="lopId" value="@Model.Id" />
+                                    <button type="submit" class="btn-action" style="background:@(hs.IsActive ? "#ffebee" : "#e8f5e9"); color:@(hs.IsActive ? "#c62828" : "#2e7d32");">@(hs.IsActive ? "Khóa" : "Kích hoạt")</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    stt++;
+                }
+            }
+            else
+            {
+                <tr><td colspan="8" class="text-center py-5 text-muted">Chưa có dữ liệu học sinh trong lớp này.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@* --- MODAL SỬA --- *@
+<div class="modal fade" id="modalSua" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="border-radius:12px; border:none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <form asp-action="SuaHocSinh" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="edit-id" />
+                <input type="hidden" name="lopId" value="@Model.Id" />
+                <div class="modal-header" style="background:#1a1a2e; color:#fff; border-radius:12px 12px 0 0;">
+                    <h5 class="modal-title" style="font-weight:600;">Chỉnh sửa học sinh</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 25px;">
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight:600;">Họ và tên</label>
+                        <input type="text" name="hoTen" id="edit-hoTen" class="form-control" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label" style="font-weight:600;">Mã học sinh</label>
+                            <input type="text" name="maHocSinh" id="edit-ma" class="form-control" readonly style="background-color: #f8f9fa;" />
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label" style="font-weight:600;">Giới tính</label>
+                            <select name="gioiTinh" id="edit-gt" class="form-select">
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight:600;">Ngày sinh</label>
+                        <input type="date" name="ngaySinh" id="edit-ns" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight:600;">Địa chỉ</label>
+                        <input type="text" name="diaChi" id="edit-dc" class="form-control" />
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label text-danger" style="font-weight:600;">Đổi mật khẩu mới</label>
+                        <input type="password" name="matKhauMoi" class="form-control" placeholder="Bỏ trống nếu không muốn đổi" />
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #eee;">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border: 1px solid #ddd;">Hủy</button>
+                    <button type="submit" class="btn-them-custom">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* --- MODAL IMPORT --- *@
+<div class="modal fade" id="modalImport" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="border-radius:12px; border:none; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+            <form asp-action="ImportExcel" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="lopId" value="@Model.Id" />
+                <div class="modal-header" style="background:#1a1a2e; color:#fff; border-radius:12px 12px 0 0;">
+                    <h5 class="modal-title"><i class="fa-solid fa-file-import me-2"></i>Nhập dữ liệu từ Excel</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 25px;">
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight:600;">Chọn tệp Excel (.xlsx, .xls)</label>
+                        <input type="file" name="fileExcel" class="form-control" accept=".xlsx, .xls" required />
+                    </div>
+                    <div style="background: #fff8e1; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                        <h6 style="font-size: 14px; font-weight: 700; color: #856404; margin-bottom: 8px;">Yêu cầu cấu trúc file:</h6>
+                        <ul style="font-size: 13px; color: #856404; padding-left: 20px; margin: 0;">
+                            <li><b>Cột A:</b> Họ và Tên</li>
+                            <li><b>Cột B:</b> Mã học sinh</li>
+                            <li><b>Cột C:</b> Giới tính (Nam/Nữ)</li>
+                            <li><b>Cột D:</b> Ngày sinh</li>
+                            <li><b>Cột E:</b> Địa chỉ</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #eee;">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn-them-custom">Bắt đầu tải lên</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function editStudent(id) {
+            fetch(`/QuanLyHocSinh/GetHocSinh/${id}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Không tìm thấy học sinh');
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('edit-id').value = data.id;
+                    document.getElementById('edit-hoTen').value = data.hoTen;
+                    document.getElementById('edit-ma').value = data.maHocSinh;
+                    document.getElementById('edit-gt').value = data.gioiTinh;
+                    if(data.ngaySinh) {
+                        document.getElementById('edit-ns').value = data.ngaySinh.substring(0, 10);
+                    }
+                    document.getElementById('edit-dc').value = data.diaChi;
+                    
+                    var editModal = new bootstrap.Modal(document.getElementById('modalSua'));
+                    editModal.show();
+                })
+                .catch(err => alert('Lỗi: ' + err.message));
+        }
+    </script>
+}

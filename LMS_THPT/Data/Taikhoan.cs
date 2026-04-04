@@ -1,61 +1,78 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
+using LMS_THPT.Models;
+using LMS_THPT.Data;
+using Microsoft.EntityFrameworkCore;
 
-namespace LMS.Data
+namespace LMS_THPT.Data
 {
     public static class SeedData
     {
         public static async Task Initialize(IServiceProvider serviceProvider)
         {
-            var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            // Lấy DbContext và Identity services
+            var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<NguoiDung>>();
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            // Tạo các Role
-            string[] roles = { "Admin", "Teacher", "Student", "Principal" };
+            // -----------------------------
+            // 1. Tạo các Role
+            string[] roles = { "Admin", "GiaoVien", "HocSinh", "HieuTruong" };
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
+                {
                     await roleManager.CreateAsync(new IdentityRole(role));
+                }
             }
 
-            // Tạo tài khoản Admin
-            await CreateUser(userManager,
-                email: "admin@lms.com",
-                password: "Admin@123",
-                role: "Admin");
+            // -----------------------------
+            // 2. Tạo tài khoản mẫu
+            await CreateUser(userManager, "admin@lms.com", "Admin@123", "Admin", "Quản trị viên");
+            await CreateUser(userManager, "gv@lms.com", "Teacher@123", "GiaoVien", "Nguyễn Văn Giáo");
+            await CreateUser(userManager, "hs@lms.com", "Student@123", "HocSinh", "Trần Văn Học");
+            await CreateUser(userManager, "ht@lms.com", "Principal@123", "HieuTruong", "Lê Thầy Hiệu");
 
-            // Tạo tài khoản Giảng viên
-            await CreateUser(userManager,
-                email: "teacher@lms.com",
-                password: "Teacher@123",
-                role: "Teacher");
+            // -----------------------------
+            // 3. Tạo 3 Khối mặc định nếu chưa có
+            if (!context.Khois.Any())
+            {
+                var khois = new List<Khoi>
+                {
+                    new Khoi { TenKhoi = "Khối 10" },
+                    new Khoi { TenKhoi = "Khối 11" },
+                    new Khoi { TenKhoi = "Khối 12" }
+                };
 
-            // Tạo tài khoản Học sinh
-            await CreateUser(userManager,
-                email: "student@lms.com",
-                password: "Student@123",
-                role: "Student");
-
-            // Tạo tài khoản Hiệu trưởng
-            await CreateUser(userManager,
-                email: "principal@lms.com",
-                password: "Principal@123",
-                role: "Principal");
+                context.Khois.AddRange(khois);
+                await context.SaveChangesAsync();
+            }
         }
 
-        private static async Task CreateUser(UserManager<IdentityUser> userManager,
-            string email, string password, string role)
+        private static async Task CreateUser(
+            UserManager<NguoiDung> userManager,
+            string email,
+            string password,
+            string role,
+            string hoTen)
         {
             if (await userManager.FindByEmailAsync(email) == null)
             {
-                var user = new IdentityUser
+                var user = new NguoiDung
                 {
                     UserName = email,
                     Email = email,
-                    EmailConfirmed = true  // bỏ qua xác nhận email
+                    HoTen = hoTen,
+                    EmailConfirmed = true,
+                    IsActive = true,
+                    NgayTao = DateTime.Now
                 };
+
                 var result = await userManager.CreateAsync(user, password);
                 if (result.Succeeded)
+                {
                     await userManager.AddToRoleAsync(user, role);
+                }
             }
         }
     }

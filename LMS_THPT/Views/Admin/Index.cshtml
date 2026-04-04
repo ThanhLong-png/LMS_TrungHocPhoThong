@@ -1,0 +1,197 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<style>
+    /* ===== BACKGROUND ===== */
+    .dashboard-container {
+        padding: 32px 16px;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f5f7fa, #eef2f7);
+    }
+
+    .dashboard-title {
+        font-weight: 800;
+        font-size: 26px;
+        color: #111827;
+        margin-bottom: 28px;
+        padding-left: 14px;
+        border-left: 5px solid #111827;
+        letter-spacing: 0.3px;
+    }
+
+    /* ===== GRID ===== */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 22px;
+        align-items: stretch;
+    }
+
+    /* ===== CARD ===== */
+    .db-card {
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+        transition: all 0.25s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+        .db-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+        }
+
+    /* ===== HEADER ===== */
+    .db-card-header {
+        padding: 16px 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #fff;
+        font-weight: 600;
+        font-size: 16px;
+        background: linear-gradient(135deg, #111827, #1f2937);
+    }
+
+        .db-card-header i {
+            font-size: 18px;
+        }
+
+    /* màu riêng card hệ thống */
+    .db-card.system .db-card-header {
+        background: linear-gradient(135deg, #e53935, #d32f2f);
+    }
+
+    /* ===== BODY ===== */
+    .db-card-body {
+        padding: 6px 0;
+    }
+
+    /* ===== LIST ===== */
+    .db-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .db-list li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 18px;
+            color: #374151;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #f3f4f6;
+            position: relative;
+        }
+
+            .db-list li a i {
+                width: 22px;
+                color: #111827;
+                font-size: 15px;
+                transition: 0.2s;
+            }
+
+            .db-list li a:hover {
+                background: #f9fafb;
+                padding-left: 24px;
+                color: #111827;
+            }
+
+                .db-list li a:hover i {
+                    transform: scale(1.1);
+                }
+
+        .db-list li:last-child a {
+            border-bottom: none;
+        }
+
+    /* ===== BADGE (nếu dùng sau này) ===== */
+    .count-badge {
+        margin-left: auto;
+        background: #eef2f7;
+        color: #6b7280;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+</style>
+
+<div class="dashboard-container">
+    <h2 class="dashboard-title">Bảng điều khiển Admin</h2>
+
+    <div class="dashboard-grid">
+
+        <!-- CÁ NHÂN -->
+        <div class="db-card">
+            <div class="db-card-header">
+                <i class="fa-solid fa-user-gear"></i>
+                Cá nhân
+            </div>
+            <div class="db-card-body">
+                <ul class="db-list">
+                    <li>
+                        <a asp-controller="Profile" asp-action="Edit">
+                            <i class="fa-solid fa-id-card"></i> Sửa hồ sơ cá nhân
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="DoiMatKhau" asp-action="Index">
+                            <i class="fa-solid fa-key"></i> Đổi mật khẩu
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- HỆ THỐNG -->
+        <div class="db-card system">
+            <div class="db-card-header">
+                <i class="fa-solid fa-list-check"></i>
+                Hệ thống Quản lý
+            </div>
+            <div class="db-card-body">
+                <ul class="db-list">
+                    <li>
+                        <a asp-controller="QuanLyHocSinh" asp-action="Index">
+                            <i class="fa-solid fa-user-graduate"></i> Quản lý học sinh
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="QuanLyGiaoVien" asp-action="Index">
+                            <i class="fa-solid fa-chalkboard-user"></i> Quản lý giáo viên
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="MonHoc" asp-action="Index">
+                            <i class="fa-solid fa-book"></i> Quản lý môn học
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="QuanLyYeuCau" asp-action="Index">
+                            <i class="fa-solid fa-school"></i> Quản lý yêu cầu
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="ThongBao" asp-action="Index">
+                            <i class="fa-solid fa-star"></i> Thông báo
+                        </a>
+                    </li>
+                    <li>
+                           <a asp-controller="Lichhoc" asp-action="ThoiKhoaBieu">
+                            <i class="fa-solid fa-star"></i> Lịch học
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />

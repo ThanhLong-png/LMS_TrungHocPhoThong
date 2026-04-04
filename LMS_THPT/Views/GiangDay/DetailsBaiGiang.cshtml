@@ -1,0 +1,65 @@
+@model LMS_THPT.Models.BaiGiang
+@{
+    ViewData["Title"] = "Chi tiết bài giảng";
+}
+
+<div class="card p-3">
+
+    <!-- HEADER GIỐNG INDEX -->
+    <div style="display:flex; align-items:center; gap:10px;">
+        <div>
+            @if (!string.IsNullOrEmpty(Model.NguoiDung?.AnhDaiDien))
+            {
+                <img src="@Model.NguoiDung.AnhDaiDien"
+                     style="width:42px; height:42px; border-radius:50%; object-fit:cover;" />
+            }
+            else
+            {
+                <div style="width:42px; height:42px; border-radius:50%; background:#111; color:#fff;
+                    display:flex; align-items:center; justify-content:center; font-weight:700;">
+                    @(Model.NguoiDung?.HoTen?.Substring(0, 1).ToUpper() ?? "?")
+                </div>
+            }
+        </div>
+
+        <div>
+            <div style="font-weight:600;">
+                @(Model.NguoiDung?.HoTen ?? "Ẩn danh")
+            </div>
+            <div class="text-muted" style="font-size:12px;">
+                @Model.NgayTao.ToString("g") · Môn: @Model.MonHoc?.TenMonHoc
+            </div>
+        </div>
+    </div>
+
+    <h3 style="margin-top:12px;">@Model.TieuDe</h3>
+
+    <hr />
+
+    <div>@Html.Raw(Model.MoTa ?? "")</div>
+
+    @if (Model.TaiLieus != null && Model.TaiLieus.Any())
+    {
+        <hr />
+        <h5>Tệp đính kèm</h5>
+        <ul>
+            @foreach (var t in Model.TaiLieus)
+            {
+                <li>
+                    <a href="@t.DuongDanFile" target="_blank">
+                        @t.TenTaiLieu
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+
+    <div style="margin-top:16px;">
+        <a asp-action="Index"
+               asp-route-lopId="@ViewBag.LopId"
+               asp-route-monHocId="@Model.MonHocId"
+               class="btn btn-secondary">
+            ← Quay lại
+        </a>
+    </div>
+</div>

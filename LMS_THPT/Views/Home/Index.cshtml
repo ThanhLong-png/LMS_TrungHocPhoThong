@@ -1,8 +1,223 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+.home-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+    margin: -1rem;
+    animation: fadeIn 0.8s ease;
+}
+
+/* LEFT */
+.split-left {
+    background: linear-gradient(135deg, #eef3ff, #dce8ff);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.left-brand { text-align: center; margin-bottom: 2rem; }
+.left-brand h1 { font-size: 30px; color: #1e2a4a; }
+.left-brand p { color: #6b7a99; }
+
+.illus-img {
+    width: 100%;
+    max-width: 420px;
+    animation: floatY 4s ease-in-out infinite;
+    transition: transform 0.2s ease;
+}
+
+/* RIGHT */
+.split-right {
+    position: relative;
+    background: linear-gradient(135deg, #eef3ff, #ffffff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.split-right::before {
+    content: "";
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(79,107,181,0.3), transparent 70%);
+    top: -100px;
+    right: -100px;
+    filter: blur(80px);
+}
+
+.login-box {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 380px;
+    padding: 2.5rem;
+
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(15px);
+
+    border-radius: 20px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.12);
+    animation: slideUp 0.6s ease;
+}
+
+.login-box h2 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #1e2a4a;
+}
+
+.login-box .sub {
+    text-align: center;
+    font-size: 13px;
+    margin-bottom: 20px;
+    color: #6b7a99;
+}
+
+.form-grp { margin-bottom: 1rem; }
+
+.form-inp {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #dbe4f5;
+    background: rgba(255,255,255,0.9);
+    transition: all 0.2s;
+}
+
+.form-inp:focus {
+    border-color: #4f6bb5;
+    box-shadow: 0 0 0 3px rgba(79,107,181,0.15);
+}
+
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    background: linear-gradient(135deg,#6c8ebf,#4f6bb5);
+    color: white;
+    border: none;
+    margin-top: 10px;
+    font-weight: 600;
+    box-shadow: 0 6px 15px rgba(79,107,181,0.3);
+    transition: all 0.2s;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 12px 25px rgba(79,107,181,0.4);
+}
+
+.remember-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.error-box {
+    background: #fde8e8;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    color: #991b1b;
+}
+
+/* Animations */
+@@keyframes floatY {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+    100% { transform: translateY(0px); }
+}
+
+@@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@@media (max-width: 768px) {
+    .home-split { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="home-split">
+
+    <!-- LEFT -->
+    <div class="split-left">
+        <div class="left-brand">
+            <h1>LMS THPT</h1>
+            <p>Nền tảng quản lý học tập hiện đại</p>
+        </div>
+
+        <img src="~/images/graduation.svg" class="illus-img" id="illus" />
+    </div>
+
+    <!-- RIGHT -->
+    <div class="split-right">
+        <div class="login-box">
+
+            <h2>Đăng nhập</h2>
+            
+
+            @if (TempData["LoginError"] != null)
+            {
+                <div class="error-box">@TempData["LoginError"]</div>
+            }
+
+            <form method="post" action="/Identity/Account/Login">
+                @Html.AntiForgeryToken()
+
+                <div class="form-grp">
+                    <input type="text" name="userName" class="form-inp" placeholder="Tên đăng nhập" />
+                </div>
+
+                <div class="form-grp">
+                    <input type="password" name="password" id="pwdInput" class="form-inp" placeholder="Mật khẩu" />
+                </div>
+
+                <div class="remember-row">
+                    <label><input type="checkbox" name="rememberMe" /> Nhớ mật khẩu</label>
+                    <a href="/Identity/Account/ForgotPassword">Quên mật khẩu?</a>
+                </div>
+
+                <button type="submit" class="btn-login">Đăng nhập</button>
+            </form>
+
+        </div>
+    </div>
+
 </div>
+
+@section Scripts {
+<script>
+function togglePwd() {
+    var x = document.getElementById("pwdInput");
+    x.type = x.type === "password" ? "text" : "password";
+}
+
+// Parallax nhẹ theo chuột
+const illus = document.getElementById("illus");
+document.addEventListener("mousemove", (e) => {
+    let x = (e.clientX / window.innerWidth - 0.5) * 10;
+    let y = (e.clientY / window.innerHeight - 0.5) * 10;
+    illus.style.transform = `translate(${x}px, ${y}px)`;
+});
+</script>
+}
