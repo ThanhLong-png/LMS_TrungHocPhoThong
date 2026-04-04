@@ -9,7 +9,7 @@ html {
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem rgba(0,0,0,0.08);
 }
 
 html {
@@ -28,4 +28,164 @@ body {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
+}
+.card {
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #e6e6e6;
+}
+
+.btn {
+    border-radius: 8px;
+    background: #fff;
+    color: #111;
+    border: 1px solid #e6e6e6;
+}
+
+/* Restore appearance for the top navbar light-outline management button */
+.navbar .btn-outline-light {
+    color: rgba(255,255,255,0.9);
+    background-color: transparent;
+    border-color: rgba(255,255,255,0.2);
+}
+.navbar .btn-outline-light:hover,
+.navbar .btn-outline-light:focus {
+    color: #fff;
+    background-color: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.3);
+}
+.card {
+    border-radius: 15px;
+}
+
+    .card:hover {
+        transform: translateY(-3px);
+        transition: 0.3s;
+    }
+
+.btn-primary {
+    border-radius: 8px;
+}
+.action-group {
+    display: inline-flex; /* đổi từ flex sang inline-flex */
+    gap: 0;
+    justify-content: center;
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.btn-action {
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    border-right: 1px solid #d0d0d0;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.15s, color 0.15s;
+    background: #fff;
+    color: #2d2d2d;
+    white-space: nowrap;
+}
+
+    .btn-action:last-child,
+    .btn-action-last {
+        border-right: none;
+    }
+
+    .btn-action:hover {
+        text-decoration: none;
+    }
+
+.btn-view:hover {
+    background: #1565C0;
+    color: #fff;
+}
+
+.btn-edit:hover {
+    background: #E65100;
+    color: #fff;
+}
+
+.btn-del:hover {
+    background: #B71C1C;
+    color: #fff;
+}
+.action-group form {
+    display: contents;
+}
+.btn-back {
+    padding: 8px 18px;
+    background: #f5f5f5;
+    color: #2d2d2d;
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+}
+
+    .btn-back:hover {
+        background: #e8e8e8;
+        text-decoration: none;
+        color: #2d2d2d;
+    }
+
+.btn-them {
+    padding: 8px 18px;
+    background: #111;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity 0.15s, transform 0.15s;
+}
+
+    .btn-them:hover {
+        opacity: 0.9;
+        color: #fff;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+
+/* Giảng dạy button helpers (consistent across Create/Index views) */
+.btn-primary-soft {
+    background: #111;
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    display: inline-block;
+    text-decoration: none;
+}
+.btn-outline-soft {
+    background: #fff;
+    color: #111;
+    border: 1px solid #111;
+    padding: 8px 12px;
+    border-radius: 8px;
+    display: inline-block;
+    text-decoration: none;
+}
+.btn-outline-soft:hover {
+    background: #111;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Ensure anchors used as buttons don't show underline anywhere these classes are used */
+a.btn-primary-soft, a.btn-outline-soft, .btn-primary-soft, .btn-outline-soft {
+    text-decoration: none !important;
 }

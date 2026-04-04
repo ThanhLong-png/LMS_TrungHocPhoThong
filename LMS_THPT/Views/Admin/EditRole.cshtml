@@ -1,0 +1,15 @@
+﻿<form asp-action="EditRole" method="post">
+    <input type="hidden" name="userId" value="@ViewBag.User.Id" />
+
+    <p>Email: @ViewBag.User.Email</p>
+    <p>Họ tên: @ViewBag.User.HoTen</p>
+
+    <select name="role">
+        @foreach (var r in ViewBag.Roles)
+        {
+            <option value="@r">@r</option>
+        }
+    </select>
+
+    <button type="submit">Lưu</button>
+</form>

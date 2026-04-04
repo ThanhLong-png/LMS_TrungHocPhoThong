@@ -1,0 +1,117 @@
+@* Views/GiaoVien/Index.cshtml *@
+@model LMS_THPT.ViewModels.TeacherDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["ActivePage"] = "Dashboard";
+    ViewData["PageTitle"] = "Tổng quan";
+}
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Học sinh</div>
+        <div class="stat-value">@Model.TongHocSinh</div>
+        <div class="stat-sub">Các lớp đang dạy</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Môn học</div>
+        <div class="stat-value">@Model.TongMonHoc</div>
+        <div class="stat-sub">Đang phụ trách</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Bài tập chờ chấm</div>
+        <div class="stat-value @(Model.BaiNopChamPending > 0 ? "danger" : "")">@Model.BaiNopChamPending</div>
+        <div class="stat-sub">Cần xử lý</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Tài liệu đã tải</div>
+        <div class="stat-value">@Model.TongTaiLieu</div>
+        <div class="stat-sub">Video, PDF, Slide</div>
+    </div>
+</div>
+
+<div class="two-col">
+    <!-- Bài nộp gần đây -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Bài nộp gần đây</span>
+            <a asp-controller="GiaoVien" asp-action="QuanLyBaiTap" class="btn-link">Xem tất cả</a>
+        </div>
+        @if (!Model.BaiNopGanDay.Any())
+        {
+            <div style="color:var(--text3);font-size:13px;padding:12px 0">Chưa có bài nộp nào.</div>
+        }
+        @foreach (var bn in Model.BaiNopGanDay)
+        {
+            <div class="student-row">
+                <div class="avatar-sm">@bn.TenVietTat</div>
+                <div class="student-info">
+                    <div class="student-name">@bn.TenHocSinh</div>
+                    <div class="student-meta">@bn.TenBaiTap – @bn.ThoiGianNop</div>
+                </div>
+                @if (bn.TrangThai == "pending")
+                {
+                    <span class="badge badge-amber">Chờ chấm</span>
+                }
+                else
+                {
+                    <span class="badge badge-green">Đã chấm</span>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Tiến độ lớp học -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Tiến độ lớp học</span>
+            <a asp-controller="GiaoVien" asp-action="TienDo" class="btn-link">Chi tiết</a>
+        </div>
+        @if (!Model.TienDoLop.Any())
+        {
+            <div style="color:var(--text3);font-size:13px;padding:12px 0">Chưa có dữ liệu.</div>
+        }
+        @foreach (var td in Model.TienDoLop)
+        {
+            var color = td.PhanTram >= 80 ? "#1D4ED8" : td.PhanTram >= 60 ? "#166534" : td.PhanTram >= 40 ? "#92400E" : "#991B1B";
+            <div class="mb-12">
+                <div class="progress-wrap">
+                    <span>@td.TenLop – @td.TenMonHoc</span>
+                    <span style="color:var(--text2)">@td.PhanTram%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:@(td.PhanTram)%;background:@color"></div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Lịch hôm nay -->
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Lịch hôm nay – @DateTime.Today.ToString("dddd, dd/MM/yyyy")</span>
+    </div>
+    @if (!Model.LichHomNay.Any())
+    {
+        <div style="color:var(--text3);font-size:13px;padding:8px 0">Không có lịch dạy hôm nay.</div>
+    }
+    <div class="schedule-grid">
+        @foreach (var l in Model.LichHomNay)
+        {
+            <div class="schedule-card @(l.NhanManh ? "highlight" : "")">
+                <div class="schedule-time">@l.ThoiGian</div>
+                <div class="schedule-subject">@l.TenMon</div>
+                <div class="schedule-room">@l.PhongLop</div>
+            </div>
+        }
+        @if (Model.BaiNopChamPending > 0)
+        {
+            <div class="schedule-card highlight">
+                <div class="schedule-time">Hôm nay</div>
+                <div class="schedule-subject">Chấm bài nộp</div>
+                <div class="schedule-room">@Model.BaiNopChamPending bài đang chờ</div>
+            </div>
+        }
+    </div>
+</div>

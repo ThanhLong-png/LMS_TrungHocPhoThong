@@ -1,0 +1,154 @@
+﻿@model LMS_THPT.Models.Lop
+@{
+    ViewData["Title"] = "Chỉnh sửa lớp học";
+}
+
+<style>
+    /* --- STYLE ĐỒNG BỘ --- */
+    .page-container {
+        padding: 40px 15px;
+        background-color: #f5f7fa;
+        min-height: 100vh;
+    }
+
+    .edit-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: none;
+        max-width: 550px;
+        margin: 0 auto;
+        overflow: hidden;
+    }
+
+    .edit-header {
+        background: #1a1a2e; /* Màu xanh đen đồng bộ */
+        color: #fff;
+        padding: 22px;
+        text-align: center;
+    }
+
+        .edit-header h4 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+    .edit-body {
+        padding: 30px;
+    }
+
+    /* --- FORM CONTROL CUSTOM --- */
+    .form-label {
+        font-weight: 600;
+        color: #1a1a2e;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        padding: 10px 15px;
+        font-size: 15px;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #1a1a2e;
+            box-shadow: 0 0 0 3px rgba(26, 26, 46, 0.1);
+        }
+
+    /* --- NÚT BẤM ĐỒNG BỘ ẢNH MẪU --- */
+    .action-footer {
+        display: flex;
+        gap: 12px;
+        margin-top: 30px;
+    }
+
+    .btn-back-custom {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 11px;
+        background-color: #f8f9fa;
+        color: #1a1a2e;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.2s;
+    }
+
+        .btn-back-custom:hover {
+            background-color: #e9ecef;
+            color: #000;
+            text-decoration: none;
+        }
+
+    .btn-save-custom {
+        flex: 2;
+        background-color: #1a1a2e;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        padding: 11px;
+        font-weight: 600;
+        font-size: 15px;
+        transition: opacity 0.2s;
+    }
+
+        .btn-save-custom:hover {
+            opacity: 0.9;
+            color: #fff;
+        }
+</style>
+
+<div class="page-container">
+    <div class="edit-card">
+        <div class="edit-header">
+            <h4><i class="fa-solid fa-pen-to-square me-2"></i>Chỉnh sửa lớp học</h4>
+        </div>
+
+        <div class="edit-body">
+            <form method="post">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-4">
+                    <label class="form-label">Tên lớp học</label>
+                    <input asp-for="TenLop" class="form-control" placeholder="Ví dụ: 10A1, 11B2..." required />
+                    <span asp-validation-for="TenLop" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Giáo viên chủ nhiệm</label>
+                    <select asp-for="GiaoVienChuNhiemId" class="form-select">
+                        <option value="">-- Chọn giáo viên từ danh sách --</option>
+                        @if (ViewBag.GiaoViens != null)
+                        {
+                            foreach (var gv in ViewBag.GiaoViens)
+                            {
+                                <option value="@gv.Id">@gv.HoTen</option>
+                            }
+                        }
+                    </select>
+                    <small class="text-muted mt-1 d-block">Giáo viên sẽ có quyền quản lý điểm của lớp này.</small>
+                </div>
+
+                <div class="action-footer">
+                    <a asp-action="Lops" asp-route-khoiId="@Model.MaKhoi" class="btn-back-custom">
+                        &larr; Hủy bỏ
+                    </a>
+                    <button type="submit" class="btn-save-custom">
+                        Lưu thông tin lớp
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

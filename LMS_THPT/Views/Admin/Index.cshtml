@@ -1,0 +1,177 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<style>
+    /* --- TỔNG THỂ --- */
+    .dashboard-container {
+        padding: 30px 15px;
+        background-color: #f5f7fa;
+        min-height: 100vh;
+    }
+
+    .dashboard-title {
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 30px;
+        border-left: 5px solid #1a1a2e;
+        padding-left: 15px;
+    }
+
+    /* --- GRID HỆ THỐNG --- */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    /* --- CARD STYLE --- */
+    .db-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border: none;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .db-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+    .db-card-header {
+        background: #1a1a2e;
+        color: #fff;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .db-card-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+    .db-card-body {
+        padding: 10px 0;
+    }
+
+    /* --- LIST LINKS --- */
+    .db-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .db-list li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #444;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .db-list li:last-child a {
+            border-bottom: none;
+        }
+
+        .db-list li a:hover {
+            background-color: #f8f9fa;
+            color: #1a1a2e;
+            padding-left: 25px; /* Hiệu ứng đẩy sang phải khi hover */
+        }
+
+        .db-list li a i {
+            width: 25px;
+            color: #1a1a2e;
+            font-size: 16px;
+        }
+
+    /* --- BADGE TRANG TRÍ --- */
+    .count-badge {
+        margin-left: auto;
+        background: #e9ecef;
+        color: #666;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 11px;
+    }
+</style>
+
+<div class="dashboard-container">
+    <h2 class="dashboard-title">Bảng điều khiển Admin</h2>
+
+    <div class="dashboard-grid">
+        
+        <div class="db-card">
+            <div class="db-card-header">
+                <i class="fa-solid fa-user-gear"></i>
+                <h3>Cá nhân</h3>
+            </div>
+            <div class="db-card-body">
+                <ul class="db-list">
+                    <li>
+                        <a asp-controller="Profile" asp-action="Edit">
+                            <i class="fa-solid fa-id-card"></i> Sửa hồ sơ cá nhân
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="DoiMatKhau" asp-action="Index">
+                            <i class="fa-solid fa-key"></i> Đổi mật khẩu
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="db-card">
+            <div class="db-card-header" style="background: #E53935;">
+                <i class="fa-solid fa-list-check"></i>
+                <h3>Hệ thống Quản lý</h3>
+            </div>
+            <div class="db-card-body">
+                <ul class="db-list">
+                    <li>
+                        <a asp-controller="QuanLyHocSinh" asp-action="Index">
+                            <i class="fa-solid fa-user-graduate"></i> Quản lý học sinh
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="QuanLyGiaoVien" asp-action="Index">
+                            <i class="fa-solid fa-chalkboard-user"></i> Quản lý giáo viên
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="MonHoc" asp-action="Index">
+                            <i class="fa-solid fa-book"></i> Quản lý môn học
+                        </a>
+                    </li>
+                    <li>
+                        <a href='@Url.Action("Index", "Lop")'>
+                            <i class="fa-solid fa-school"></i> Quản lý lớp học
+                        </a>
+                    </li>
+                    <li>
+                        <a href='@Url.Action("QuanLyDiem", "Admin")'>
+                            <i class="fa-solid fa-star"></i> Quản lý điểm / huy hiệu
+                        </a>
+                    </li>
+                    <li>
+                        <a href='@Url.Action("HanhTrang", "Admin")'>
+                            <i class="fa-solid fa-briefcase"></i> Thiết lập hành trang
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />

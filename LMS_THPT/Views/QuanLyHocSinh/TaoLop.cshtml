@@ -1,0 +1,182 @@
+﻿@{
+    ViewData["Title"] = "Tạo Lớp mới";
+    int khoiId = ViewBag.KhoiId;
+    string tenKhoi = ViewBag.TenKhoi;
+}
+
+<style>
+    .form-card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: none;
+        padding: 24px 28px;
+        max-width: 700px;
+        border: 1px solid #e6e6e6;
+    }
+
+    .form-page-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #000;
+        margin-bottom: 6px;
+    }
+
+    .form-page-sub {
+        font-size: 13px;
+        color: #6c757d;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .form-label-custom {
+        font-size: 13px;
+        font-weight: 600;
+        color: #2d2d2d;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .form-control-custom {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 14px;
+        border: 1px solid #e6e6e6;
+        border-radius: 8px;
+        color: #111;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        outline: none;
+        background: #fff;
+    }
+
+    .form-control-custom:focus {
+        border-color: #1a1a2e;
+        box-shadow: 0 0 0 3px rgba(26,26,46,0.08);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 28px;
+        padding-top: 20px;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .btn-submit {
+        padding: 10px 22px;
+        background: #111;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.15s, transform 0.12s;
+    }
+
+    .btn-submit:hover { opacity: 0.85; }
+
+    .btn-back {
+        padding: 10px 22px;
+        background: #fff;
+        color: #111;
+        border: 1px solid #e6e6e6;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-block;
+        transition: background 0.15s, box-shadow 0.12s;
+    }
+
+    .btn-back:hover { background: #fafafa; text-decoration: none; color: #111; box-shadow: 0 2px 10px rgba(0,0,0,0.04);} 
+</style>
+
+<div class="form-card">
+    <div class="form-page-title">Tạo lớp mới</div>
+    <div class="form-page-sub"> @tenKhoi</div>
+
+    <form asp-action="TaoLop" method="post">
+
+        <input type="hidden" name="khoiId" value="@khoiId" />
+
+        @* Hiển thị lỗi *@
+
+        @if (!ViewData.ModelState.IsValid)
+
+        {
+
+            <div class="alert alert-danger" style="border-radius:6px; font-size:14px; padding: 10px 16px;">
+
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+
+                {
+
+                    <div>⚠ @error.ErrorMessage</div>
+
+                }
+
+            </div>
+
+        }
+
+        <div class="mb-3">
+
+            <label class="form-label-custom">Tên lớp</label>
+
+            <input type="text" name="tenLop" class="form-control-custom"
+                   placeholder="VD: 10A1" />
+
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label-custom">Giáo viên chủ nhiệm</label>
+            <select id="giaoVienId" name="giaoVienId" class="form-control-custom">
+                <option value="">-- Chọn giáo viên --</option>
+                @foreach (var gv in ViewBag.GiaoViens)
+                {
+                    <option value="@gv.Id">@gv.HoTen (@gv.Email)</option>
+                }
+            </select>
+            <div class="form-text" style="color:#777; font-size:13px; margin-top:6px;">Lưu ý: một giáo viên chỉ có thể là chủ nhiệm tối đa 1 lớp.</div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-submit">Tạo lớp</button>
+            <a asp-action="Lops" asp-route-khoiId="@khoiId" class="btn-back">Quay lại</a>
+        </div>
+    </form>
+    @section Scripts {
+    <script>
+        // Kiểm tra tồn tại lớp (AJAX) trước khi submit
+        (function(){
+            const form = document.querySelector('form[asp-action="TaoLop"]') || document.querySelector('form');
+            if (!form) return;
+
+            const tenInput = form.querySelector('input[name="tenLop"]');
+            const khoiId = '@khoiId';
+
+            form.addEventListener('submit', function(e){
+                const ten = (tenInput.value || '').trim();
+                if (!ten) return; // let server validate
+
+                // synchronous check via fetch (prevent submit if exists)
+                e.preventDefault();
+                fetch(`/QuanLyHocSinh/CheckLopExists?khoiId=${khoiId}&tenLop=${encodeURIComponent(ten)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.exists) {
+                            alert('Lớp đã tồn tại trong . Vui lòng chọn tên khác.');
+                        } else {
+                            form.submit();
+                        }
+                    })
+                    .catch(() => {
+                        // nếu lỗi mạng thì vẫn submit và server sẽ kiểm tra
+                        form.submit();
+                    });
+            });
+        })();
+    </script>
+    }
+</div>

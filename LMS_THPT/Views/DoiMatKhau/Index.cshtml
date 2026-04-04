@@ -1,0 +1,201 @@
+﻿@model LMS_THPT.ViewModels.ChangePasswordViewModel
+@{
+    ViewData["Title"] = "Đổi mật khẩu";
+}
+
+<style>
+    /* --- CSS ĐỒNG BỘ --- */
+    .page-container {
+        padding: 40px 15px;
+        background-color: #f5f7fa;
+        min-height: 100vh;
+    }
+
+    .auth-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: none;
+        max-width: 500px;
+        margin: 0 auto;
+        overflow: hidden;
+    }
+
+    .auth-header {
+        background: #1a1a2e;
+        color: #fff;
+        padding: 24px;
+        text-align: center;
+    }
+
+        .auth-header h4 {
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+    .auth-body {
+        padding: 30px;
+    }
+
+    /* --- FORM CONTROL CUSTOM --- */
+    .form-label {
+        font-weight: 600;
+        color: #1a1a2e;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .input-group .form-control {
+        border-radius: 8px 0 0 8px !important;
+        border: 1px solid #d1d5db;
+        padding: 11px 15px;
+    }
+
+    .input-group .eye-btn {
+        border-radius: 0 8px 8px 0 !important;
+        border: 1px solid #d1d5db;
+        border-left: none;
+        background-color: #fff;
+        color: #6c757d;
+        padding: 0 15px;
+    }
+
+        .input-group .eye-btn:hover {
+            background-color: #f8f9fa;
+            color: #1a1a2e;
+        }
+
+    /* --- ACTION BUTTONS --- */
+    .action-footer {
+        display: flex;
+        gap: 12px;
+        margin-top: 25px;
+    }
+
+    .btn-back-custom {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+        background-color: #f8f9fa;
+        color: #1a1a2e;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+        .btn-back-custom:hover {
+            background-color: #e9ecef;
+            color: #000;
+            text-decoration: none;
+        }
+
+    .btn-submit-custom {
+        flex: 2;
+        background-color: #1a1a2e;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        font-weight: 600;
+        transition: opacity 0.2s;
+    }
+
+        .btn-submit-custom:hover {
+            opacity: 0.9;
+            color: #fff;
+        }
+
+    .alert-success {
+        border-radius: 8px;
+        border: none;
+        background-color: #d1e7dd;
+        color: #0f5132;
+    }
+</style>
+
+<div class="page-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h4>Đổi mật khẩu</h4>
+        </div>
+        
+        <div class="auth-body">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fa-solid fa-circle-check me-2"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <form asp-action="Index" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Mật khẩu hiện tại</label>
+                    <div class="input-group">
+                        <input asp-for="CurrentPassword" type="password" class="form-control" id="currentPassword" placeholder="Nhập mật khẩu cũ" />
+                        <button type="button" class="btn eye-btn" onclick="togglePassword('currentPassword', this)">
+                            <i class="fa-solid fa-eye-slash"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="CurrentPassword" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mật khẩu mới</label>
+                    <div class="input-group">
+                        <input asp-for="NewPassword" type="password" class="form-control" id="newPassword" placeholder="Tối thiểu 6 ký tự" />
+                        <button type="button" class="btn eye-btn" onclick="togglePassword('newPassword', this)">
+                            <i class="fa-solid fa-eye-slash"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="NewPassword" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Xác nhận mật khẩu mới</label>
+                    <div class="input-group">
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" id="confirmPassword" placeholder="Nhập lại mật khẩu mới" />
+                        <button type="button" class="btn eye-btn" onclick="togglePassword('confirmPassword', this)">
+                            <i class="fa-solid fa-eye-slash"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+
+                <div class="action-footer">
+                    <a href="javascript:history.back()" class="btn-back-custom">
+                        &larr; Quay lại
+                    </a>
+                    <button type="submit" class="btn-submit-custom">
+                        Xác nhận đổi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePassword(inputId, btn) {
+            var input = document.getElementById(inputId);
+            var icon = btn.querySelector('i');
+
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                input.type = "password";
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        }
+    </script>
+}

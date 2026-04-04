@@ -1,0 +1,27 @@
+@model LMS_THPT.Models.BaiGiang
+@{
+    ViewData["Title"] = "Chi tiết bài giảng";
+}
+
+<div class="card p-3">
+    <h3>@Model.TieuDe</h3>
+    <div class="text-muted">@Model.NgayTao.ToString("g") · Môn: @Model.MonHoc?.TenMonHoc</div>
+    <hr />
+    <div>@Html.Raw(Model.MoTa ?? "")</div>
+
+    @if (Model.TaiLieus != null && Model.TaiLieus.Any())
+    {
+        <hr />
+        <h5>Tệp đính kèm</h5>
+        <ul>
+            @foreach(var t in Model.TaiLieus)
+            {
+                <li><a href="@t.DuongDanFile" target="_blank">@t.TenTaiLieu</a></li>
+            }
+        </ul>
+    }
+
+    <div style="margin-top:16px;">
+        <a asp-action="Index" asp-route-monHocId="@Model.MonHocId" class="btn-outline-soft">Quay lại</a>
+    </div>
+</div>

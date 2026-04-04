@@ -1,0 +1,116 @@
+@model List<LMS_THPT.Models.YeuCauGiaoVien>
+
+@{
+    ViewData["Title"] = "Quản lý yêu cầu giáo viên";
+    var status = ViewData["Status"]?.ToString() ?? "";
+}
+
+<div style="max-width: 1400px; margin: 0 auto; padding: 20px;">
+    <h2 style="margin-bottom: 30px;">📋 Quản lý yêu cầu giáo viên</h2>
+
+    <!-- Alert -->
+    @if (TempData["Success"] != null)
+    {
+        <div style="background: #d1fae5; border: 1px solid #6ee7b7; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #065f46;">
+            ✅ @TempData["Success"]
+        </div>
+    }
+
+    <!-- Lọc theo trạng thái -->
+    <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="@Url.Action("ManageRequests")" style="padding: 8px 16px; background: @(string.IsNullOrEmpty(status) ? "#3b82f6" : "#e5e7eb"); color: @(string.IsNullOrEmpty(status) ? "white" : "#374151"); border-radius: 6px; text-decoration: none; font-weight: 500;">
+            Tất cả
+        </a>
+        <a href="@Url.Action("ManageRequests", new { status = "ChoXuLy" })" style="padding: 8px 16px; background: @(status == "ChoXuLy" ? "#fbbf24" : "#e5e7eb"); color: @(status == "ChoXuLy" ? "white" : "#374151"); border-radius: 6px; text-decoration: none; font-weight: 500;">
+            ⏳ Chờ xử lý
+        </a>
+        <a href="@Url.Action("ManageRequests", new { status = "DaDuyet" })" style="padding: 8px 16px; background: @(status == "DaDuyet" ? "#4ade80" : "#e5e7eb"); color: @(status == "DaDuyet" ? "white" : "#374151"); border-radius: 6px; text-decoration: none; font-weight: 500;">
+            ✅ Đã duyệt
+        </a>
+        <a href="@Url.Action("ManageRequests", new { status = "TuChoi" })" style="padding: 8px 16px; background: @(status == "TuChoi" ? "#f87171" : "#e5e7eb"); color: @(status == "TuChoi" ? "white" : "#374151"); border-radius: 6px; text-decoration: none; font-weight: 500;">
+            ❌ Từ chối
+        </a>
+    </div>
+
+    <!-- Bảng yêu cầu -->
+    @if (Model.Count > 0)
+    {
+        <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f9fafb; border-bottom: 1px solid #e5e7eb;">
+                        <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151;">ID</th>
+                        <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151;">Loại</th>
+                        <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151;">Tiêu đề</th>
+                        <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151;">Giáo viên</th>
+                        <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151;">Ngày gửi</th>
+                        <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151;">Trạng thái</th>
+                        <th style="padding: 12px; text-align: center; font-weight: 600; color: #374151;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var yeuCau in Model)
+                    {
+                        var statusColor = yeuCau.TrangThai switch
+                        {
+                            LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy => "#fbbf24",
+                            LMS_THPT.Models.TrangThaiYeuCau.DaDuyet => "#4ade80",
+                            LMS_THPT.Models.TrangThaiYeuCau.TuChoi => "#f87171",
+                            LMS_THPT.Models.TrangThaiYeuCau.HuyBo => "#9ca3af",
+                            _ => "#3b82f6"
+                        };
+
+                        var statusText = yeuCau.TrangThai switch
+                        {
+                            LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy => "⏳ Chờ xử lý",
+                            LMS_THPT.Models.TrangThaiYeuCau.DaDuyet => "✅ Đã duyệt",
+                            LMS_THPT.Models.TrangThaiYeuCau.TuChoi => "❌ Từ chối",
+                            LMS_THPT.Models.TrangThaiYeuCau.HuyBo => "🚫 Hủy bỏ",
+                            _ => "❓ Không xác định"
+                        };
+
+                        var requestTypeText = yeuCau.LoaiYeuCau switch
+                        {
+                            LMS_THPT.Models.LoaiYeuCau.DangKyLopChuNhiem => "📚 Đăng ký lớp",
+                            LMS_THPT.Models.LoaiYeuCau.ThayDoiLopChuNhiem => "🔄 Thay đổi lớp",
+                            LMS_THPT.Models.LoaiYeuCau.HuyLopChuNhiem => "❌ Hủy lớp",
+                            _ => "❓ Khác"
+                        };
+
+                        <tr style="border-bottom: 1px solid #e5e7eb;">
+                            <td style="padding: 12px; color: #6b7280;">#@yeuCau.Id</td>
+                            <td style="padding: 12px; color: #6b7280;">@requestTypeText</td>
+                            <td style="padding: 12px; color: #1f2937; font-weight: 500;">@yeuCau.TieuDe</td>
+                            <td style="padding: 12px; color: #6b7280;">@yeuCau.GiaoVien?.HoTen</td>
+                            <td style="padding: 12px; color: #6b7280;">@yeuCau.NgayGui.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td style="padding: 12px;">
+                                <span style="display: inline-block; background: @statusColor; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                    @statusText
+                                </span>
+                            </td>
+                            <td style="padding: 12px; text-align: center;">
+                                <a href="@Url.Action("RequestDetail", new { id = yeuCau.Id })" style="color: #3b82f6; text-decoration: none; font-weight: 500;">
+                                    👁️ Xem
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div style="text-align: center; padding: 40px; background: #f9fafb; border-radius: 8px; color: #6b7280;">
+            <p style="font-size: 16px; margin-bottom: 10px;">📭 Không có yêu cầu nào</p>
+            <p style="font-size: 14px;">Tất cả yêu cầu đã được xử lý</p>
+        </div>
+    }
+</div>
+
+<style>
+    body {
+        background: #f3f4f6;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+</style>

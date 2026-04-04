@@ -1,9 +1,144 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using LMS_THPT.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace LMS_THPT.Data
 {
-    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext(options)
+    public class ApplicationDbContext : IdentityDbContext<NguoiDung>
     {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options) { }
+
+        // Các bảng
+        public DbSet<MonHoc> DanhSachMonHoc { get; set; }
+        public DbSet<BaiGiang> DanhSachBaiGiang { get; set; }
+        public DbSet<TaiLieu> DanhSachTaiLieu { get; set; }
+        public DbSet<BaiTap> DanhSachBaiTap { get; set; }
+        public DbSet<BaiNop> DanhSachBaiNop { get; set; }
+        public DbSet<DangKyHoc> DanhSachDangKy { get; set; }
+        public DbSet<DiemSo> DanhSachDiemSo { get; set; }
+        public DbSet<LichHoc> DanhSachLichHoc { get; set; }
+        public DbSet<NguoiDung> NguoiDungs { get; set; }
+        public DbSet<BinhLuan> DanhSachBinhLuan { get; set; }
+        // Backwards-compatible DbSet names used by controllers/views
+        public DbSet<MonHoc> MonHocs { get; set; }
+        public DbSet<BaiGiang> BaiGiangs { get; set; }
+        public DbSet<TaiLieu> TaiLieus { get; set; }
+        public DbSet<BaiTap> BaiTaps { get; set; }
+        public DbSet<BaiNop> BaiNops { get; set; }
+        public DbSet<DangKyHoc> DangKyHocs { get; set; }
+        public DbSet<DiemSo> DiemSos { get; set; }
+        public DbSet<LichHoc> LichHocs { get; set; }
+        public DbSet<YeuCauGiaoVien> YeuCauGiaoViens { get; set; }
+        // Bảng quản lý học sinh
+        public DbSet<Khoi> Khois { get; set; }
+        public DbSet<Lop> Lops { get; set; }
+        public DbSet<LopMonHoc> LopMonHocs { get; set; }
+        public DbSet<MonHocGiaoVien> MonHocGiaoViens { get; set; }
+        public DbSet<YeuCauGiaoVien> DanhSachYeuCau { get; set; }
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            // --- Đặt tên bảng ---
+            builder.Entity<NguoiDung>().ToTable("NguoiDung");
+            builder.Entity<MonHoc>().ToTable("MonHoc");
+            builder.Entity<BaiGiang>().ToTable("BaiGiang");
+            builder.Entity<TaiLieu>().ToTable("TaiLieu");
+            builder.Entity<BaiTap>().ToTable("BaiTap");
+            builder.Entity<BaiNop>().ToTable("BaiNop");
+            builder.Entity<DangKyHoc>().ToTable("DangKyHoc");
+            builder.Entity<DiemSo>().ToTable("DiemSo");
+            builder.Entity<LichHoc>().ToTable("LichHoc");
+            builder.Entity<Khoi>().ToTable("Khoi");
+            builder.Entity<Lop>().ToTable("Lop");
+            builder.Entity<LopMonHoc>().ToTable("LopMonHoc");
+
+            // --- Quan hệ DiemSo ---
+            builder.Entity<DiemSo>()
+                .HasOne(d => d.NguoiDung)
+                .WithMany(u => u.DiemSos)
+                .HasForeignKey(d => d.NguoiDungId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<DiemSo>()
+                .HasOne(d => d.GiaoVien)
+                .WithMany()
+                .HasForeignKey(d => d.GiaoVienId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // --- Quan hệ MonHoc - GiaoVien ---
+            builder.Entity<MonHoc>()
+                .HasOne(m => m.GiaoVien)
+                .WithMany()
+                .HasForeignKey(m => m.GiaoVienId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // --- Quan hệ Khối - Lớp ---
+            builder.Entity<Lop>()
+                .HasOne(l => l.Khoi)
+                .WithMany(k => k.Lops)
+                .HasForeignKey(l => l.MaKhoi)
+                .OnDelete(DeleteBehavior.Cascade); // giữ cascade
+
+            // --- Quan hệ Lớp - Học sinh (NguoiDung) ---
+            builder.Entity<NguoiDung>()
+                .HasOne(u => u.Lop)
+                .WithMany(l => l.HocSinhs)
+                .HasForeignKey(u => u.LopId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // --- Quan hệ Lớp - GVCN ---
+            builder.Entity<Lop>()
+                .HasOne(l => l.GiaoVienChuNhiem)
+                .WithMany()
+                .HasForeignKey(l => l.GiaoVienChuNhiemId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // --- Quan hệ Lớp - Môn học (LopMonHoc) ---
+            builder.Entity<LopMonHoc>()
+                .HasOne(lm => lm.Lop)
+                .WithMany(l => l.LopMonHocs)
+                .HasForeignKey(lm => lm.LopId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<LopMonHoc>()
+                .HasOne(lm => lm.MonHoc)
+                .WithMany(m => m.LopMonHocs)
+                .HasForeignKey(lm => lm.MonHocId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<LopMonHoc>()
+                .HasOne(lm => lm.GiaoVien)
+                .WithMany()
+                .HasForeignKey(lm => lm.GiaoVienId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // --- Quan hệ MonHoc - Khoi ---
+            builder.Entity<MonHoc>()
+                .HasOne(m => m.Khoi)
+                .WithMany(k => k.MonHocs)
+                .HasForeignKey(m => m.KhoiId)
+                .OnDelete(DeleteBehavior.Restrict);
+            base.OnModelCreating(builder);
+
+            builder.Entity<MonHocGiaoVien>()
+                .HasOne(mg => mg.GiaoVien)
+                .WithMany()
+                .HasForeignKey(mg => mg.NguoiDungId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<MonHocGiaoVien>()
+                .HasOne(mg => mg.MonHoc)
+                .WithMany(m => m.MonHocGiaoViens)
+                .HasForeignKey(mg => mg.MonHocId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<MonHocGiaoVien>()
+                .HasOne(mg => mg.Lop)
+                .WithMany()
+                .HasForeignKey(mg => mg.LopId)
+                .OnDelete(DeleteBehavior.SetNull);// KHÔNG cascade, fix lỗi multiple cascade paths
+        }
     }
 }

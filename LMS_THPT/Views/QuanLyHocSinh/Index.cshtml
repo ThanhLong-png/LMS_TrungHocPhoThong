@@ -1,0 +1,152 @@
+﻿@model List<LMS_THPT.Models.Khoi>
+@{
+    ViewData["Title"] = "Quản lý Khối";
+}
+
+<style>
+    /* --- HEADER ĐỒNG BỘ --- */
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #edf2f7;
+    }
+
+    .page-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin: 0;
+    }
+
+    /* --- NÚT QUAY LẠI ĐỒNG BỘ ẢNH MẪU --- */
+    .btn-back-custom {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 20px;
+        background-color: #f8f9fa;
+        color: #1a1a2e;
+        border: 1px solid #d1d5db;
+        border-radius: 8px; /* Bo góc 8px như ảnh mẫu */
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 15px;
+        transition: all 0.2s;
+    }
+
+        .btn-back-custom:hover {
+            background-color: #f1f1f1;
+            color: #000;
+            text-decoration: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+    /* --- GRID KHỐI LỚP --- */
+    .khoi-grid {
+        display: flex;
+        gap: 30px;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 20px 0;
+    }
+
+    .khoi-card {
+        width: 280px;
+        height: 180px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border-radius: 15px; /* Bo góc 15px mượt mà */
+        cursor: pointer;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        text-decoration: none !important;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .khoi-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+        }
+
+        /* Hiệu ứng lớp phủ nhẹ khi hover */
+        .khoi-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.1);
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .khoi-card:hover::after {
+            opacity: 1;
+        }
+
+    .khoi-name {
+        font-size: 42px;
+        font-weight: 800;
+        margin-bottom: 5px;
+        z-index: 1;
+    }
+
+    .khoi-sub {
+        font-size: 14px;
+        font-weight: 500;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        z-index: 1;
+    }
+</style>
+
+<div class="page-header">
+    <h2 class="page-title">Danh sách Khối học</h2>
+    <a asp-controller="Admin" asp-action="Index" class="btn-back-custom">
+        <span style="margin-right:8px;">&larr;</span> Quay lại
+    </a>
+</div>
+
+<div class="khoi-grid">
+    @foreach (var khoi in Model)
+    {
+        string color, textColor, subText;
+
+        if (khoi.TenKhoi.Contains("10"))
+        {
+            color = "#FCE4EC"; textColor = "#C2185B"; subText = "Khối bắt đầu";
+        }
+        else if (khoi.TenKhoi.Contains("11"))
+        {
+            color = "#E1F5FE"; textColor = "#0288D1"; subText = "Khối tăng tốc";
+        }
+        else if (khoi.TenKhoi.Contains("12"))
+        {
+            color = "#E8F5E9"; textColor = "#2E7D32"; subText = "Khối về đích";
+        }
+        else
+        {
+            color = "#F5F5F5"; textColor = "#424242"; subText = "Khối khác";
+        }
+
+        <a href="@Url.Action("Lops", "QuanLyHocSinh", new { khoiId = khoi.Id })"
+               class="khoi-card"
+               style="background-color: @color; color: @textColor;">
+            
+            <div class="khoi-name">@khoi.TenKhoi</div>
+            <div class="khoi-sub">@subText</div>
+            
+            <i class="fa-solid fa-graduation-cap"
+               style="position: absolute; bottom: 15px; right: 20px; font-size: 24px; opacity: 0.2;"></i>
+        </a>
+    }
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />

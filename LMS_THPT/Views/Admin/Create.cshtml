@@ -1,0 +1,14 @@
+﻿<form asp-action="Create" method="post">
+    <input name="hoTen" placeholder="Họ tên" />
+    <input name="email" placeholder="Email" />
+    <input name="password" type="password" placeholder="Password" />
+
+    <select name="role">
+        @foreach (var r in ViewBag.Roles)
+        {
+            <option value="@r">@r</option>
+        }
+    </select>
+
+    <button type="submit">Tạo</button>
+</form>

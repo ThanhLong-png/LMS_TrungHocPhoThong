@@ -1,0 +1,118 @@
+@model IEnumerable<dynamic>
+@{
+    ViewData["Title"] = "Môn học của lớp";
+    var lop = ViewBag.Lop as LMS_THPT.Models.Lop;
+}
+
+<style>
+    .page-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:22px; }
+    .page-title { font-size:28px; font-weight:700; color:#111; margin:0; }
+    .page-subtitle { color:#666; margin-top:6px; }
+
+    .table-wrapper {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .table-lop {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+    }
+
+    .table-lop thead tr {
+        background: #1a1a2e;
+        color: #fff;
+    }
+
+    .table-lop thead th {
+        padding: 13px 18px;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.4px;
+        border: none;
+    }
+
+    .table-lop tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.15s;
+    }
+
+    .table-lop tbody tr:hover {
+        background: #f5f7fa;
+    }
+
+    .table-lop tbody td {
+        padding: 13px 18px;
+        vertical-align: middle;
+        border: none;
+        font-size: 14px;
+        color: #2d2d2d;
+    }
+
+    .btn-back {
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: 1px solid #111;
+        background: #fff;
+        color: #111;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn-back:hover { background:#111; color:#fff; }
+
+    .btn-primary-soft {
+        background: #111;
+        color: #fff;
+        border: none;
+        padding: 7px 14px;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 13px;
+    }
+    .btn-primary-soft:hover { background:#333; color:#fff; }
+
+    @@media (max-width:768px) {
+        .page-header { flex-direction:column; align-items:flex-start; }
+    }
+</style>
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Môn học</div>
+        <div class="page-subtitle">Lớp: @lop?.TenLop</div>
+    </div>
+    <div>
+        <a asp-action="Lops" asp-route-khoiId="@lop?.MaKhoi" class="btn-back">← Quay lại</a>
+    </div>
+</div>
+
+<div class="table-wrapper">
+    <table class="table-lop">
+        <thead>
+            <tr>
+                <th style="width:45%">Môn</th>
+                <th>Giáo viên phụ trách</th>
+                <th style="width:180px; text-align:center;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var it in Model)
+            {
+                <tr>
+                    <td>@it.MonHoc.TenMonHoc</td>
+                    <td>@(it.GiaoVien?.HoTen ?? "Chưa phân công")</td>
+                    <td style="text-align:center;">
+                        <a asp-controller="GiangDay" asp-action="Index"
+                           asp-route-lopId="@lop?.Id"
+                           asp-route-monHocId="@it.MonHoc.Id"
+                           class="btn-primary-soft">Bài giảng / Bài tập</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

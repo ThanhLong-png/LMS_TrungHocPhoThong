@@ -1,8 +1,110 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- BANNER -->
+<div class="p-5 mb-4 bg-primary text-white rounded">
+    <div class="container-fluid py-4">
+        <h1 class="display-5 fw-bold">🎓 Hệ thống LMS THPT</h1>
+        <p class="col-md-8 fs-5">
+            Nền tảng quản lý học tập dành cho học sinh, giáo viên và nhà trường.
+        </p>
+
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <a href="/Identity/Account/Login" class="btn btn-light btn-lg">Đăng nhập ngay</a>
+        }
+    </div>
+</div>
+
+<!-- THÔNG TIN NHANH -->
+<div class="row text-center">
+
+    <div class="col-md-3">
+        <div class="card shadow mb-3">
+            <div class="card-body">
+                <h5>👨‍🎓 Học sinh</h5>
+                <p>Xem điểm, lịch học</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow mb-3">
+            <div class="card-body">
+                <h5>👨‍🏫 Giáo viên</h5>
+                <p>Quản lý lớp, nhập điểm</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow mb-3">
+            <div class="card-body">
+                <h5>👨‍💼 Hiệu trưởng</h5>
+                <p>Xem thống kê toàn trường</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow mb-3">
+            <div class="card-body">
+                <h5>⚙️ Quản trị</h5>
+                <p>Quản lý hệ thống</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- CHỨC NĂNG NHANH -->
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="mt-4">
+        <h3>🚀 Truy cập nhanh</h3>
+
+        <div class="row">
+
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="col-md-3">
+                    <a href="/Admin" class="btn btn-danger w-100 mb-2">Quản trị hệ thống</a>
+                </div>
+            }
+
+            @if (User.IsInRole("GiaoVien"))
+            {
+                <div class="col-md-3">
+                    <a href="/GiaoVien" class="btn btn-primary w-100 mb-2">Trang giáo viên</a>
+                </div>
+            }
+
+            @if (User.IsInRole("HocSinh"))
+            {
+                <div class="col-md-3">
+                    <a href="/HocSinh" class="btn btn-success w-100 mb-2">Trang học sinh</a>
+                </div>
+            }
+
+            @if (User.IsInRole("HieuTruong"))
+            {
+                <div class="col-md-3">
+                    <a href="/HieuTruong" class="btn btn-warning w-100 mb-2">Trang hiệu trưởng</a>
+                </div>
+            }
+
+        </div>
+    </div>
+}
+
+<!-- THÔNG BÁO -->
+<div class="mt-5">
+    <h3>📢 Thông báo</h3>
+
+    <ul class="list-group">
+        <li class="list-group-item">📌 Nghỉ lễ 30/4 - 1/5</li>
+        <li class="list-group-item">📌 Thi học kỳ bắt đầu từ 10/05</li>
+        <li class="list-group-item">📌 Nộp bài tập trước hạn</li>
+    </ul>
 </div>
