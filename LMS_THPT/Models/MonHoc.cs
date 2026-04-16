@@ -17,8 +17,8 @@
         public Khoi Khoi { get; set; }               // ← navigation
 
         // Giảng viên phụ trách
-        public string? GiaoVienId { get; set; }
-        public NguoiDung? GiaoVien { get; set; }
+        public string? GiangVienId { get; set; }
+        public NguoiDung? GiangVien { get; set; }
 
         // Navigation
         public ICollection<BaiGiang> BaiGiangs { get; set; } = new List<BaiGiang>();

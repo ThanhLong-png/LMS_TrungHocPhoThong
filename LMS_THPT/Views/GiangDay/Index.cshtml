@@ -59,7 +59,7 @@
         </div>
     </div>
 
-    @if (User.IsInRole("GiaoVien") || User.IsInRole("Admin"))
+    @if (User.IsInRole("GiangVien") || User.IsInRole("Admin"))
     {
         <div>
             <a asp-action="CreateBaiGiang" asp-route-lopId="@ViewBag.LopId" asp-route-monHocId="@ViewBag.MonHocId" class="btn-primary-soft">+ Viết bài giảng</a>
@@ -86,10 +86,45 @@
         <div class="card-post">
             <div class="card-post-main">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <h5 style="margin:0;">@b.TieuDe</h5>
-                        <div class="meta">@b.NgayTao.ToString("g") · Môn: @(b.MonHoc?.TenMonHoc ?? "-")</div>
-                    </div>
+                  <div style="display:flex; align-items:center; gap:10px;">
+    <div>
+        @if (!string.IsNullOrEmpty(b.NguoiDung?.AnhDaiDien))
+        {
+            <img src="@b.NguoiDung.AnhDaiDien" 
+                 style="width:42px; height:42px; border-radius:50%; object-fit:cover;" />
+        }
+        else
+        {
+            <div style="width:42px; height:42px; border-radius:50%; background:#111; color:#fff;
+                        display:flex; align-items:center; justify-content:center; font-weight:700;">
+                @(b.NguoiDung?.HoTen?.Substring(0,1).ToUpper() ?? "?")
+            </div>
+        }
+    </div>
+
+    <div>
+        <div style="font-weight:600;">
+            @(b.NguoiDung?.HoTen ?? "Ẩn danh")
+        </div>
+
+        <div style="font-size:12px; color:#666;">
+        @{
+    var roleText = "";
+
+    if (User.IsInRole("GiangVien"))
+        roleText = "Giảng viên";
+    else if (User.IsInRole("HocSinh"))
+        roleText = "Học sinh";
+    else if (User.IsInRole("Admin"))
+        roleText = "Quản trị";
+}
+<span>@roleText</span> ·  @b.NgayTao.ToString("g")
+        </div>
+    </div>
+</div>
+
+<h5 style="margin-top:10px;">@b.TieuDe</h5>
+<div class="meta">Môn: @(b.MonHoc?.TenMonHoc ?? "-")</div>
                     <span class="badge bg-dark text-white">Bài giảng</span>
                 </div>
 
@@ -116,7 +151,11 @@
                     {
                         <button class="btn-primary-soft" onclick="togglePreview(@b.Id, this)">Xem thêm</button>
                     }
-                    <a class="btn-outline-soft" asp-action="DetailsBaiGiang" asp-route-id="@b.Id">Xem chi tiết</a>
+                  <a class="btn-outline-soft"
+                      asp-action="DetailsBaiGiang"
+   asp-route-id="@b.Id"
+   asp-route-lopId="@ViewBag.LopId"
+   asp-route-monHocId="@ViewBag.MonHocId">Xem chi tiết</a>
                     <button class="btn-comment" onclick="toggleComment('cmt-bg-@b.Id', this)">
                         💬 @blBg.Count bình luận
                     </button>
@@ -234,15 +273,54 @@ else
 
         <div class="card-post">
             <div class="card-post-main">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <h5 style="margin:0;">@t.TieuDe</h5>
-                        <div class="meta">Hạn nộp: @t.HanNop.ToString("g") · Điểm tối đa: @t.DiemToiDa</div>
-                    </div>
-                    <span class="badge bg-danger text-white">Bài tập</span>
+               <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+    
+    <!-- LEFT: Avatar + Info -->
+    <div style="display:flex; align-items:center; gap:10px;">
+        
+        <!-- Avatar -->
+        <div>
+            @if (!string.IsNullOrEmpty(t.NguoiDung?.AnhDaiDien))
+            {
+                <img src="@t.NguoiDung.AnhDaiDien"
+                     style="width:42px; height:42px; border-radius:50%; object-fit:cover;" />
+            }
+            else
+            {
+                <div style="width:42px; height:42px; border-radius:50%; background:#111; color:#fff;
+                            display:flex; align-items:center; justify-content:center; font-weight:700;">
+                    @(t.NguoiDung?.HoTen?.Substring(0,1).ToUpper() ?? "?")
                 </div>
+            }
+        </div>
 
-                <div style="margin-top:12px; color:#333; white-space:pre-line; position:relative;">
+        <!-- Info -->
+        <div>
+            <div style="font-weight:600;">
+                @(t.NguoiDung?.HoTen ?? "Ẩn danh")
+            </div>
+
+            <div style="font-size:12px; color:#666;">
+                <span>Người đăng</span> · @t.HanNop.ToString("g")
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: Badge -->
+    <span class="badge bg-danger text-white">Bài tập</span>
+</div>
+
+<!-- Tiêu đề -->
+<h5 style="margin-top:10px;">@t.TieuDe</h5>
+
+<!-- Meta -->
+<div class="meta">
+    Hạn nộp: @t.HanNop.ToString("g") · Điểm tối đa: @t.DiemToiDa
+</div>
+                    
+                <!-- ✅ CHỈ KHÁC DUY NHẤT: KHÔNG ĐÓNG DIV Ở ĐÂY -->
+
+                 <div style="margin-top:12px; color:#333; white-space:pre-line; position:relative;">
                     <div id="preview-bt-@t.Id" style="max-height:80px; overflow:hidden;">@previewBt</div>
                     <div id="fade-bt-@t.Id" style="position:absolute; bottom:0; left:0; right:0; height:32px; background:linear-gradient(transparent,#fff);"></div>
                 </div>
@@ -261,7 +339,7 @@ else
                         💬 @blBt.Count bình luận
                     </button>
                 </div>
-            </div>
+            </div> <!-- ✅ ĐÓNG ĐÚNG Ở ĐÂY -->
 
             <div id="cmt-bt-@t.Id" class="comment-section">
                 @if (!blBt.Any())
@@ -287,48 +365,8 @@ else
                                 <div class="comment-text">@bl.NoiDung</div>
                                 <div class="comment-meta">
                                     <span>@bl.NgayTao.ToString("g")</span>
-                                    <button class="btn-reply-toggle" onclick="toggleReply('reply-bt-@bl.Id', this)">Trả lời</button>
                                 </div>
                             </div>
-
-                            <div id="reply-bt-@bl.Id" class="reply-form">
-                                <form asp-action="TraLoiBinhLuan" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="parentId" value="@bl.Id" />
-                                    <input type="hidden" name="lopId" value="@ViewBag.LopId" />
-                                    <input type="hidden" name="monHocId" value="@ViewBag.MonHocId" />
-                                    <div class="comment-input-row">
-                                        <input name="noiDung" class="comment-input" placeholder="Trả lời @(bl.NguoiDung?.HoTen)..." required />
-                                        <button type="submit" class="comment-submit">Gửi</button>
-                                    </div>
-                                </form>
-                            </div>
-
-                            @if (bl.Replies != null && bl.Replies.Any())
-                            {
-                                <div class="replies-wrap">
-                                    @foreach (var reply in bl.Replies.OrderBy(r => r.NgayTao))
-                                    {
-                                        <div class="comment-item">
-                                            <div class="comment-avatar-wrap">
-                                                @if (!string.IsNullOrEmpty(reply.NguoiDung?.AnhDaiDien))
-                                                {
-                                                    <img src="@reply.NguoiDung.AnhDaiDien" class="comment-avatar-img" />
-                                                }
-                                                else
-                                                {
-                                                    <div class="comment-avatar-txt">@(reply.NguoiDung?.HoTen?.Substring(0,1).ToUpper() ?? "?")</div>
-                                                }
-                                            </div>
-                                            <div class="comment-bubble" style="flex:1;">
-                                                <div class="comment-author">@(reply.NguoiDung?.HoTen ?? "Ẩn danh")</div>
-                                                <div class="comment-text">@reply.NoiDung</div>
-                                                <div class="comment-meta">@reply.NgayTao.ToString("g")</div>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            }
                         </div>
                     </div>
                 }

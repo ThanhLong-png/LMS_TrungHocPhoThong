@@ -32,71 +32,65 @@ namespace LMS_THPT.Controllers
         // Feed - hiển thị các bài giảng / bài tập
         public async Task<IActionResult> Index(int? lopId, int? monHocId)
         {
-            if (lopId.HasValue)
-            {
-                var lop = await _context.Lops.FindAsync(lopId.Value);
-                ViewBag.Lop = lop;
-            }
-
-            if (monHocId.HasValue)
-            {
-                var mon = await _context.DanhSachMonHoc.FindAsync(monHocId.Value);
-                ViewBag.MonHoc = mon;
-            }
-
             ViewBag.LopId = lopId;
             ViewBag.MonHocId = monHocId;
 
-            if (monHocId.HasValue)
+            if (!monHocId.HasValue)
             {
-                var posts = await _context.DanhSachBaiGiang
-                    .Include(b => b.TaiLieus)
-                    .Where(b => b.MonHocId == monHocId.Value && b.IsActive)
-                    .OrderByDescending(b => b.NgayTao)
-                    .ToListAsync();
-
-                var taps = await _context.DanhSachBaiTap
-                    .Where(t => t.MonHocId == monHocId.Value)
-                    .OrderByDescending(t => t.NgayTao)
-                    .ToListAsync();
-
-                ViewBag.BaiTaps = taps;
-
-                // Load bình luận bài giảng (chỉ lấy comment gốc, replies load qua Include)
-                var baiGiangIds = posts.Select(p => p.Id).ToList();
-                var binhLuanBaiGiang = await _context.DanhSachBinhLuan
-                    .Include(b => b.NguoiDung)
-                    .Include(b => b.Replies).ThenInclude(r => r.NguoiDung)
-                    .Where(b => b.BaiGiangId.HasValue
-                             && baiGiangIds.Contains(b.BaiGiangId.Value)
-                             && b.ParentId == null)
-                    .OrderBy(b => b.NgayTao)
-                    .ToListAsync();
-
-                // Load bình luận bài tập
-                var baiTapIds = taps.Select(t => t.Id).ToList();
-                var binhLuanBaiTap = await _context.DanhSachBinhLuan
-                    .Include(b => b.NguoiDung)
-                    .Include(b => b.Replies).ThenInclude(r => r.NguoiDung)
-                    .Where(b => b.BaiTapId.HasValue
-                             && baiTapIds.Contains(b.BaiTapId.Value)
-                             && b.ParentId == null)
-                    .OrderBy(b => b.NgayTao)
-                    .ToListAsync();
-
-                ViewBag.BinhLuanBaiGiang = binhLuanBaiGiang;
-                ViewBag.BinhLuanBaiTap = binhLuanBaiTap;
-
-                return View(posts);
+                ViewBag.BaiTaps = new List<BaiTap>();
+                ViewBag.BinhLuanBaiGiang = new List<BinhLuan>();
+                ViewBag.BinhLuanBaiTap = new List<BinhLuan>();
+                return View(new List<BaiGiang>());
             }
 
-            ViewBag.BinhLuanBaiGiang = new List<BinhLuan>();
-            ViewBag.BinhLuanBaiTap = new List<BinhLuan>();
-            return View(new List<BaiGiang>());
+            // ✅ BÀI GIẢNG
+            var posts = await _context.DanhSachBaiGiang
+                .Include(b => b.TaiLieus)
+                .Include(b => b.MonHoc)
+                .Include(b => b.NguoiDung)
+                .Where(b => b.MonHocId == monHocId && b.IsActive)
+                .OrderByDescending(b => b.NgayTao)
+                .ToListAsync();
+
+            // ✅ BÀI TẬP
+            var taps = await _context.DanhSachBaiTap
+                .Where(t => t.MonHocId == monHocId)
+                .OrderByDescending(t => t.NgayTao)
+                .Include(x => x.NguoiDung)
+                .ToListAsync();
+
+            ViewBag.BaiTaps = taps;
+
+            // ✅ COMMENT BÀI GIẢNG
+            var baiGiangIds = posts.Select(p => p.Id).ToList();
+
+            var binhLuanBaiGiang = await _context.DanhSachBinhLuan
+                .Include(b => b.NguoiDung)
+                .Include(b => b.Replies).ThenInclude(r => r.NguoiDung)
+                .Where(b => b.BaiGiangId.HasValue
+                         && baiGiangIds.Contains(b.BaiGiangId.Value)
+                         && b.ParentId == null)
+                .ToListAsync();
+
+            // ✅ COMMENT BÀI TẬP
+            var baiTapIds = taps.Select(t => t.Id).ToList();
+
+            var binhLuanBaiTap = await _context.DanhSachBinhLuan
+                .Include(b => b.NguoiDung)
+                .Include(b => b.Replies).ThenInclude(r => r.NguoiDung)
+                .Where(b => b.BaiTapId.HasValue
+                         && baiTapIds.Contains(b.BaiTapId.Value)
+                         && b.ParentId == null)
+                .ToListAsync();
+
+            ViewBag.BinhLuanBaiGiang = binhLuanBaiGiang;
+            ViewBag.BinhLuanBaiTap = binhLuanBaiTap;
+
+            return View(posts);
         }
 
         // Tạo bài giảng - GET
-        [Authorize(Roles = "GiaoVien,Admin")]
+        [Authorize(Roles = "GiangVien,Admin")]
         [HttpGet]
         public IActionResult CreateBaiGiang(int? lopId, int? monHocId)
         {
@@ -112,7 +106,7 @@ namespace LMS_THPT.Controllers
         }
 
         // Tạo bài giảng - POST
-        [Authorize(Roles = "GiaoVien,Admin")]
+        [Authorize(Roles = "GiangVien,Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBaiGiang(string title, string content, int? lopId, int? monHocId, IFormFile[] attachments)
@@ -123,13 +117,16 @@ namespace LMS_THPT.Controllers
                 return RedirectToAction("CreateBaiGiang", new { lopId, monHocId });
             }
 
+            var user = await _userManager.GetUserAsync(User);
+
             var bai = new BaiGiang
             {
                 TieuDe = string.IsNullOrWhiteSpace(title) ? "(Không có tiêu đề)" : title.Trim(),
                 MoTa = content,
                 MonHocId = monHocId.Value,
                 IsActive = true,
-                NgayTao = DateTime.Now
+                NgayTao = DateTime.Now,
+                NguoiDungId = user.Id   // 🔥 QUAN TRỌNG
             };
 
             _context.DanhSachBaiGiang.Add(bai);
@@ -180,7 +177,7 @@ namespace LMS_THPT.Controllers
         }
 
         // Tạo bài tập - GET
-        [Authorize(Roles = "GiaoVien,Admin")]
+        [Authorize(Roles = "GiangVien,Admin")]
         [HttpGet]
         public IActionResult CreateBaiTap(int? lopId, int? monHocId)
         {
@@ -196,7 +193,7 @@ namespace LMS_THPT.Controllers
         }
 
         // Tạo bài tập - POST
-        [Authorize(Roles = "GiaoVien,Admin")]
+        [Authorize(Roles = "GiangVien,Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBaiTap(string title, string content, int? lopId, int? monHocId, string dueDate, string dueTime, IFormFile[] attachments)
@@ -214,6 +211,8 @@ namespace LMS_THPT.Controllers
             if (!string.IsNullOrWhiteSpace(dueTime) && TimeSpan.TryParse(dueTime, out var t))
                 hanNop = hanNop.Date + t;
 
+            var user = await _userManager.GetUserAsync(User);
+
             var baitap = new BaiTap
             {
                 TieuDe = string.IsNullOrWhiteSpace(title) ? "(Không có tiêu đề)" : title.Trim(),
@@ -222,7 +221,8 @@ namespace LMS_THPT.Controllers
                 HanNop = hanNop,
                 DiemToiDa = 10,
                 TrangThai = TrangThaiBaiTap.DangMo,
-                NgayTao = DateTime.Now
+                NgayTao = DateTime.Now,
+                NguoiDungId = user.Id // 🔥 THÊM DÒNG NÀY
             };
 
             _context.DanhSachBaiTap.Add(baitap);
@@ -233,14 +233,19 @@ namespace LMS_THPT.Controllers
         }
 
         // Chi tiết bài giảng
+        // Chi tiết bài giảng
         [HttpGet]
-        public async Task<IActionResult> DetailsBaiGiang(int id)
+        public async Task<IActionResult> DetailsBaiGiang(int id, int? lopId)
         {
             var bai = await _context.DanhSachBaiGiang
                 .Include(b => b.TaiLieus)
                 .Include(b => b.MonHoc)
+                .Include(b => b.NguoiDung) // ✅ THÊM DÒNG NÀY
                 .FirstOrDefaultAsync(b => b.Id == id);
+
             if (bai == null) return NotFound();
+
+            ViewBag.LopId = lopId;
             return View(bai);
         }
 
@@ -250,14 +255,17 @@ namespace LMS_THPT.Controllers
         {
             var bt = await _context.DanhSachBaiTap
                 .Include(b => b.MonHoc)
+                .Include(b => b.NguoiDung) // ✅ THÊM DÒNG NÀY
                 .FirstOrDefaultAsync(b => b.Id == id);
+
             if (bt == null) return NotFound();
+
             ViewBag.LopId = lopId;
             return View(bt);
         }
 
         // Xem danh sách nộp bài
-        [Authorize(Roles = "GiaoVien,Admin")]
+        [Authorize(Roles = "GiangVien,Admin")]
         [HttpGet]
         public async Task<IActionResult> Submissions(int baiTapId, int? lopId)
         {

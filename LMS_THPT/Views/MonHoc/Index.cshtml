@@ -4,6 +4,203 @@
     ViewData["Title"] = "Quản lý Môn học";
 }
 
+<h2 class="page-title"> Quản lý Môn học</h2>
+
+<div class="mb-3">
+    <a asp-controller="Admin" asp-action="Index" class="btn-back">← Quay lại</a>
+</div>
+
+<div class="row g-4">
+
+    @foreach (var khoi in Model)
+    {
+        var collapseId = "collapseAddMonHoc_" + khoi.Id;
+
+        <div class="col-12 col-md-4">
+
+            <div class="card modern-card h-100">
+
+                <!-- HEADER -->
+                <div class="card-header modern-header">
+                    <div class="title">@khoi.TenKhoi</div>
+
+                    <button class="btn-add"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#@collapseId">
+                        + Thêm môn
+                    </button>
+                </div>
+
+                <div class="card-body">
+
+                    <!-- FORM ADD -->
+                    <div class="collapse mb-3" id="@collapseId">
+                        <form asp-action="Create" method="post" class="add-form">
+                            <input type="hidden" name="KhoiId" value="@khoi.Id" />
+
+                            <input type="text"
+                                   name="TenMonHoc"
+                                   placeholder="Nhập tên môn học..."
+                                   required />
+
+                            <button type="submit">Lưu</button>
+                        </form>
+                    </div>
+
+                    <!-- LIST MÔN -->
+                    <div class="mon-list">
+
+                        @foreach (var mh in khoi.MonHocs)
+                        {
+                            <div class="mon-item">
+                                <a asp-action="Details" asp-route-id="@mh.Id">
+                                     @mh.TenMonHoc
+                                </a>
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    }
+
+</div>
+
+<style>
+    body {
+        background: #f5f6f8;
+    }
+
+    .page-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #111;
+        margin-bottom: 1rem;
+    }
+
+    .btn-back {
+        font-size: 0.85rem;
+        color: #6b7280;
+        text-decoration: none;
+    }
+
+        .btn-back:hover {
+            color: #111;
+        }
+
+    /* CARD */
+    .modern-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #fff;
+        transition: 0.25s;
+        overflow: hidden;
+    }
+
+        .modern-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+    /* HEADER */
+    .modern-header {
+        background: #fff;
+        border-bottom: 1px solid #eee;
+        padding: 12px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .title {
+        font-weight: 700;
+        font-size: 1rem;
+        color: #111;
+    }
+
+    /* BUTTON ADD */
+    .btn-add {
+        border: 1px solid #111;
+        background: #111;
+        color: #fff;
+        font-size: 0.75rem;
+        padding: 5px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-add:hover {
+            background: #fff;
+            color: #111;
+        }
+
+    /* FORM */
+    .add-form {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 10px;
+    }
+
+        .add-form input {
+            flex: 1;
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 0.85rem;
+        }
+
+            .add-form input:focus {
+                outline: none;
+                border-color: #111;
+                box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
+            }
+
+        .add-form button {
+            background: #111;
+            color: #fff;
+            border: none;
+            padding: 7px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+    /* LIST */
+    .mon-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .mon-item {
+        border: 1px solid #eee;
+        border-radius: 10px;
+        padding: 8px 10px;
+        transition: 0.2s;
+        background: #fff;
+    }
+
+        .mon-item:hover {
+            background: #f3f4f6;
+            transform: translateX(2px);
+        }
+
+        .mon-item a {
+            text-decoration: none;
+            color: #111;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+</style>@model IEnumerable<LMS_THPT.Models.Khoi>
+
+@{
+    ViewData["Title"] = "Quản lý Môn học";
+}
+
 <h2 class="mb-4 fw-bold">Quản lý Môn học</h2>
 
 <div class="mb-3">

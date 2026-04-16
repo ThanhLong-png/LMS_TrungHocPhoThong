@@ -40,25 +40,21 @@ namespace LMS_THPT.Controllers
             if (monHoc == null) return NotFound();
 
             // Lấy giáo viên chưa có trong môn
-            var gvDaCo = monHoc.MonHocGiaoViens
-                .Select(m => m.NguoiDungId)
-                .ToList();
-
             var gvList = await _context.Users
-                .Where(u => u.ChucVu == "Giáo viên" && !gvDaCo.Contains(u.Id))
-                .ToListAsync();
+     .Where(u => u.ChucVu == "Giáo viên")
+     .ToListAsync();
 
             // Lấy danh sách lớp
-            var lopDaPhan = monHoc.MonHocGiaoViens
-                .Where(mg => mg.LopId.HasValue)
+            // ❗ Lấy các lớp đã có giáo viên cho môn này
+            var lopDaCo = await _context.MonHocGiaoViens
+                .Where(mg => mg.MonHocId == monHoc.Id && mg.LopId != null)
                 .Select(mg => mg.LopId.Value)
-                .ToList();
-
-            // Lọc lớp theo khối và chưa được phân
-            var lopList = await _context.Lops
-                .Where(l => l.MaKhoi == monHoc.KhoiId && !lopDaPhan.Contains(l.Id))
                 .ToListAsync();
 
+            // ❗ Chỉ lấy lớp CHƯA có giáo viên
+            var lopList = await _context.Lops
+                .Where(l => l.MaKhoi == monHoc.KhoiId && !lopDaCo.Contains(l.Id))
+                .ToListAsync();
             ViewBag.GiaoViens = new SelectList(gvList, "Id", "HoTen");
             ViewBag.Lops = new SelectList(lopList, "Id", "TenLop");
 
@@ -70,42 +66,47 @@ namespace LMS_THPT.Controllers
         // POST: /MonHoc/AddGiaoVien
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddGiaoVien(int monHocId, string nguoiDungId, int? lopId, int[]? monHocIds)
+        public async Task<IActionResult> AddGiaoVien(int monHocId, string nguoiDungId, int[]? lopIds)
         {
             if (string.IsNullOrEmpty(nguoiDungId))
                 return RedirectToAction("Details", new { id = monHocId });
-            // Nếu user chọn nhiều môn (monHocIds), thêm vào tất cả những môn đó
-            var targets = (monHocIds != null && monHocIds.Length > 0) ? monHocIds.Distinct().ToArray() : new[] { monHocId };
 
-            var addedCount = 0;
-            foreach (var targetId in targets)
+            if (lopIds == null || lopIds.Length == 0)
+                lopIds = new int?[] { null }.Select(x => x ?? 0).ToArray();
+
+            int added = 0;
+
+            foreach (var lopId in lopIds)
             {
-                var exists = await _context.MonHocGiaoViens
-                    .AnyAsync(mg => mg.MonHocId == targetId && mg.NguoiDungId == nguoiDungId && mg.LopId == lopId);
+                // ❗ Check: lớp này đã có giáo viên cho môn này chưa
+                var daCoGiaoVien = await _context.MonHocGiaoViens
+                    .AnyAsync(mg => mg.MonHocId == monHocId
+                        && (mg.LopId ?? 0) == (lopId == 0 ? 0 : lopId));
 
-                if (exists) continue;
-
-                var monHocGv = new MonHocGiaoVien
+                if (daCoGiaoVien)
                 {
-                    MonHocId = targetId,
+                    TempData["Warning"] = "Một lớp chỉ được 1 giáo viên cho môn này!";
+                    continue;
+                }
+
+                var lopThuc = lopId == 0 ? (int?)null : lopId;
+
+                _context.MonHocGiaoViens.Add(new MonHocGiaoVien
+                {
+                    MonHocId = monHocId,
                     NguoiDungId = nguoiDungId,
-                    LopId = lopId
-                };
+                    LopId = lopThuc
+                });
 
-                _context.MonHocGiaoViens.Add(monHocGv);
-                addedCount++;
+                // ❗ THÊM DÒNG NÀY NGAY TẠI ĐÂY
+                await CapNhatLichHoc(monHocId, lopThuc, nguoiDungId);
+
+                added++;
             }
 
-            if (addedCount > 0)
-            {
-                await _context.SaveChangesAsync();
-                TempData["Success"] = addedCount == 1 ? "Thêm thành công!" : $"Thêm thành công cho {addedCount} môn.";
-            }
-            else
-            {
-                TempData["Error"] = "Giáo viên đã tồn tại trong môn đã chọn.";
-            }
+            await _context.SaveChangesAsync();
 
+            TempData["Success"] = $"Đã thêm {added} lớp cho giáo viên!";
             return RedirectToAction("Details", new { id = monHocId });
         }
 
@@ -114,24 +115,33 @@ namespace LMS_THPT.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveGiaoVien(int monHocId, string nguoiDungId, int? lopId)
         {
-            if (string.IsNullOrEmpty(nguoiDungId))
-                return RedirectToAction("Details", new { id = monHocId });
+            var assignments = await _context.MonHocGiaoViens
+                .Where(mg => mg.MonHocId == monHocId && mg.NguoiDungId == nguoiDungId)
+                .ToListAsync();
 
-            var assignment = await _context.MonHocGiaoViens
-                .FirstOrDefaultAsync(mg => mg.MonHocId == monHocId
-                                        && mg.NguoiDungId == nguoiDungId
-                                        && (lopId == null || mg.LopId == lopId));
-
-            if (assignment == null)
+            if (!assignments.Any())
             {
-                TempData["Error"] = "Không tìm thấy phân công giáo viên.";
+                TempData["Error"] = "Không tìm thấy phân công.";
                 return RedirectToAction("Details", new { id = monHocId });
             }
 
-            _context.MonHocGiaoViens.Remove(assignment);
+            // ❗ GIỮ LỊCH - chỉ set null
+            foreach (var a in assignments)
+            {
+                var lichHocs = await _context.LichHocs
+                    .Where(l => l.MonHocId == monHocId && l.LopId == a.LopId)
+                    .ToListAsync();
+
+                foreach (var lich in lichHocs)
+                {
+                    lich.GiaoVienId = null; // ✅ giữ lịch
+                }
+            }
+
+            _context.MonHocGiaoViens.RemoveRange(assignments);
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Xóa phân công giáo viên thành công!";
+            TempData["Success"] = "Đã xóa phân công, lịch học vẫn được giữ!";
             return RedirectToAction("Details", new { id = monHocId });
         }
         [HttpPost]
@@ -156,6 +166,17 @@ namespace LMS_THPT.Controllers
 
             TempData["Success"] = "Thêm môn học thành công!";
             return RedirectToAction("Index");
+        }
+        private async Task CapNhatLichHoc(int monHocId, int? lopId, string giaoVienId)
+        {
+            var lichHocs = await _context.LichHocs
+                .Where(l => l.MonHocId == monHocId && l.LopId == lopId)
+                .ToListAsync();
+
+            foreach (var lich in lichHocs)
+            {
+                lich.GiaoVienId = giaoVienId; // ✅ update lại
+            }
         }
     }
 }

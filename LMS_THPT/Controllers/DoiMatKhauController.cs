@@ -1,5 +1,4 @@
 ﻿using LMS_THPT.Models;
-using LMS_THPT.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

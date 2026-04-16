@@ -1,0 +1,436 @@
+﻿@model List<LMS_THPT.Models.LichHoc>
+@if (TempData["Success"] != null)
+{
+    <div class="alert success">@TempData["Success"]</div>
+}
+
+@if (TempData["Warning"] != null)
+{
+    <div class="alert warning">@TempData["Warning"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert error">@TempData["Error"]</div>
+}
+@{
+    var lops = ViewBag.Lops as List<LMS_THPT.Models.Lop>;
+    int maxTiet = 10;
+    int maxThu = 7;
+    var selectedLopId = Context.Request.Query["lopId"].ToString();
+    var dataLookup = Model
+        .GroupBy(x => new { x.Thu, x.TietHoc })
+        .ToDictionary(g => g.Key, g => g.First());
+    var jsonData = Model.Select(x => new { id = x.Id, thu = x.Thu, tietHoc = x.TietHoc });
+}
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    .tkb-root {
+        font-family: 'DM Sans', sans-serif;
+        background: #f9f9f7;
+        min-height: 100vh;
+        padding: 2.5rem 2rem;
+    }
+
+    /* ── HEADER ── */
+    .tkb-header {
+        max-width: 1160px;
+        margin: 0 auto 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #1a1a1a;
+        padding-bottom: 1rem;
+    }
+
+    .tkb-header-left h1 {
+        font-size: 15px;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #1a1a1a;
+    }
+
+    .tkb-header-left p {
+        font-size: 12px;
+        color: #888;
+        margin-top: 3px;
+        letter-spacing: 0.04em;
+    }
+
+    .tkb-header-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .tkb-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* STYLE CHUNG */
+    .tkb-btn {
+        height: 36px;
+        padding: 0 16px;
+        border: 1px solid #1a1a1a;
+        background: #fff;
+        color: #1a1a1a;
+        font-size: 12px;
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.15s ease;
+    }
+
+        .tkb-btn:hover {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+    /* SELECT giữ style giống button */
+    .tkb-select {
+        height: 36px;
+        padding: 0 36px 0 14px; /* chừa chỗ cho icon */
+        border: 1px solid #1a1a1a;
+        background: #fff;
+        color: #1a1a1a;
+        font-size: 12px;
+        font-family: 'DM Sans', sans-serif;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        /* MŨI TÊN */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%231a1a1a'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 10px;
+    }
+
+    /* ── TABLE WRAPPER ── */
+    .tkb-table-wrap {
+        max-width: 1160px;
+        margin: 0 auto;
+        overflow-x: auto;
+        border: 1px solid #1a1a1a;
+    }
+
+    /* ── GRID TABLE ── */
+    .tkb-grid {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'DM Sans', sans-serif;
+        table-layout: fixed;
+    }
+
+        .tkb-grid th,
+        .tkb-grid td {
+            border: 1px solid #d8d8d4;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        /* Column header row */
+        .tkb-grid thead tr th {
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 12px 8px;
+        }
+
+    /* Row header (Tiết N) */
+    .tkb-tiet-header {
+        background: #1a1a1a !important;
+        color: #fff !important;
+        font-family: 'DM Mono', monospace !important;
+        font-size: 11px !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.06em !important;
+        width: 80px;
+        padding: 0 8px !important;
+    }
+
+    /* ── DATA CELL ── */
+    .tkb-cell {
+        height: 80px;
+        padding: 10px 12px;
+        cursor: pointer;
+        background: #fff;
+        transition: background 0.12s;
+        position: relative;
+    }
+
+        .tkb-cell:hover {
+            background: #f5f5f2;
+        }
+
+            .tkb-cell:hover .tkb-add-icon {
+                opacity: 1;
+            }
+
+    /* Filled cell */
+    .tkb-cell-filled {
+        text-align: left;
+    }
+
+    .tkb-mon-name {
+        font-size: 12px;
+        font-weight: 500;
+        color: #1a1a1a;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .tkb-gv-name {
+        font-size: 11px;
+        color: #555;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .tkb-phong-name {
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        color: #999;
+        margin-top: 4px;
+        letter-spacing: 0.04em;
+    }
+
+    /* Striped accent bar for filled cells */
+    .tkb-cell-filled-wrap {
+        border-left: 2px solid #1a1a1a;
+        padding-left: 8px;
+        height: 100%;
+    }
+
+    /* Empty cell */
+    .tkb-add-icon {
+        opacity: 0;
+        transition: opacity 0.12s;
+        width: 22px;
+        height: 22px;
+        border: 1px solid #bbb;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: auto;
+        font-size: 14px;
+        color: #aaa;
+        line-height: 1;
+    }
+
+    .tkb-empty-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+
+    /* ── EMPTY STATE ── */
+    .tkb-no-lop {
+        max-width: 1160px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 5rem 2rem;
+        border: 1px dashed #ccc;
+        color: #aaa;
+        font-size: 13px;
+        letter-spacing: 0.04em;
+    }
+</style>
+
+<div class="tkb-root">
+
+    <div class="tkb-header">
+        <div class="tkb-header-left">
+            <h1>Thời Khóa Biểu</h1>
+            <p>Lịch học theo lớp — Học kỳ hiện tại</p>
+        </div>
+        <div class="tkb-actions">
+
+            <!-- CHỌN LỚP -->
+            <form method="get" style="margin:0;">
+                <select name="lopId" class="tkb-select" onchange="this.form.submit()">
+                    <option value="">Chọn lớp</option>
+                    @foreach (var lop in lops)
+                    {
+                        <option value="@lop.Id" selected="@(selectedLopId == lop.Id.ToString())">
+                            @lop.TenLop
+                        </option>
+                    }
+                </select>
+            </form>
+
+            <!-- IMPORT EXCEL -->
+            <button class="tkb-btn" data-bs-toggle="modal" data-bs-target="#modalImport">
+                Nhập Excel
+            </button>
+
+            <!-- QUAY LẠI -->
+            <a href="/Admin/Index" class="tkb-btn">
+                ← Quay lại
+            </a>
+
+        </div>
+    </div>
+
+    @if (string.IsNullOrEmpty(selectedLopId))
+    {
+        <div class="tkb-no-lop">
+            Chọn một lớp để xem thời khóa biểu
+        </div>
+    }
+    else
+    {
+        <div class="tkb-table-wrap">
+            <table class="tkb-grid">
+                <thead>
+                    <tr>
+                        <th class="tkb-tiet-header">Tiết / Thứ</th>
+                        @for (int thu = 2; thu <= maxThu; thu++)
+                        {
+                            <th>Thứ @thu</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int tiet = 1; tiet <= maxTiet; tiet++)
+                    {
+                        <tr>
+                            <th class="tkb-tiet-header">@tiet</th>
+                            @for (int thu = 2; thu <= maxThu; thu++)
+                            {
+                                <td class="tkb-cell" onclick="cellClick(@thu, @tiet)">
+                                    @{
+                                        var key = new { Thu = thu, TietHoc = tiet };
+                                        if (dataLookup.ContainsKey(key))
+                                        {
+                                            var item = dataLookup[key];
+                                            <div class="tkb-cell-filled">
+                                                <div class="tkb-cell-filled-wrap">
+                                                    <div class="tkb-mon-name">@item.MonHoc?.TenMonHoc</div>
+                                                    <div class="tkb-gv-name">@item.GiaoVien?.HoTen</div>
+                                                    <div class="tkb-phong-name">@item.PhongHoc</div>
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="tkb-empty-cell">
+                                                <div class="tkb-add-icon">+</div>
+                                            </div>
+                                        }
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<script>
+    var data = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(jsonData));
+
+    function cellClick(thu, tiet) {
+        var item = data.find(x => x.thu === thu && x.tietHoc === tiet);
+        var lopId = "@selectedLopId";
+        if (!lopId) return;
+        if (item) {
+            window.location.href = "/LichHoc/Edit/" + item.id;
+        } else {
+            window.location.href = "/LichHoc/Create?thu=" + thu + "&tietHoc=" + tiet + "&lopId=" + lopId;
+        }
+    }
+</script>
+<div class="modal fade" id="modalImport" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="border-radius:12px; border:none; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+
+            <form asp-action="ImportExcel" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="lopId" value="@selectedLopId" />
+
+                <!-- HEADER -->
+                <div class="modal-header" style="background:#1a1a2e; color:#fff; border-radius:12px 12px 0 0;">
+                    <h5 class="modal-title">
+                        <i class="fa-solid fa-file-import me-2"></i>Nhập thời khóa biểu
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- BODY -->
+                <div class="modal-body" style="padding:25px;">
+
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight:600;">
+                            Chọn tệp Excel
+                        </label>
+
+                        <!-- 👉 INPUT GIỐNG STYLE -->
+                        <input type="file" name="file"
+                               class="form-control"
+                               accept=".xlsx, .xls"
+                               required />
+                    </div>
+
+                    <!-- HƯỚNG DẪN -->
+                    <div style="background:#fff8e1; padding:15px; border-radius:8px; border-left:4px solid #ffc107;">
+                        <h6 style="font-size:14px; font-weight:700; color:#856404;">
+                            Cấu trúc file:
+                        </h6>
+                        <ul style="font-size:13px; color:#856404; margin:0; padding-left:20px;">
+                            <li><b>Cột A:</b> Môn học</li>
+                            <li><b>Cột B:</b> Thứ</li>
+                            <li><b>Cột C:</b> Tiết</li>
+                            <li><b>Cột D:</b> Phòng học</li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!-- FOOTER -->
+                <div class="modal-footer" style="border-top:1px solid #eee;">
+
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                        Hủy
+                    </button>
+
+                    <!-- 👉 NÚT GIỐNG btn-them-custom -->
+                    <button type="submit" class="btn-them-custom">
+                        Import Excel
+                    </button>
+
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

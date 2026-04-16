@@ -123,6 +123,16 @@
         color: #c62828;
         margin-bottom: 20px;
     }
+
+    .field-hint {
+        font-size: 12px;
+        color: #888;
+        margin-top: 5px;
+    }
+
+        .field-hint strong {
+            color: #1a1a2e;
+        }
 </style>
 
 <div class="form-card">
@@ -151,7 +161,7 @@
             </div>
             <div class="form-group">
                 <label class="form-label-custom">Mã học sinh <span>*</span></label>
-                <input type="text" name="maHocSinh" class="form-control-custom"
+                <input type="text" name="maHocSinh" id="maHocSinh" class="form-control-custom"
                        placeholder="VD: HS001" />
             </div>
         </div>
@@ -172,13 +182,21 @@
             </div>
         </div>
 
-        <!-- Email + Mật khẩu -->
+        <!-- Địa chỉ -->
+        <div class="form-group">
+            <label class="form-label-custom">Địa chỉ</label>
+            <input type="text" name="diaChi" class="form-control-custom"
+                   placeholder="VD: 123 Lê Lợi, Huế" />
+        </div>
 
-
+        <!-- Mật khẩu -->
         <div class="form-group">
             <label class="form-label-custom">Mật khẩu <span>*</span></label>
-            <input type="password" name="matKhau" class="form-control-custom"
-                   placeholder="Tối thiểu 6 ký tự" />
+            <input type="text" name="matKhau" id="matKhau" class="form-control-custom"
+                   placeholder="Mặc định = mã học sinh" />
+            <div class="field-hint">
+                Mật khẩu mặc định theo mã học sinh: <strong id="matKhauHint">—</strong>
+            </div>
         </div>
 
         <div class="form-actions">
@@ -187,3 +205,24 @@
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <script>
+        const maInput = document.getElementById('maHocSinh');
+        const mkInput = document.getElementById('matKhau');
+        const mkHint  = document.getElementById('matKhauHint');
+        let userEditedPassword = false;
+
+        mkInput.addEventListener('input', () => {
+            userEditedPassword = true;
+        });
+
+        maInput.addEventListener('input', () => {
+            const ma = maInput.value.trim().toUpperCase();
+            mkHint.textContent = ma || '—';
+            if (!userEditedPassword) {
+                mkInput.value = ma;
+            }
+        });
+    </script>
+}

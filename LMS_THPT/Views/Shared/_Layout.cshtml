@@ -5,443 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - LMS_THPT</title>
 
-    <!-- COMMON CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
-
-    <!-- TEACHER CSS -->
-    <link rel="stylesheet" href="~/css/teacher-dashboard.css" asp-append-version="true" />
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
-    @await RenderSectionAsync("Styles", required: false)
-
-    <style>
-            .avatar-placeholder {
-                width: 40px;
-                height: 40px;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                background-color: #6c757d;
-                color: #fff;
-                font-weight: 600;
-                border-radius: 50%;
-                font-size: 12px;
-            }
-
-            .navbar .dropdown-menu {
-                background-color: #343a40;
-                border: 1px solid rgba(255,255,255,0.08);
-            }
-
-            .navbar .dropdown-item,
-            .navbar .dropdown-item-text {
-                color: #e9ecef;
-            }
-
-            /* ===== AVATAR DROPDOWN (SIDEBAR) ===== */
-            .sidebar-logo {
-                cursor: pointer;
-                position: relative;
-                user-select: none;
-            }
-
-            #avatarDropdown {
-                display: none;
-                position: absolute;
-                top: calc(100% + 4px);
-                left: 0;
-                right: 0;
-                background: #ffffff;
-                border: 0.5px solid #e2e8f0;
-                border-radius: 10px;
-                box-shadow: 0 6px 20px rgba(0,0,0,.12);
-                z-index: 9999;
-                overflow: hidden;
-            }
-
-                #avatarDropdown.open {
-                    display: block;
-                }
-
-            .av-dd-header {
-                padding: 14px 14px 10px;
-                text-align: center;
-                border-bottom: 0.5px solid #f0f0f0;
-            }
-
-            .av-dd-avatar-img {
-                width: 44px;
-                height: 44px;
-                border-radius: 50%;
-                object-fit: cover;
-                margin-bottom: 6px;
-            }
-
-            .av-dd-avatar-initials {
-                width: 44px;
-                height: 44px;
-                border-radius: 50%;
-                background: #2563eb;
-                color: #fff;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: 600;
-                font-size: 15px;
-                margin: 0 auto 6px;
-            }
-
-            .av-dd-name {
-                font-size: 13px;
-                font-weight: 600;
-                color: #111;
-            }
-
-            .av-dd-email {
-                font-size: 11px;
-                color: #888;
-                margin-top: 2px;
-            }
-
-            .av-dd-item {
-                display: flex;
-                align-items: center;
-                gap: 9px;
-                padding: 10px 14px;
-                font-size: 13px;
-                color: #1e293b;
-                text-decoration: none;
-                background: none;
-                border: none;
-                width: 100%;
-                text-align: left;
-                cursor: pointer;
-                transition: background .12s;
-            }
-
-                .av-dd-item:hover {
-                    background: #f8fafc;
-                    color: #1e293b;
-                    text-decoration: none;
-                }
-
-                .av-dd-item i {
-                    font-size: 12px;
-                    color: #666;
-                    width: 14px;
-                    text-align: center;
-                }
-
-                .av-dd-item.danger {
-                    color: #dc2626;
-                }
-
-                    .av-dd-item.danger:hover {
-                        background: #fff5f5;
-                    }
-
-                    .av-dd-item.danger i {
-                        color: #dc2626;
-                    }
-
-            .av-dd-divider {
-                height: 0.5px;
-                background: #f0f0f0;
-                margin: 2px 0;
-            }
-
-            #avatarChevron {
-                transition: transform .2s;
-            }
-
-            /* ===== LỚP CHỦ NHIỆM BADGE ===== */
-            .nav-item-badge {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                min-width: 18px;
-                height: 18px;
-                padding: 0 5px;
-                background: #2563eb;
-                color: #fff;
-                font-size: 10px;
-                font-weight: 600;
-                border-radius: 9px;
-                margin-left: auto;
-                line-height: 1;
-            }
-    </style>
 </head>
 
 <body>
 
-    @{
-        var isAuthenticated = User.Identity.IsAuthenticated;
-        var isGiaoVien = isAuthenticated && User.IsInRole("GiaoVien");
-        var activePage = ViewData["ActivePage"]?.ToString() ?? "";
+    <header>
+        <nav class="navbar navbar-dark bg-dark shadow px-3">
 
-        var avatarClaimGV = User.Claims.FirstOrDefault(c => c.Type == "AnhDaiDien")?.Value;
-        var avatarUrlGV = string.IsNullOrEmpty(avatarClaimGV) ? null : Url.Content(avatarClaimGV);
-        var nameGV = User.Claims.FirstOrDefault(c => c.Type == "HoTen")?.Value ?? User.Identity?.Name ?? "";
-        var initialsGV = nameGV.Length >= 2 ? nameGV.Substring(0, 2).ToUpper() : "GV";
-    }
+            <!-- LEFT: LOGO -->
+            <a class="navbar-brand"
+                   asp-controller="Home"
+                   asp-action="@(User.Identity.IsAuthenticated ? "Welcome" : "Index")">
+                🎓 LMS Quốc Học Huế
+            </a>
 
-    <!-- ================= HEADER (CHUNG) ================= -->
-    @if (!isGiaoVien)
-    {
-        <header>
-            <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
-                <div class="container-fluid">
+            <!-- RIGHT AREA -->
+            <div class="d-flex align-items-center gap-3">
 
-                    <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
-                        🎓 LMS Trường Quốc Học Huế
-                    </a>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    var avatarClaim = User.Claims.FirstOrDefault(c => c.Type == "AnhDaiDien")?.Value;
 
-                    @if (isAuthenticated && User.IsInRole("Admin"))
+                    var avatarUrl = string.IsNullOrEmpty(avatarClaim)
+                        ? Url.Content("~/images/default-avatar.png")
+                        : Url.Content(avatarClaim.StartsWith("~") ? avatarClaim : "~/" + avatarClaim.TrimStart('/'));
+
+                    <!-- AVATAR + NAME (CLICK → ADMIN) -->
+                    @if (User.IsInRole("Admin"))
                     {
-                        <a class="btn btn-outline-light ms-3" asp-controller="Admin" asp-action="Index">
-                            Quản lý
+                        <a asp-controller="Admin" asp-action="Index"
+                               class="d-flex align-items-center text-white text-decoration-none gap-2">
+
+                            <img src="@avatarUrl"
+                                 class="rounded-circle"
+                                 style="width:38px;height:38px;object-fit:cover;border:2px solid #fff;" />
+
+                            <span class="fw-semibold">
+                                @User.Identity.Name
+                            </span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Home" asp-action="Welcome"
+                               class="d-flex align-items-center text-white text-decoration-none gap-2">
+
+                            <img src="@avatarUrl"
+                                 class="rounded-circle"
+                                 style="width:38px;height:38px;object-fit:cover;border:2px solid #fff;" />
+
+                            <span class="fw-semibold">
+                                @User.Identity.Name
+                            </span>
                         </a>
                     }
 
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
+                    <!-- LOGOUT (BÊN PHẢI NGOÀI CÙNG) -->
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
 
-                    <div class="collapse navbar-collapse" id="navbarMain">
-                        <ul class="navbar-nav ms-auto align-items-center">
+                        <button class="logout-btn">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Đăng xuất</span>
+                        </button>
 
-                            @if (isAuthenticated)
-                            {
-                                var avatarClaim = User.Claims.FirstOrDefault(c => c.Type == "AnhDaiDien")?.Value;
-                                var avatarUrl = string.IsNullOrEmpty(avatarClaim) ? null : Url.Content(avatarClaim);
-                                var name = User.Claims.FirstOrDefault(c => c.Type == "HoTen")?.Value ?? User.Identity.Name ?? "";
-                                var initials = name.Length >= 2 ? name.Substring(0, 2).ToUpper() : "??";
+                    </form>
+                }
 
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
-                                        @if (string.IsNullOrEmpty(avatarUrl))
-                                        {
-                                            <span class="avatar-placeholder me-2">@initials</span>
-                                        }
-                                        else
-                                        {
-                                            <img src="@avatarUrl" class="rounded-circle me-2" width="40" height="40" />
-                                        }
-                                        @User.Identity.Name
-                                    </a>
-
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li class="dropdown-item-text">
-                                            Vai trò:
-                                            @(User.IsInRole("Admin") ? "Admin" :
-                                              User.IsInRole("GiaoVien") ? "Giáo viên" :
-                                              User.IsInRole("HocSinh") ? "Học sinh" : "")
-                                        </li>
-                                        <li><hr /></li>
-                                        <li>
-                                            <form asp-controller="Account" asp-action="Logout" method="post">
-                                                <button class="dropdown-item text-danger">Đăng xuất</button>
-                                            </form>
-                                        </li>
-                                    </ul>
-                                </li>
-                            }
-
-                        </ul>
-                        @await RenderSectionAsync("TopbarAction", required: false)
-                    </div>
-                </div>
-            </nav>
-        </header>
-    }
-
-    <!-- ================= BODY ================= -->
-    @if (isGiaoVien)
-    {
-        <!-- ===== TEACHER DASHBOARD ===== -->
-        <div class="app-shell">
-
-            <!-- SIDEBAR -->
-            <aside class="sidebar">
-
-                <!-- LOGO / AVATAR (có dropdown) -->
-                <div class="sidebar-logo" id="avatarToggle">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <div class="logo-mark">LMS</div>
-                        <div style="flex:1;">
-                            <div class="logo-title">LMS THPT</div>
-                            <div class="logo-sub">Giáo viên</div>
-                        </div>
-                        <i class="fa fa-chevron-down" id="avatarChevron"
-                           style="font-size:10px; color:#888; margin-left:auto;"></i>
-                    </div>
-
-                    <!-- DROPDOWN -->
-                    <div id="avatarDropdown">
-
-                        <!-- Thông tin giáo viên -->
-                        <div class="av-dd-header">
-                            @if (!string.IsNullOrEmpty(avatarUrlGV))
-                            {
-                                <img src="@avatarUrlGV" class="av-dd-avatar-img" />
-                            }
-                            else
-                            {
-                                <div class="av-dd-avatar-initials">@initialsGV</div>
-                            }
-                            <div class="av-dd-name">@nameGV</div>
-                            <div class="av-dd-email">@User.Identity?.Name</div>
-                        </div>
-
-                        <!-- Sửa trang cá nhân -->
-                        <a asp-controller="Profile" asp-action="Edit" class="av-dd-item">
-                            <i class="fa fa-pen"></i>
-                            Sửa trang cá nhân
-                        </a>
-
-                        <!-- Đổi mật khẩu -->
-                        <a asp-controller="DoiMatKhau" asp-action="Index" class="av-dd-item">
-                            <i class="fa fa-lock"></i>
-                            Đổi mật khẩu
-                        </a>
-
-                        <div class="av-dd-divider"></div>
-
-                        <!-- Đăng xuất -->
-                        <form asp-controller="Account" asp-action="Logout" method="post" style="margin:0;">
-                            <button type="submit" class="av-dd-item danger">
-                                <i class="fa fa-right-from-bracket"></i>
-                                Đăng xuất
-                            </button>
-                        </form>
-
-                    </div>
-                </div>
-                <!-- END LOGO / AVATAR -->
-
-                <nav class="sidebar-nav">
-
-                    <!-- NHÓM: TỔNG QUAN -->
-                    <div class="nav-group-label">Tổng quan</div>
-                    <a asp-controller="GiaoVien" asp-action="Index"
-                       class="nav-item @(activePage == "Dashboard" ? "active" : "")">
-                        <i class="fa fa-grid nav-icon"></i>
-                        Dashboard
-                    </a>
-
-                    <!-- NHÓM: QUẢN LÝ -->
-                    <div class="nav-group-label">Quản lý</div>
-
-                    <a asp-controller="GiaoVien" asp-action="QuanLyMonHoc"
-                       class="nav-item @(activePage == "MonHoc" ? "active" : "")">
-                        <i class="fa fa-book nav-icon"></i>
-                        Môn học
-                    </a>
-
-                    <a asp-controller="GiangDay" asp-action="Index"
-                       class="nav-item @(activePage == "BaiGiang" ? "active" : "")">
-                        <i class="fa fa-chalkboard-user nav-icon"></i>
-                        Bài giảng
-                    </a>
-
-                    <a asp-controller="GiaoVien" asp-action="QuanLyBaiTap"
-                       class="nav-item @(activePage == "BaiTap" ? "active" : "")">
-                        <i class="fa fa-file-lines nav-icon"></i>
-                        Bài tập & đánh giá
-                    </a>
-
-                    <a asp-controller="GiaoVien" asp-action="TienDo"
-                       class="nav-item @(activePage == "TienDo" ? "active" : "")">
-                        <i class="fa fa-chart-line nav-icon"></i>
-                        Tiến độ học tập
-                    </a>
-
-                    <!-- NHÓM: CHỦ NHIỆM -->
-                    <div class="nav-group-label">Chủ nhiệm</div>
-
-                    <a asp-controller="GiaoVien" asp-action="LopChuNhiem"
-                       class="nav-item @(activePage == "LopChuNhiem" ? "active" : "")"
-                       style="display:flex; align-items:center;">
-                        <i class="fa fa-users-rectangle nav-icon"></i>
-                        <span style="flex:1;">Lớp chủ nhiệm</span>
-                        @if (ViewBag.CoLopChuNhiem == true)
-                        {
-                            <span class="nav-item-badge" title="Lớp @ViewBag.TenLopChuNhiem">
-                                @ViewBag.TenLopChuNhiem
-                            </span>
-                        }
-                    </a>
-
-                </nav>
-            </aside>
-
-            <!-- MAIN -->
-            <div class="main-area">
-
-                <!-- TOPBAR -->
-                <header class="topbar">
-                    <h5>@ViewData["Title"]</h5>
-                    <div>
-                        @await RenderSectionAsync("TopbarAction", required: false)
-                    </div>
-                </header>
-
-                <!-- CONTENT -->
-                <main class="page-content">
-                    @RenderBody()
-                </main>
             </div>
-        </div>
-    }
-    else
-    {
-        <!-- ===== NORMAL USER ===== -->
-        <div class="container mt-4">
+
+        </nav>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="container mt-4">
+        <main role="main">
             @RenderBody()
-        </div>
+        </main>
+    </div>
 
-        <footer class="bg-light text-center py-3 mt-4 border-top">
-            © 2026 - LMS_THPT
-        </footer>
-    }
+    <footer class="text-center text-muted py-3 border-top mt-4">
+        &copy; 2026 - LMS_THPT
+    </footer>
 
-    <!-- ================= SCRIPT ================= -->
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js"></script>
-    <script src="~/js/teacher-dashboard.js"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
-
-    <!-- Avatar dropdown toggle -->
-    <script>
-        (function () {
-        var toggle  = document.getElementById('avatarToggle');
-        var menu    = document.getElementById('avatarDropdown');
-        var chevron = document.getElementById('avatarChevron');
-        if (!toggle || !menu) return;
-
-        toggle.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var isOpen = menu.classList.contains('open');
-        menu.classList.toggle('open', !isOpen);
-        chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
-        });
-
-        document.addEventListener('click', function () {
-        menu.classList.remove('open');
-        chevron.style.transform = '';
-        });
-
-        menu.addEventListener('click', function (e) {
-        e.stopPropagation();
-        });
-        })();
-    </script>
 
 </body>
 </html>

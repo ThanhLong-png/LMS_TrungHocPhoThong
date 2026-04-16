@@ -13,6 +13,9 @@
         // Khóa ngoại
         public int MonHocId { get; set; }
         public MonHoc? MonHoc { get; set; }
+        public string? NguoiDungId { get; set; }
+
+        public NguoiDung? NguoiDung { get; set; }
 
         // Navigation
         public ICollection<TaiLieu> TaiLieus { get; set; } = new List<TaiLieu>();

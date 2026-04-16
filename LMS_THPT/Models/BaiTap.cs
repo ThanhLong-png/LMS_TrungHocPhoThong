@@ -22,8 +22,6 @@
         // Khóa ngoại
         public int MonHocId { get; set; }
         public MonHoc? MonHoc { get; set; }
-
-        // Tác giả (giáo viên tạo bài tập)
         public string? NguoiDungId { get; set; }
         public NguoiDung? NguoiDung { get; set; }
 

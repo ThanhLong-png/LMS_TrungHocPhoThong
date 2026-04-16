@@ -10,16 +10,20 @@ namespace LMS_THPT.Data
     {
         public static async Task Initialize(IServiceProvider serviceProvider)
         {
+            // Lấy DbContext và Identity services
             var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
             var userManager = serviceProvider.GetRequiredService<UserManager<NguoiDung>>();
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
+            // -----------------------------
             // 1. Tạo các Role
             string[] roles = { "Admin", "GiaoVien", "HocSinh", "HieuTruong" };
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
+                {
                     await roleManager.CreateAsync(new IdentityRole(role));
+                }
             }
 
             // 2. Tạo Giáo viên (gv@lms.com) - Lấy đối tượng trả về để dùng ID

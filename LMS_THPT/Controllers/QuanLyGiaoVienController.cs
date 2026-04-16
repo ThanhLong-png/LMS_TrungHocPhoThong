@@ -66,7 +66,7 @@ namespace LMS_THPT.Controllers
             var viewModel = gvUsers.Select(gv =>
             {
                 var lopCN = tatCaLop.FirstOrDefault(l => l.GiaoVienChuNhiemId == gv.Id);
-                var mons = monGv.Where(m => m.NguoiDungId == gv.Id).Select(m => m.MonHoc?.TenMonHoc).Where(n => n != null).ToList();
+                var mons = monGv.Where(m => m.NguoiDungId == gv.Id).Select(m => m.MonHoc?.TenMonHoc).Where(n => n != null).Distinct().ToList();
                 return new
                 {
                     User = gv,
@@ -158,10 +158,16 @@ namespace LMS_THPT.Controllers
                 {
                     foreach (var mhId in monHocIds.Distinct())
                     {
-                        var exists = await _context.MonHocGiaoViens
-                            .AnyAsync(mg => mg.MonHocId == mhId && mg.NguoiDungId == user.Id && mg.LopId == (lopId));
+                        // ❗ Check: lớp này đã có giáo viên cho môn này chưa
+                        var daCoGV = await _context.MonHocGiaoViens
+                            .AnyAsync(mg => mg.MonHocId == mhId
+                                && mg.LopId == lopId);
 
-                        if (exists) continue;
+                        if (daCoGV)
+                        {
+                            TempData["Warning"] = "Lớp đã có giáo viên cho môn này!";
+                            continue;
+                        }
 
                         _context.MonHocGiaoViens.Add(new MonHocGiaoVien
                         {
@@ -252,7 +258,24 @@ namespace LMS_THPT.Controllers
             var user = await _userManager.FindByIdAsync(id);
             if (user != null)
             {
-                // ✅ Xóa tất cả liên kết lớp
+                
+             
+
+                // ❗ Xóa phân công môn
+                var phanCongs = await _context.MonHocGiaoViens
+                    .Where(mg => mg.NguoiDungId == id)
+                    .ToListAsync();
+
+                _context.MonHocGiaoViens.RemoveRange(phanCongs);
+
+                // ❗ Xóa lịch học
+                var lichHocs = await _context.LichHocs
+                    .Where(l => l.GiaoVienId == id)
+                    .ToListAsync();
+
+                _context.LichHocs.RemoveRange(lichHocs);
+
+                // ❗ Xóa GVCN
                 var lops = await _context.Lops
                     .Where(l => l.GiaoVienChuNhiemId == id)
                     .ToListAsync();
@@ -260,11 +283,12 @@ namespace LMS_THPT.Controllers
                 foreach (var l in lops)
                 {
                     l.GiaoVienChuNhiemId = null;
-                    _context.Update(l);
                 }
 
-                await _userManager.DeleteAsync(user);
                 await _context.SaveChangesAsync();
+
+                // ❗ Xóa user
+                await _userManager.DeleteAsync(user);
 
                 TempData["Success"] = "Đã xóa giáo viên khỏi hệ thống!";
             }

@@ -110,13 +110,9 @@ namespace LMS_THPT.Areas.Identity.Pages.Account
                 ));
 
                 // Redirect theo role
-                var roles = await _userManager.GetRolesAsync(user);
-                if (roles.Contains("Admin")) return LocalRedirect("/Admin/Index");
-                if (roles.Contains("GiaoVien")) return LocalRedirect("/GiaoVien/Index");
-                if (roles.Contains("HocSinh")) return LocalRedirect("/HocSinh/Index");
-                if (roles.Contains("HieuTruong")) return LocalRedirect("/HieuTruong/Index");
+              
 
-                return LocalRedirect(returnUrl);
+                return LocalRedirect("/Home/Welcome");
             }
 
             if (result.RequiresTwoFactor)

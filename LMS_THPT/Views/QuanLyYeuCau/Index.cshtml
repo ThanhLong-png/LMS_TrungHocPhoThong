@@ -1,0 +1,227 @@
+﻿@model IEnumerable<LMS_THPT.Models.YeuCauGiaoVien>
+@{
+    ViewData["Title"] = "Quản Lý Yêu Cầu Giáo Viên";
+}
+
+<style>
+    :root {
+        --navy: #1e2a4a;
+        --navy-light: #2d3f6e;
+        --accent: #6c8ebf;
+        --pastel-bg: #f0f4ff;
+        --pastel-blue: #dce8ff;
+        --pastel-green: #d6f5e3;
+        --pastel-yellow: #fff5cc;
+        --pastel-red: #fde8e8;
+        --text-muted: #6b7a99;
+        --radius: 12px;
+    }
+    .ql-page { background: var(--pastel-bg); min-height: 100vh; padding: 2rem; }
+    .ql-header {
+        background: var(--navy); border-radius: var(--radius);
+        padding: 1.5rem 2rem; margin-bottom: 1.5rem;
+    }
+    .ql-header h2 { color: #fff; margin: 0; font-size: 1.4rem; font-weight: 600; }
+    .ql-header p { color: #a8b8d8; margin: 0.25rem 0 0; font-size: 0.85rem; }
+    .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-box { background:#fff; border-radius:10px; border:1px solid #e2e8f5; padding:1.1rem 1.25rem; display:flex; align-items:center; gap:1rem; }
+    .stat-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
+    .stat-icon.all{background:#e8eeff;} .stat-icon.cho{background:var(--pastel-yellow);} .stat-icon.duyet{background:var(--pastel-green);} .stat-icon.tuchoi{background:var(--pastel-red);}
+    .stat-num { font-size:1.6rem; font-weight:700; color:var(--navy); line-height:1; }
+    .stat-label { font-size:0.78rem; color:var(--text-muted); margin-top:0.2rem; }
+    .filter-row { background:#fff; border-radius:var(--radius); border:1px solid #e2e8f5; padding:1rem 1.25rem; margin-bottom:1.25rem; display:flex; gap:1rem; align-items:center; flex-wrap:wrap; }
+    .filter-group { display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; }
+    .filter-group label { font-size:0.8rem; color:var(--text-muted); font-weight:600; white-space:nowrap; }
+    .filter-pill { padding:0.32rem 0.85rem; border-radius:50px; border:1.5px solid #c5d0e8; background:#fff; color:var(--text-muted); font-size:0.78rem; cursor:pointer; text-decoration:none; transition:all 0.18s; white-space:nowrap; }
+    .filter-pill:hover { border-color:var(--navy); color:var(--navy); }
+    .filter-pill.active { background:var(--navy); border-color:var(--navy); color:#fff; }
+    .search-box { margin-left:auto; }
+    .search-box input { border:1.5px solid #c5d0e8; border-radius:8px; padding:0.4rem 0.85rem; font-size:0.84rem; outline:none; width:210px; transition:border-color 0.2s; }
+    .search-box input:focus { border-color:var(--accent); }
+    .table-card { background:#fff; border-radius:var(--radius); border:1px solid #e2e8f5; overflow:hidden; }
+    .table-card table { width:100%; border-collapse:collapse; }
+    .table-card thead tr { background:var(--navy); }
+    .table-card thead th { color:#a8b8d8; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; padding:0.85rem 1rem; text-align:left; white-space:nowrap; }
+    .table-card tbody tr { border-bottom:1px solid #f0f4ff; transition:background 0.15s; }
+    .table-card tbody tr:last-child { border-bottom:none; }
+    .table-card tbody tr:hover { background:#f8faff; }
+    .table-card tbody td { padding:0.8rem 1rem; font-size:0.87rem; color:#374151; vertical-align:middle; }
+    .gv-info { display:flex; align-items:center; gap:0.65rem; }
+    .gv-avatar { width:36px; height:36px; border-radius:50%; background:var(--pastel-blue); color:#2563a8; font-weight:700; font-size:0.82rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .gv-name { font-weight:600; color:var(--navy); font-size:0.88rem; }
+    .gv-ma { font-size:0.73rem; color:var(--text-muted); }
+    .tieu-de-text { font-weight:500; color:var(--navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; display:block; }
+    .badge-loai { display:inline-block; padding:0.2rem 0.65rem; border-radius:50px; font-size:0.72rem; font-weight:600; white-space:nowrap; background:var(--pastel-blue); color:#2563a8; }
+    .badge-loai.nghiphep{background:#fce7f3;color:#9d174d;} .badge-loai.doilich{background:#ede9fe;color:#5b21b6;} .badge-loai.tailieu{background:#d1fae5;color:#065f46;} .badge-loai.khieunai{background:#fee2e2;color:#991b1b;} .badge-loai.khac{background:#f3f4f6;color:#4b5563;}
+    .badge-tt { display:inline-flex; align-items:center; gap:0.3rem; padding:0.25rem 0.75rem; border-radius:50px; font-size:0.75rem; font-weight:600; white-space:nowrap; }
+    .badge-tt::before { content:''; width:6px; height:6px; border-radius:50%; }
+    .badge-cho{background:var(--pastel-yellow);color:#7c5c00;} .badge-cho::before{background:#d4a017;}
+    .badge-duyet{background:var(--pastel-green);color:#166534;} .badge-duyet::before{background:#16a34a;}
+    .badge-tuchoi{background:var(--pastel-red);color:#991b1b;} .badge-tuchoi::before{background:#dc2626;}
+    .ngay-cell { font-size:0.8rem; color:var(--text-muted); }
+    .btn-xuly { background:var(--navy); color:#fff; border:none; border-radius:7px; padding:0.32rem 0.85rem; font-size:0.79rem; font-weight:500; text-decoration:none; transition:background 0.2s; white-space:nowrap; }
+    .btn-xuly:hover { background:var(--navy-light); color:#fff; }
+    .btn-xuly.done { background:#e2e8f5; color:var(--text-muted); }
+    .empty-state { text-align:center; padding:3rem; color:var(--text-muted); }
+    .cho-badge-count { background:#f59e0b; color:#fff; border-radius:50px; padding:0.1rem 0.45rem; font-size:0.7rem; font-weight:700; margin-left:0.2rem; }
+    .alert-box { border-radius:10px; padding:0.85rem 1.25rem; margin-bottom:1rem; font-size:0.88rem; display:flex; align-items:center; gap:0.5rem; }
+    .alert-success { background:var(--pastel-green); border:1px solid #a7f3d0; color:#065f46; }
+    .alert-error { background:var(--pastel-red); border:1px solid #fca5a5; color:#991b1b; }
+</style>
+
+<div class="ql-header" style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+        <h2>📬 Quản Lý Yêu Cầu Giáo Viên</h2>
+        <p>Xem xét và xử lý các yêu cầu từ giáo viên trong trường</p>
+    </div>
+    <a asp-controller="Admin" asp-action="Index" 
+       style="background:#fff; color:var(--navy); border:none; border-radius:8px; 
+              padding:8px 18px; font-size:0.85rem; font-weight:600; text-decoration:none;
+              display:inline-flex; align-items:center; gap:6px; white-space:nowrap;">
+        ← Quay lại
+    </a>
+</div>
+
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-icon all">📋</div>
+            <div><div class="stat-num">@ViewBag.TongSo</div><div class="stat-label">Tổng yêu cầu</div></div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon cho">⏳</div>
+            <div><div class="stat-num" style="color:#7c5c00">@ViewBag.ChoDuyet</div><div class="stat-label">Chờ duyệt</div></div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon duyet">✅</div>
+            <div><div class="stat-num" style="color:#166534">@ViewBag.DaDuyet</div><div class="stat-label">Đã duyệt</div></div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon tuchoi">❌</div>
+            <div><div class="stat-num" style="color:#991b1b">@ViewBag.TuChoi</div><div class="stat-label">Từ chối</div></div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-box alert-success">✅ @TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert-box alert-error">❌ @TempData["Error"]</div>
+    }
+
+    <div class="filter-row">
+        <div class="filter-group">
+            <label>Trạng thái:</label>
+            <a href="@Url.Action("Index")" class="filter-pill @(ViewBag.Filter == null ? "active" : "")">Tất cả</a>
+            <a href="@Url.Action("Index", new { trangThai = 0 })" class="filter-pill @(ViewBag.Filter == "0" ? "active" : "")">
+                ⏳ Chờ duyệt @if ((int)ViewBag.ChoDuyet > 0) { <span class="cho-badge-count">@ViewBag.ChoDuyet</span> }
+            </a>
+            <a href="@Url.Action("Index", new { trangThai = 1 })" class="filter-pill @(ViewBag.Filter == "1" ? "active" : "")">✅ Đã duyệt</a>
+            <a href="@Url.Action("Index", new { trangThai = 2 })" class="filter-pill @(ViewBag.Filter == "2" ? "active" : "")">❌ Từ chối</a>
+        </div>
+        <div class="filter-group">
+            <label>Loại:</label>
+            <a href="@Url.Action("Index")" class="filter-pill @(ViewBag.LoaiFilter == null ? "active" : "")">Tất cả</a>
+            <a href="@Url.Action("Index", new { loai = "NghiPhep" })" class="filter-pill @(ViewBag.LoaiFilter == "NghiPhep" ? "active" : "")">Nghỉ phép</a>
+            <a href="@Url.Action("Index", new { loai = "DoiLich" })" class="filter-pill @(ViewBag.LoaiFilter == "DoiLich" ? "active" : "")">Đổi lịch</a>
+            <a href="@Url.Action("Index", new { loai = "YeuCauTaiNguyen" })" class="filter-pill @(ViewBag.LoaiFilter == "YeuCauTaiNguyen" ? "active" : "")">Tài nguyên</a>
+            <a href="@Url.Action("Index", new { loai = "KhieuNai" })" class="filter-pill @(ViewBag.LoaiFilter == "KhieuNai" ? "active" : "")">Khiếu nại</a>
+        </div>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Tìm giáo viên, tiêu đề..." />
+        </div>
+    </div>
+
+    <div class="table-card">
+        <table id="mainTable">
+            <thead>
+                <tr>
+                    <th>Giáo Viên</th>
+                    <th>Tiêu Đề</th>
+                    <th>Loại</th>
+                    <th>Ngày Gửi</th>
+                    <th>Trạng Thái</th>
+                    <th>Ngày Xử Lý</th>
+                    <th style="text-align:center">Thao Tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="7"><div class="empty-state"><div style="font-size:2.5rem;margin-bottom:0.75rem;">📭</div><div style="font-weight:600;color:#374151;margin-bottom:0.25rem;">Không có yêu cầu nào</div><div style="font-size:0.83rem;">Chưa có yêu cầu nào phù hợp bộ lọc hiện tại</div></div></td></tr>
+                }
+                else
+                {
+                    @foreach (var yc in Model)
+                    {
+                        var initials = yc.GiaoVien?.HoTen != null
+                            ? string.Join("", yc.GiaoVien.HoTen.Split(' ').TakeLast(2).Select(x => x[0]))
+                            : "GV";
+                        var loaiClass = yc.LoaiYeuCau switch {
+                            LMS_THPT.Models.LoaiYeuCau.NghiPhep => "nghiphep",
+                            LMS_THPT.Models.LoaiYeuCau.DoiLich => "doilich",
+                            LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen => "tailieu",
+                            LMS_THPT.Models.LoaiYeuCau.KhieuNai => "khieunai",
+                            _ => "khac"
+                        };
+                        var loaiText = yc.LoaiYeuCau switch {
+                            LMS_THPT.Models.LoaiYeuCau.NghiPhep => "Nghỉ phép",
+                            LMS_THPT.Models.LoaiYeuCau.DoiLich => "Đổi lịch",
+                            LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen => "Tài nguyên",
+                            LMS_THPT.Models.LoaiYeuCau.KhieuNai => "Khiếu nại",
+                            _ => "Khác"
+                        };
+                        var ttClass = yc.TrangThai switch {
+                            LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet => "badge-cho",
+                            LMS_THPT.Models.TrangThaiYeuCau.DaDuyet => "badge-duyet",
+                            LMS_THPT.Models.TrangThaiYeuCau.TuChoi => "badge-tuchoi",
+                            _ => ""
+                        };
+                        var ttText = yc.TrangThai switch {
+                            LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet => "Chờ duyệt",
+                            LMS_THPT.Models.TrangThaiYeuCau.DaDuyet => "Đã duyệt",
+                            LMS_THPT.Models.TrangThaiYeuCau.TuChoi => "Từ chối",
+                            _ => ""
+                        };
+                        <tr>
+                            <td>
+                                <div class="gv-info">
+                                    <div class="gv-avatar">@initials</div>
+                                    <div>
+                                        <div class="gv-name">@(yc.GiaoVien?.HoTen ?? "Không rõ")</div>
+                                        <div class="gv-ma">@(yc.GiaoVien?.UserName ?? yc.MaGiaoVien)</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="tieu-de-text" title="@yc.TieuDe">@yc.TieuDe</span></td>
+                            <td><span class="badge-loai @loaiClass">@loaiText</span></td>
+                            <td class="ngay-cell">@yc.NgayGui.ToString("dd/MM/yyyy")<br/><span style="font-size:0.72rem">@yc.NgayGui.ToString("HH:mm")</span></td>
+                            <td><span class="badge-tt @ttClass">@ttText</span></td>
+                            <td class="ngay-cell">@(yc.NgayXuLy.HasValue ? yc.NgayXuLy.Value.ToString("dd/MM/yyyy") : "—")</td>
+                            <td style="text-align:center">
+                                @if (yc.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet)
+                                {
+                                    <a asp-action="XuLy" asp-route-id="@yc.Id" class="btn-xuly">⚡ Xử lý</a>
+                                }
+                                else
+                                {
+                                    <a asp-action="XuLy" asp-route-id="@yc.Id" class="btn-xuly done">👁 Xem</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.getElementById('searchInput').addEventListener('input', function () {
+        const kw = this.value.toLowerCase();
+        document.querySelectorAll('#mainTable tbody tr').forEach(r => {
+            r.style.display = r.textContent.toLowerCase().includes(kw) ? '' : 'none';
+        });
+    });
+</script>

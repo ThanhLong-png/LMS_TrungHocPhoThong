@@ -3,63 +3,73 @@
 }
 
 <style>
-    /* --- TỔNG THỂ --- */
+    /* ===== BACKGROUND ===== */
     .dashboard-container {
-        padding: 30px 15px;
-        background-color: #f5f7fa;
+        padding: 32px 16px;
         min-height: 100vh;
+        background: linear-gradient(135deg, #f5f7fa, #eef2f7);
     }
 
     .dashboard-title {
-        font-weight: 700;
-        color: #1a1a2e;
-        margin-bottom: 30px;
-        border-left: 5px solid #1a1a2e;
-        padding-left: 15px;
+        font-weight: 800;
+        font-size: 26px;
+        color: #111827;
+        margin-bottom: 28px;
+        padding-left: 14px;
+        border-left: 5px solid #111827;
+        letter-spacing: 0.3px;
     }
 
-    /* --- GRID HỆ THỐNG --- */
+    /* ===== GRID ===== */
     .dashboard-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 25px;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 22px;
+        align-items: stretch;
     }
 
-    /* --- CARD STYLE --- */
+    /* ===== CARD ===== */
     .db-card {
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        border: none;
+        background: #ffffff;
+        border-radius: 16px;
         overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+        transition: all 0.25s ease;
+        border: 1px solid rgba(0,0,0,0.05);
     }
 
         .db-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateY(-6px);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.12);
         }
 
+    /* ===== HEADER ===== */
     .db-card-header {
-        background: #1a1a2e;
-        color: #fff;
-        padding: 15px 20px;
+        padding: 16px 18px;
         display: flex;
         align-items: center;
         gap: 10px;
+        color: #fff;
+        font-weight: 600;
+        font-size: 16px;
+        background: linear-gradient(135deg, #111827, #1f2937);
     }
 
-        .db-card-header h3 {
-            margin: 0;
+        .db-card-header i {
             font-size: 18px;
-            font-weight: 600;
         }
 
-    .db-card-body {
-        padding: 10px 0;
+    /* màu riêng card hệ thống */
+    .db-card.system .db-card-header {
+        background: linear-gradient(135deg, #e53935, #d32f2f);
     }
 
-    /* --- LIST LINKS --- */
+    /* ===== BODY ===== */
+    .db-card-body {
+        padding: 6px 0;
+    }
+
+    /* ===== LIST ===== */
     .db-list {
         list-style: none;
         padding: 0;
@@ -69,38 +79,46 @@
         .db-list li a {
             display: flex;
             align-items: center;
-            padding: 12px 20px;
-            color: #444;
+            gap: 12px;
+            padding: 13px 18px;
+            color: #374151;
             text-decoration: none;
             font-weight: 500;
-            transition: all 0.2s;
-            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #f3f4f6;
+            position: relative;
         }
+
+            .db-list li a i {
+                width: 22px;
+                color: #111827;
+                font-size: 15px;
+                transition: 0.2s;
+            }
+
+            .db-list li a:hover {
+                background: #f9fafb;
+                padding-left: 24px;
+                color: #111827;
+            }
+
+                .db-list li a:hover i {
+                    transform: scale(1.1);
+                }
 
         .db-list li:last-child a {
             border-bottom: none;
         }
 
-        .db-list li a:hover {
-            background-color: #f8f9fa;
-            color: #1a1a2e;
-            padding-left: 25px; /* Hiệu ứng đẩy sang phải khi hover */
-        }
-
-        .db-list li a i {
-            width: 25px;
-            color: #1a1a2e;
-            font-size: 16px;
-        }
-
-    /* --- BADGE TRANG TRÍ --- */
+    /* ===== BADGE (nếu dùng sau này) ===== */
     .count-badge {
         margin-left: auto;
-        background: #e9ecef;
-        color: #666;
-        padding: 2px 8px;
-        border-radius: 20px;
+        background: #eef2f7;
+        color: #6b7280;
+        padding: 3px 10px;
+        border-radius: 999px;
         font-size: 11px;
+        font-weight: 600;
     }
 </style>
 
@@ -108,11 +126,12 @@
     <h2 class="dashboard-title">Bảng điều khiển Admin</h2>
 
     <div class="dashboard-grid">
-        
+
+        <!-- CÁ NHÂN -->
         <div class="db-card">
             <div class="db-card-header">
                 <i class="fa-solid fa-user-gear"></i>
-                <h3>Cá nhân</h3>
+                Cá nhân
             </div>
             <div class="db-card-body">
                 <ul class="db-list">
@@ -130,10 +149,11 @@
             </div>
         </div>
 
-        <div class="db-card">
-            <div class="db-card-header" style="background: #E53935;">
+        <!-- HỆ THỐNG -->
+        <div class="db-card system">
+            <div class="db-card-header">
                 <i class="fa-solid fa-list-check"></i>
-                <h3>Hệ thống Quản lý</h3>
+                Hệ thống Quản lý
             </div>
             <div class="db-card-body">
                 <ul class="db-list">
@@ -153,18 +173,18 @@
                         </a>
                     </li>
                     <li>
-                        <a href='@Url.Action("Index", "Lop")'>
-                            <i class="fa-solid fa-school"></i> Quản lý lớp học
+                        <a asp-controller="QuanLyYeuCau" asp-action="Index">
+                            <i class="fa-solid fa-school"></i> Quản lý yêu cầu
                         </a>
                     </li>
                     <li>
-                        <a href='@Url.Action("QuanLyDiem", "Admin")'>
-                            <i class="fa-solid fa-star"></i> Quản lý điểm / huy hiệu
+                        <a asp-controller="ThongBao" asp-action="Index">
+                            <i class="fa-solid fa-star"></i> Thông báo
                         </a>
                     </li>
                     <li>
-                        <a href='@Url.Action("HanhTrang", "Admin")'>
-                            <i class="fa-solid fa-briefcase"></i> Thiết lập hành trang
+                           <a asp-controller="Lichhoc" asp-action="ThoiKhoaBieu">
+                            <i class="fa-solid fa-star"></i> Lịch học
                         </a>
                     </li>
                 </ul>

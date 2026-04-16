@@ -21,10 +21,8 @@ namespace LMS_THPT.Controllers
         [AllowAnonymous]
         public IActionResult Login(string? returnUrl = null)
         {
-            // Use Identity UI login page (Area = Identity)
-            if (!string.IsNullOrEmpty(returnUrl))
-                return RedirectToPage("/Account/Login", new { area = "Identity", returnUrl });
-            return RedirectToPage("/Account/Login", new { area = "Identity" });
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
         }
 
         [HttpPost]
@@ -34,16 +32,16 @@ namespace LMS_THPT.Controllers
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
-                // Redirect to Identity login page when missing credentials
-                return RedirectToPage("/Account/Login", new { area = "Identity", returnUrl });
+                ModelState.AddModelError("", "Tên đăng nhập và mật khẩu không được để trống.");
+                return View();
             }
 
             var user = await _userManager.FindByEmailAsync(username);
 
             if (user == null)
             {
-                // Redirect to Identity login page if user not found
-                return RedirectToPage("/Account/Login", new { area = "Identity", returnUrl });
+                ModelState.AddModelError("", "Tài khoản không tồn tại.");
+                return View();
             }
 
             var result = await _signInManager.PasswordSignInAsync(user.UserName, password, rememberMe, false);
@@ -55,8 +53,8 @@ namespace LMS_THPT.Controllers
                 if (roles.Contains("Admin"))
                     return RedirectToAction("Index", "Admin");
 
-                if (roles.Contains("GiaoVien"))
-                    return RedirectToAction("Index", "GiaoVien");
+                if (roles.Contains("GiangVien"))
+                    return RedirectToAction("Index", "GiangVien");
 
                 if (roles.Contains("HocSinh"))
                     return RedirectToAction("Index", "HocSinh");
@@ -67,8 +65,8 @@ namespace LMS_THPT.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // If sign-in failed, redirect to the Identity login page so UI shows proper errors
-            return RedirectToPage("/Account/Login", new { area = "Identity", returnUrl });
+            ModelState.AddModelError("", "Sai mật khẩu.");
+            return View();
         }
 
         [HttpPost]
