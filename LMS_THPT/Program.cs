@@ -8,6 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 // Không gán ExcelPackage.License nữa
 // ExcelPackage.License = LicenseContext.NonCommercial; ❌ Xoá dòng này
+ExcelPackage.License.SetNonCommercialPersonal("Long");
+// Không gán ExcelPackage.License nữa
+// ExcelPackage.License = LicenseContext.NonCommercial; ❌ Xoá dòng này
 
 // --- Các service bình thường ---
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -46,6 +49,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseStaticFiles();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
