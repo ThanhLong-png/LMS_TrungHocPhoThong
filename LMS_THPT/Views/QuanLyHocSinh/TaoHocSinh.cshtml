@@ -1,0 +1,263 @@
+@{
+    ViewData["Title"] = "Thêm Học sinh";
+    int lopId = ViewBag.LopId;
+    string tenLop = ViewBag.TenLop ?? "";
+    string maHocSinhGoi = ViewBag.MaHocSinhGoi ?? "";
+}
+
+<style>
+    .form-card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+        padding: 32px 36px;
+        max-width: 560px;
+    }
+
+    .form-page-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 6px;
+    }
+
+    .form-page-sub {
+        font-size: 13px;
+        color: #6c757d;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .form-label-custom {
+        font-size: 13px;
+        font-weight: 600;
+        color: #2d2d2d;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+        .form-label-custom span {
+            color: #c62828;
+            margin-left: 2px;
+        }
+
+    .form-control-custom {
+        width: 100%;
+        padding: 8px 12px;
+        font-size: 14px;
+        border: 1px solid #d0d0d0;
+        border-radius: 6px;
+        color: #2d2d2d;
+        transition: border-color 0.15s;
+        outline: none;
+        box-sizing: border-box;
+    }
+
+        .form-control-custom:focus {
+            border-color: #1a1a2e;
+            box-shadow: 0 0 0 3px rgba(26,26,46,0.08);
+        }
+
+    .form-row {
+        display: flex;
+        gap: 16px;
+    }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 28px;
+        padding-top: 20px;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .btn-submit {
+        padding: 8px 22px;
+        background: #1a1a2e;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.15s;
+    }
+
+        .btn-submit:hover {
+            opacity: 0.85;
+        }
+
+    .btn-back {
+        padding: 8px 22px;
+        background: #f5f5f5;
+        color: #2d2d2d;
+        border: 1px solid #d0d0d0;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: background 0.15s;
+    }
+
+        .btn-back:hover {
+            background: #e8e8e8;
+            text-decoration: none;
+            color: #2d2d2d;
+        }
+
+    .alert-error {
+        background: #fff5f5;
+        border: 1px solid #ffcdd2;
+        border-radius: 6px;
+        padding: 10px 16px;
+        font-size: 14px;
+        color: #c62828;
+        margin-bottom: 20px;
+    }
+
+    .field-hint {
+        font-size: 12px;
+        color: #888;
+        margin-top: 5px;
+    }
+
+        .field-hint strong {
+            color: #1a1a2e;
+        }
+</style>
+
+<div class="form-card">
+    <div class="form-page-title">Thêm học sinh mới</div>
+    <div class="form-page-sub">Các trường có dấu <span style="color:#c62828;">*</span> là bắt buộc</div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert-error">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div>⚠ @error.ErrorMessage</div>
+            }
+        </div>
+    }
+
+    <form asp-action="TaoHocSinh" method="post">
+        <input type="hidden" name="lopId" value="@lopId" />
+
+        <!-- Họ tên + Mã học sinh -->
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label-custom">Họ và tên <span>*</span></label>
+                <input type="text" name="hoTen" class="form-control-custom"
+                       placeholder="VD: Nguyễn Văn A" />
+            </div>
+            <div class="form-group">
+                <label class="form-label-custom">Mã học sinh</label>
+                <div style="display:flex;gap:6px;align-items:center;">
+                    <input type="text" id="maHocSinh" name="maHocSinhHienThi"
+                           class="form-control-custom"
+                           value="@maHocSinhGoi"
+                           readonly
+                           style="background:#f7f8fa;color:#1a1a2e;font-weight:700;letter-spacing:1px;cursor:default;"
+                           title="Mã được tự động sinh" />
+                    <button type="button" id="btnRefreshMa" title="Làm mới mã"
+                            style="padding:8px 10px;background:#e8eaf6;border:1px solid #c5cae9;border-radius:6px;cursor:pointer;font-size:15px;flex-shrink:0;"
+                            onclick="refreshMa()">↻</button>
+                </div>
+                <div class="field-hint">
+                    ℹ️ Mã tự động: <strong id="maBadge" style="color:#1a1a2e;">@maHocSinhGoi</strong>
+                    &nbsp;<span style="color:#aaa;">(Năm + Lớp + STT)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ngày sinh + Giới tính -->
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label-custom">Ngày sinh</label>
+                <input type="date" name="ngaySinh" class="form-control-custom" />
+            </div>
+            <div class="form-group">
+                <label class="form-label-custom">Giới tính</label>
+                <select name="gioiTinh" class="form-control-custom">
+                    <option value="">-- Chọn --</option>
+                    <option value="Nam">Nam</option>
+                    <option value="Nữ">Nữ</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Địa chỉ -->
+        <div class="form-group">
+            <label class="form-label-custom">Địa chỉ</label>
+            <input type="text" name="diaChi" class="form-control-custom"
+                   placeholder="VD: 123 Lê Lợi, Huế" />
+        </div>
+
+        <!-- Mật khẩu -->
+        <div class="form-group">
+            <label class="form-label-custom">Mật khẩu <span>*</span></label>
+            <input type="text" name="matKhau" id="matKhau" class="form-control-custom"
+                   value="@maHocSinhGoi"
+                   placeholder="Mặc định = mã học sinh" />
+            <div class="field-hint">
+                Mật khẩu mặc định theo mã học sinh: <strong id="matKhauHint">@maHocSinhGoi</strong>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-submit">Thêm học sinh</button>
+            <a asp-action="HocSinhs" asp-route-lopId="@lopId" class="btn-back">Quay lại</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        const lopId = @lopId;
+        const mkInput = document.getElementById('matKhau');
+        const mkHint  = document.getElementById('matKhauHint');
+        const maInput = document.getElementById('maHocSinh');
+        const maBadge = document.getElementById('maBadge');
+        let userEditedPassword = false;
+
+        mkInput.addEventListener('input', () => {
+            userEditedPassword = true;
+        });
+
+        function applyMa(ma) {
+            maInput.value = ma;
+            maBadge.textContent = ma;
+            mkHint.textContent = ma;
+            if (!userEditedPassword) {
+                mkInput.value = ma;
+            }
+        }
+
+        async function refreshMa() {
+            const btn = document.getElementById('btnRefreshMa');
+            btn.disabled = true;
+            btn.textContent = '...';
+            try {
+                const res = await fetch(`/QuanLyHocSinh/GetNextMaHocSinh?lopId=${lopId}`);
+                const data = await res.json();
+                applyMa(data.ma);
+            } catch (e) {
+                console.error('Không thể lấy mã:', e);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '↻';
+            }
+        }
+    </script>
+}

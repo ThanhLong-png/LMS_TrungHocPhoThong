@@ -1,0 +1,223 @@
+﻿@model LMS_THPT.Models.Khoi
+@{
+    ViewData["Title"] = "Lớp - Khối " + Model.TenKhoi;
+}
+
+<style>
+    /* --- GIỮ NGUYÊN CSS CỦA BẠN --- */
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid #e0e0e0;
+    }
+
+    .page-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin: 0;
+    }
+
+    .page-subtitle {
+        font-size: 14px;
+        color: #6c757d;
+        margin-top: 4px;
+    }
+
+    .table-wrapper {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .table-lop {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+    }
+
+    .table-lop thead tr {
+        background: #1a1a2e;
+        color: #fff;
+    }
+
+    .table-lop thead th {
+        padding: 13px 18px;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.4px;
+        border: none;
+    }
+
+    .table-lop tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.15s;
+    }
+
+    .table-lop tbody tr:hover {
+        background: #f5f7fa;
+    }
+
+    .table-lop tbody td {
+        padding: 13px 18px;
+        vertical-align: middle;
+        border: none;
+        font-size: 14px;
+        color: #2d2d2d;
+    }
+
+    .ten-lop {
+        font-weight: 700;
+        font-size: 15px;
+        color: #1a1a2e;
+    }
+
+    .gvcn-text {
+        font-size: 13px;
+        color: #6c757d;
+        margin-top: 3px;
+    }
+
+    /* Thêm style cho badge số lượng học sinh */
+    .badge-hs {
+        background: #e8eaf6;
+        color: #3f51b5;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .action-group {
+        display: flex;
+        gap: 6px;
+        justify-content: center;
+    }
+
+    .btn-action {
+        padding: 5px 14px;
+        border-radius: 5px;
+        font-size: 13px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: opacity 0.15s;
+    }
+
+    .btn-action:hover {
+        opacity: 0.82;
+        text-decoration: none;
+    }
+
+    .btn-view  { background: #1565C0; color: #fff; }
+    .btn-edit  { background: #E65100; color: #fff; }
+    .btn-del   { background: #B71C1C; color: #fff; }
+
+    .btn-back { color: #6c757d; text-decoration: none; font-size: 14px; }
+    .btn-them { background: #1a1a2e; color: #fff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; }
+
+    .empty-state {
+        text-align: center;
+        padding: 48px;
+        color: #9e9e9e;
+        font-size: 14px;
+    }
+
+    .stt-col {
+        width: 50px;
+        text-align: center;
+        color: #9e9e9e;
+        font-size: 13px;
+    }
+</style>
+
+<div class="page-header">
+    <div>
+        <h2 class="page-title"> @Model.TenKhoi &mdash; Danh sách lớp</h2>
+        <div class="page-subtitle">Tổng số: @(Model.Lops?.Count ?? 0) lớp</div>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center;">
+        <a asp-action="Index" class="btn-back">
+            &#8592; Quay lại
+        </a>
+        <a asp-action="TaoLop" asp-route-khoiId="@Model.Id" class="btn-them">
+            &#43; Thêm lớp mới
+        </a>
+    </div>
+</div>
+
+<div class="table-wrapper">
+    <table class="table-lop">
+        <thead>
+            <tr>
+                <th class="stt-col">STT</th>
+                <th>Tên lớp</th>
+                <th style="text-align:center;">Sĩ số</th> @* Cột mới thêm *@
+                <th>Giáo viên chủ nhiệm</th>
+                <th style="text-align:center; width:220px;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Lops != null && Model.Lops.Any())
+            {
+                int stt = 1;
+                var sortedLops = Model.Lops.OrderBy(l => l.TenLop).ToList();
+
+                foreach (var lop in sortedLops)
+                {
+                    <tr>
+                        <td class="stt-col">@stt</td>
+                        <td>
+                            <div class="ten-lop">@lop.TenLop</div>
+                        </td>
+                        <td style="text-align:center;">
+                            @* Hiển thị số lượng học sinh bằng một badge nhỏ cho đẹp *@
+                            <span class="badge-hs">
+                                @(lop.HocSinhs?.Count ?? 0) HS
+                            </span>
+                        </td>
+                        <td>
+                            <div class="gvcn-text">
+                                @(lop.GiaoVienChuNhiem?.HoTen ?? "Chưa phân công")
+                            </div>
+                        </td>
+                        <td style="text-align:center;">
+                            <div class="action-group">
+                                <a asp-action="HocSinhs" asp-route-lopId="@lop.Id"
+                                   class="btn-action btn-view">Xem lớp</a>
+
+                                <a asp-action="MonHocs" asp-route-lopId="@lop.Id"
+                                   class="btn-action btn-view">Xem môn</a>
+
+                                <a asp-action="SuaLop" asp-route-id="@lop.Id"
+                                   class="btn-action btn-edit">Sửa</a>
+
+                                <form asp-action="XoaLop" method="post"
+                                      onsubmit="return confirm('Xác nhận xóa lớp @lop.TenLop?');" style="display:inline;">
+                                    <input type="hidden" name="id" value="@lop.Id" />
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-action btn-del">Xóa</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    stt++;
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" class="empty-state">
+                         @Model.TenKhoi chưa có lớp nào.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

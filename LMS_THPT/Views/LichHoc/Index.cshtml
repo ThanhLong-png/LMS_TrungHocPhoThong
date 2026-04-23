@@ -1,0 +1,57 @@
+﻿@model IEnumerable<LMS_THPT.Models.LichHoc>
+
+@{
+    ViewData["Title"] = "Quản lý thời khóa biểu";
+}
+
+<h2>📅 Quản lý thời khóa biểu</h2>
+
+<!-- ===================== -->
+<!-- 🔍 XEM TKB THEO LỚP -->
+<!-- ===================== -->
+<form method="get" action="/LichHoc/ThoiKhoaBieu" style="margin-bottom:15px;">
+    <input name="lop" placeholder="Nhập lớp (VD: 10A1)" />
+    <button type="submit">📖 Xem thời khóa biểu</button>
+</form>
+
+<!-- ===================== -->
+<!-- ➕ THÊM MỚI -->
+<!-- ===================== -->
+<a href="/LichHoc/Create" style="padding:8px 12px; background:black; color:white; text-decoration:none;">
+    ➕ Thêm lịch học
+</a>
+
+<br />
+<br />
+
+<!-- ===================== -->
+<!-- 📋 BẢNG DANH SÁCH -->
+<!-- ===================== -->
+<table border="1" width="100%" cellpadding="8">
+    <tr style="background:#f2f2f2;">
+        <th>Lớp</th>
+        <th>Môn học</th>
+        <th>Giáo viên</th>
+        <th>Thứ</th>
+        <th>Tiết</th>
+        <th>Phòng</th>
+        <th>Hành động</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Lop</td>
+            <td>@item.MonHoc</td>
+            <td>@item.GiaoVien</td>
+            <td>Thứ @item.Thu</td>
+            <td>Tiết @item.TietHoc</td>
+            <td>@item.PhongHoc</td>
+            <td>
+                <a href="/LichHoc/Edit/@item.Id">✏ Sửa</a> |
+                <a href="/LichHoc/Delete/@item.Id"
+                   onclick="return confirm('Xóa lịch này?')">🗑 Xóa</a>
+            </td>
+        </tr>
+    }
+</table>

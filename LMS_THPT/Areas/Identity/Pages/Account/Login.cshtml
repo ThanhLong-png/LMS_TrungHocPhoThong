@@ -1,0 +1,58 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+
+    <div class="card shadow p-4" style="width: 400px; border-radius: 15px;">
+
+        <!-- TIÊU ĐỀ -->
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-primary">🎓 LMS THPT</h2>
+            <p class="text-muted">Đăng nhập hệ thống</p>
+        </div>
+
+        <!-- FORM -->
+        <form method="post">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <!-- TÊN ĐĂNG NHẬP -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.UserName" class="form-control" placeholder="Tên đăng nhập" />
+                <label asp-for="Input.UserName">Tên đăng nhập</label>
+                <span asp-validation-for="Input.UserName" class="text-danger"></span>
+            </div>
+
+            <!-- MẬT KHẨU -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Password" type="password" class="form-control" placeholder="Mật khẩu" />
+                <label asp-for="Input.Password">Mật khẩu</label>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <!-- GHI NHỚ -->
+            <div class="form-check mb-3">
+                <input class="form-check-input" asp-for="Input.RememberMe" />
+                <label class="form-check-label" asp-for="Input.RememberMe">
+                    Ghi nhớ đăng nhập
+                </label>
+            </div>
+
+            <!-- BUTTON -->
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                🔑 Đăng nhập
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

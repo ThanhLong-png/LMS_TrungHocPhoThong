@@ -1,0 +1,282 @@
+﻿@model IEnumerable<dynamic>
+@{
+    ViewData["Title"] = "Quản lý Giáo viên";
+}
+
+<style>
+    .page-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #e0e0e0;
+    }
+    .page-title { font-size: 24px; font-weight: 700; color: #1a1a2e; margin: 0; }
+    
+    .table-wrapper {
+        background: #fff; border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden;
+    }
+    .table-custom { width: 100%; border-collapse: collapse; }
+    .table-custom thead { background: #1a1a2e; color: #fff; }
+    .table-custom th { padding: 15px; font-size: 13px; text-transform: uppercase; }
+    .table-custom td { padding: 12px 15px; border-bottom: 1px solid #f1f3f5; font-size: 14px; }
+
+    .row-k10 { border-left: 4px solid #3f51b5; background-color: #f8f9ff; }
+    .row-k11 { border-left: 4px solid #4caf50; background-color: #f6fff7; }
+    .row-k12 { border-left: 4px solid #f44336; background-color: #fff9fa; }
+
+    .badge-gv { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #fff; }
+    .bg-nam { background: #1e88e5; }
+    .bg-nu { background: #d81b60; }
+    
+    .btn-action { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; text-decoration: none; display: inline-block; }
+    .btn-back { color: #6c757d; text-decoration: none; font-size: 14px; }
+    .btn-them { background: #1a1a2e; color: #fff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; }
+    .btn-edit { background: #e3f2fd; color: #1565c0; }
+    .btn-del { background: #ffebee; color: #c62828; }
+    .btn-add { background: #1a1a2e; color: #fff; }
+
+    .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(26,26,46,0.6); z-index:1000; align-items:center; justify-content:center; backdrop-filter: blur(4px); }
+    .modal-box { background:#fff; width:100%; max-width:500px; border-radius:15px; overflow:hidden; }
+</style>
+
+<div class="page-header" style="flex-wrap:wrap; gap:10px;">
+    <div>
+        <h2 class="page-title">Hệ thống Giáo viên</h2>
+        <small class="text-muted">Tổng số: @ViewBag.SoLuong giáo viên</small>
+    </div>
+
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <!-- Nút Quay lại -->
+        <a href="/Admin/Index" class="btn btn-light" style="border-radius:8px; padding:8px 16px; color:#666; border:1px solid #ccc; font-weight:600;">
+            ← Quay lại
+        </a>
+
+        <!-- Nút Thêm giáo viên -->
+        <a asp-action="TaoGiaoVien" class="btn btn-primary" style="background:#1a1a2e; color:#fff; border-radius:8px; padding:8px 16px; font-weight:600;">
+            + Thêm giáo viên mới
+        </a>
+
+        <!-- Form tìm kiếm -->
+        <form method="get" asp-action="Index" style="display:flex; gap:5px; align-items:center;">
+            <input type="text" name="search" value="@ViewBag.Search" placeholder="Tìm giáo viên theo tên..." 
+                   style="padding:8px 12px; border-radius:8px; border:1px solid #ccc; font-size:14px; min-width:220px;" />
+            <button type="submit" class="btn btn-primary" style="background:#1a1a2e; color:#fff; border-radius:8px; padding:8px 16px; font-weight:600;">
+                🔍 Tìm
+            </button>
+        </form>
+        
+        @* Nút reset tìm kiếm nếu có giá trị *@
+        @if(!string.IsNullOrEmpty(ViewBag.Search as string))
+        {
+            <a asp-action="Index" class="btn btn-light" style="border-radius:8px; padding:8px 16px; color:#666; font-weight:600; border:1px solid #ccc;">
+                ✖ Xóa tìm kiếm
+            </a>
+        }
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success" style="padding:12px; background:#e8f5e9; color:#2e7d32; border-radius:8px; margin-bottom:20px;">
+        ✔ @TempData["Success"]
+    </div>
+}
+
+<div class="table-wrapper">
+    <table class="table-custom">
+        <thead>
+            <tr>
+                <th>Mã số</th>
+                <th>Họ và Tên</th>
+                <th>Giới tính</th>
+                <th>Chuyên môn</th>
+                <th>Chủ nhiệm</th>
+                <th>Chức vụ</th>
+                <th>Ngày sinh</th>
+                <th style="text-align:center;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var tenKhoi = item.TenKhoi as string ?? "";
+                string kClass = tenKhoi.Contains("10") ? "row-k10"
+                                : tenKhoi.Contains("11") ? "row-k11"
+                                : tenKhoi.Contains("12") ? "row-k12"
+                                : "";
+
+                var gioiTinh = item.User.GioiTinh ?? "";
+
+                <tr class="@kClass">
+                    <td style="font-weight:700; color:#c62828;">@item.User.UserName</td>
+                    <td>
+                        <div style="font-weight:700;">@item.User.HoTen</div>
+                    </td>
+
+                    <td>
+                        <span class="badge-gv @(gioiTinh == "Nam" ? "bg-nam" : "bg-nu")">
+                            @(string.IsNullOrEmpty(gioiTinh) ? "---" : gioiTinh)
+                        </span>
+                    </td>
+
+                    <td>
+                        @{
+                            var monList = item.MonPhanCong as IEnumerable<string>;
+                            if (monList != null && monList.Any())
+                            {
+                                <span>@string.Join(", ", monList)</span>
+                            }
+                            else
+                            {
+                                @(item.User.ChuyenMon ?? "---")
+                            }
+                        }
+                    </td>
+
+                    <td>
+                        <b>@item.TenLop</b><br />
+                        <small>@item.TenKhoi</small>
+                    </td>
+
+                    <td>@(item.User.ChucVu ?? "---")</td>
+                    <td>@(item.User.NgaySinh?.ToString("dd/MM/yyyy") ?? "---")</td>
+
+                    <td style="text-align:center;">
+                        <button class="btn-action btn-edit" onclick="openEditModal('@item.User.Id')">Sửa</button>
+
+                        <form asp-action="XoaGiaoVien" method="post" style="display:inline;" onsubmit="return confirm('Xóa giáo viên này?')">
+                            <input type="hidden" name="id" value="@item.User.Id" />
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn-action btn-del">Xóa</button>
+                        </form>
+
+                        <form asp-action="ToggleActive" method="post" style="display:inline; margin-left:6px;">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@item.User.Id" />
+                            <button type="submit" class="btn-action" style="background:@(item.User.IsActive ? "#ffebee" : "#e8f5e9"); color:@(item.User.IsActive ? "#c62828" : "#2e7d32");">@(item.User.IsActive ? "Khóa" : "Kích hoạt")</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@* MODAL SỬA GIÁO VIÊN - FLEXBOX 2 CỘT CHUẨN, GIỐNG FORM THÊM GV *@
+<div id="modalSua" class="modal-overlay" style="display:none; justify-content:center; align-items:flex-start; position:fixed; inset:0; background: rgba(0,0,0,0.4); z-index:1000; padding-top:50px;">
+    <div class="modal-box" style="background:#fff; border-radius:10px; width:700px; max-width:95%; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+
+        <!-- Header -->
+        <div class="modal-header" style="margin-bottom:20px; text-align:center;">
+            <h3 style="margin:0; font-weight:600;">Chỉnh sửa Giáo viên</h3>
+        </div>
+
+        <form asp-action="SuaGiaoVien" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" id="edit-id" />
+
+            <!-- Họ và tên (full width) -->
+            <div style="margin-bottom:15px;">
+                <label class="form-label">Họ và tên</label>
+                <input type="text" name="hoTen" id="edit-hoTen" class="input-custom" style="width:100%; padding:8px; border-radius:6px; border:1px solid #ccc;" required />
+            </div>
+
+            <!-- Giới tính + Ngày sinh (2 cột) -->
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <div style="flex:1;">
+                    <label class="form-label">Giới tính</label>
+                    <select name="gioiTinh" id="edit-gioiTinh" class="input-custom" style="width:100%; padding:8px; border-radius:6px; border:1px solid #ccc;">
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                    </select>
+                </div>
+                <div style="flex:1;">
+                    <label class="form-label">Ngày sinh</label>
+                    <input type="date" name="ngaySinh" id="edit-ngaySinh" class="input-custom" style="width:100%; padding:8px; border-radius:6px; border:1px solid #ccc;" />
+                </div>
+            </div>
+
+            <!-- Chức vụ + Lớp chủ nhiệm (2 cột) -->
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <div style="flex:1;">
+                    <label class="form-label">Chức vụ</label>
+                    <select name="chucVu" id="edit-chucVu" class="input-custom" style="width:100%; padding:8px; border-radius:6px; border:1px solid #ccc;">
+                        <option value="Giáo viên">Giáo viên</option>
+                        <option value="Tổ trưởng">Tổ trưởng</option>
+                        <option value="Ban giám hiệu">Ban giám hiệu</option>
+                    </select>
+                </div>
+                <div style="flex:1;">
+                    <label class="form-label ">Phân công lớp chủ nhiệm</label>
+                    <select name="lopId" id="edit-lopId" class="input-custom" style="width:100%; padding:8px; border-radius:6px; border:1px solid #ccc;">
+                        <option value="">-- Không phân công chủ nhiệm --</option>
+                        @foreach (var l in ViewBag.TatCaLop)
+                        {
+                            <option value="@l.Id">Lớp @l.TenLop (Khối @l.MaKhoi)</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- Chuyên môn (full width) -->
+            <div style="margin-bottom:15px;">
+                <label class="form-label">Chuyên môn / Môn dạy</label>
+                <input type="text" name="chuyenMon" id="edit-chuyenMon" class="input-custom" style="width:100%; padding:8px; border-radius:6px; border:1px solid #ccc;" required />
+            </div>
+
+            <!-- Địa chỉ (full width) -->
+            <div style="margin-bottom:15px;">
+                <label class="form-label">Địa chỉ</label>
+                <input type="text" name="diaChi" id="edit-diaChi" class="input-custom" style="width:100%; padding:8px; border-radius:6px; border:1px solid #ccc;" placeholder="Nhập địa chỉ liên hệ" />
+            </div>
+
+            <!-- Mật khẩu + Xác nhận mật khẩu (2 cột) -->
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <div style="flex:1;">
+                    <label class="form-label">Mật khẩu mới</label>
+                    <input type="password" name="matKhauMoi" id="edit-matKhau" class="input-custom" style="width:100%; padding:8px; border-radius:6px; border:1px solid #ccc;" placeholder="Nhập mật khẩu mới" />
+                </div>
+                <div style="flex:1;">
+                    <label class="form-label ">Xác nhận mật khẩu</label>
+                    <input type="password" name="xacNhanMatKhau" id="edit-xacNhanMatKhau" class="input-custom" style="width:100%; padding:8px; border-radius:6px; border:1px solid #ccc;" placeholder="Nhập lại mật khẩu mới" />
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px; border-top:1px solid #eee; padding-top:10px;">
+                <button type="button" onclick="closeEditModal()" class="btn btn-light" style="border-radius:8px; padding:8px 16px;">Hủy</button>
+                <button type="submit" class="btn btn-primary" style="border-radius:8px; padding:8px 16px;">Cập nhật</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function openEditModal(id) {
+        fetch(`/QuanLyGiaoVien/GetGiaoVien/${id}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('edit-id').value        = data.id;
+                document.getElementById('edit-hoTen').value     = data.hoTen;
+                document.getElementById('edit-gioiTinh').value  = data.gioiTinh;
+                document.getElementById('edit-chucVu').value    = data.chucVu;
+                document.getElementById('edit-chuyenMon').value = data.chuyenMon;
+                document.getElementById('edit-ngaySinh').value  = data.ngaySinh || '';
+                document.getElementById('edit-diaChi').value    = data.diaChi || '';
+                document.getElementById('edit-lopId').value     = data.maLop || '';
+                document.getElementById('edit-matKhau').value   = '';
+                document.getElementById('edit-xacNhanMatKhau').value = '';
+
+                document.getElementById('modalSua').style.display = 'flex';
+            });
+    }
+
+    function closeEditModal() {
+        document.getElementById('modalSua').style.display = 'none';
+    }
+
+    document.getElementById('modalSua').addEventListener('click', function(e) {
+        if (e.target === this) closeEditModal();
+    });
+</script>
+}

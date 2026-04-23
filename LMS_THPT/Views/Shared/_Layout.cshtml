@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - LMS_THPT</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+
+<body>
+
+    <header>
+        <nav class="navbar navbar-dark bg-dark shadow px-3">
+
+            <!-- LEFT: LOGO -->
+            <a class="navbar-brand"
+                   asp-controller="Home"
+                   asp-action="@(User.Identity.IsAuthenticated ? "Welcome" : "Index")">
+                🎓 LMS Quốc Học Huế
+            </a>
+
+            <!-- RIGHT AREA -->
+            <div class="d-flex align-items-center gap-3">
+
+                @if (User.Identity.IsAuthenticated)
+                {
+                    var avatarClaim = User.Claims.FirstOrDefault(c => c.Type == "AnhDaiDien")?.Value;
+
+                    var avatarUrl = string.IsNullOrEmpty(avatarClaim)
+                        ? Url.Content("~/images/default-avatar.png")
+                        : Url.Content(avatarClaim.StartsWith("~") ? avatarClaim : "~/" + avatarClaim.TrimStart('/'));
+
+                    <!-- AVATAR + NAME (CLICK → DASHBOARD) -->
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-controller="Admin" asp-action="Index"
+                               class="d-flex align-items-center text-white text-decoration-none gap-2">
+
+                            <img src="@avatarUrl"
+                                 class="rounded-circle"
+                                 style="width:38px;height:38px;object-fit:cover;border:2px solid #fff;" />
+
+                            <span class="fw-semibold">
+                                @User.Identity.Name
+                            </span>
+                        </a>
+                    }
+                    else if (User.IsInRole("HieuTruong"))
+                    {
+                        <a asp-controller="HieuTruong" asp-action="Index"
+                               class="d-flex align-items-center text-white text-decoration-none gap-2">
+
+                            <img src="@avatarUrl"
+                                 class="rounded-circle"
+                                 style="width:38px;height:38px;object-fit:cover;border:2px solid #fff;" />
+
+                            <span class="fw-semibold">
+                                @User.Identity.Name
+                            </span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Home" asp-action="Welcome"
+                               class="d-flex align-items-center text-white text-decoration-none gap-2">
+
+                            <img src="@avatarUrl"
+                                 class="rounded-circle"
+                                 style="width:38px;height:38px;object-fit:cover;border:2px solid #fff;" />
+
+                            <span class="fw-semibold">
+                                @User.Identity.Name
+                            </span>
+                        </a>
+                    }
+
+                    <!-- LOGOUT (BÊN PHẢI NGOÀI CÙNG) -->
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+
+                        <button class="logout-btn">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Đăng xuất</span>
+                        </button>
+
+                    </form>
+                }
+
+            </div>
+
+        </nav>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="container mt-4">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="text-center text-muted py-3 border-top mt-4">
+        &copy; 2026 - LMS_THPT
+    </footer>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

@@ -1,0 +1,206 @@
+﻿@{
+    ViewData["Title"] = "Welcome";
+    var thongBaoList = ViewBag.ThongBao as List<LMS_THPT.Models.ThongBao>;
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+}
+
+<style>
+.page {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+}
+
+/* LEFT */
+.left {
+    background: linear-gradient(135deg,#eef3ff,#dce8ff);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.left img {
+    max-width: 420px;
+    width: 100%;
+    animation: floatY 4s ease-in-out infinite;
+}
+
+/* RIGHT */
+.right {
+    padding: 2rem;
+    background:#f8faff;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+/* STATS */
+.stats {
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+.stat {
+    background:#fff;
+    padding:20px;
+    border-radius:16px;
+    text-align:center;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+    transition:0.2s;
+}
+
+.stat:hover {
+    transform: translateY(-3px);
+}
+
+.stat-num {
+    font-size:26px;
+    font-weight:600;
+    color:#1e2a4a;
+}
+
+.stat-label {
+    font-size:13px;
+    color:#6b7a99;
+}
+
+/* NOTIFICATION */
+.tb-box {
+    background:#fff;
+    border-radius:16px;
+    padding:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
+
+.tb-title {
+    font-weight:600;
+    margin-bottom:10px;
+    color:#1e2a4a;
+}
+
+.tb-list {
+    flex:1;
+    overflow:auto;
+}
+
+.tb-item {
+    padding:10px;
+    border-bottom:1px solid #eee;
+}
+
+.tb-item:last-child {
+    border:none;
+}
+
+.tb-time {
+    font-size:11px;
+    color:#999;
+}
+
+/* PAGINATION */
+.pagination {
+    display:flex;
+    justify-content:center;
+    gap:6px;
+    margin-top:10px;
+}
+
+.pagination a {
+    padding:6px 10px;
+    border-radius:6px;
+    background:#eef3ff;
+    text-decoration:none;
+    color:#1e2a4a;
+    font-size:13px;
+}
+
+.pagination a.active {
+    background:#4f6bb5;
+    color:#fff;
+}
+
+/* ANIMATION */
+@@keyframes floatY {
+    0% { transform:translateY(0); }
+    50% { transform:translateY(-10px); }
+    100% { transform:translateY(0); }
+}
+
+@@media(max-width:768px) {
+    .page { grid-template-columns:1fr; }
+}
+</style>
+
+<div class="page">
+
+    <!-- LEFT -->
+    <div class="left">
+        <img src="~/images/notification.svg" />
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+
+        <!-- STATS -->
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-num">@ViewBag.SoHocSinh</div>
+                <div class="stat-label">Học sinh</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">@ViewBag.SoGiaoVien</div>
+                <div class="stat-label">Giáo viên</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">@ViewBag.SoLop</div>
+                <div class="stat-label">Lớp học</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">@ViewBag.SoMonHoc</div>
+                <div class="stat-label">Môn học</div>
+            </div>
+        </div>
+
+        <!-- THÔNG BÁO -->
+        <div class="tb-box">
+            <div class="tb-title">Thông báo</div>
+
+            <div class="tb-list">
+                @if (thongBaoList != null && thongBaoList.Any())
+                {
+                    foreach (var tb in thongBaoList)
+                    {
+                        <div class="tb-item">
+                            <b>@tb.TieuDe</b>
+                            <div class="tb-time">@tb.NgayDang.ToString("dd/MM/yyyy HH:mm")</div>
+                            <div>
+                                @(tb.NoiDung.Length > 100 
+                                    ? tb.NoiDung.Substring(0,100) + "..." 
+                                    : tb.NoiDung)
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div>Không có thông báo</div>
+                }
+            </div>
+
+            <!-- PHÂN TRANG -->
+            <div class="pagination">
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <a href="?page=@i" class="@(i == currentPage ? "active" : "")">@i</a>
+                }
+            </div>
+        </div>
+
+    </div>
+
+</div>

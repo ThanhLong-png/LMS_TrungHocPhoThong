@@ -1,0 +1,202 @@
+﻿@model LMS_THPT.Models.NguoiDung
+@{
+    ViewData["Title"] = "Cập nhật hồ sơ cá nhân";
+}
+
+<style>
+    /* --- CSS ĐỒNG BỘ VỚI PHONG CÁCH QUẢN TRỊ --- */
+    .page-container {
+        padding: 40px 15px;
+        background-color: #f5f7fa;
+        min-height: 100vh;
+    }
+
+    .profile-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: none;
+        max-width: 650px;
+        margin: 0 auto;
+        overflow: hidden;
+    }
+
+    .profile-header {
+        background: #1a1a2e; /* Màu xanh đen đồng bộ */
+        color: #fff;
+        padding: 24px;
+        text-align: center;
+    }
+
+        .profile-header h4 {
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+    .profile-body {
+        padding: 30px;
+    }
+
+    /* --- AVATAR STYLE --- */
+    .avatar-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 25px;
+    }
+
+    .avatar-preview {
+        width: 130px;
+        height: 130px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    /* --- FORM CONTROL --- */
+    .form-label {
+        font-weight: 600;
+        color: #1a1a2e;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        padding: 10px 15px;
+    }
+
+    /* --- GROUP NÚT BẤM (QUAY LẠI & LƯU) --- */
+    .action-footer {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .btn-back-custom {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+        background-color: #f8f9fa;
+        color: #1a1a2e;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+        .btn-back-custom:hover {
+            background-color: #e9ecef;
+            color: #000;
+            text-decoration: none;
+        }
+
+    .btn-save-custom {
+        flex: 2; /* Nút Lưu rộng hơn nút Quay lại một chút để tạo điểm nhấn */
+        background-color: #1a1a2e;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        font-weight: 600;
+        transition: opacity 0.2s;
+    }
+
+        .btn-save-custom:hover {
+            opacity: 0.9;
+            color: #fff;
+        }
+
+    .alert-success {
+        border-radius: 8px;
+    }
+</style>
+
+<div class="page-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <h4>Cập nhật hồ sơ cá nhân</h4>
+        </div>
+
+        <div class="profile-body">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                <div class="text-center">
+                    <div class="avatar-wrapper">
+                        <img id="avatarPreview"
+                             src="@Url.Content(string.IsNullOrEmpty(Model.AnhDaiDien) ? "/images/default-avatar.png" : Model.AnhDaiDien)"
+                             class="avatar-preview" alt="Avatar" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Họ và tên</label>
+                        <input asp-for="HoTen" class="form-control" />
+                        <span asp-validation-for="HoTen" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Ngày sinh</label>
+                        <input asp-for="NgaySinh" type="date" class="form-control" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Giới tính</label>
+                        <select asp-for="GioiTinh" class="form-select">
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Địa chỉ</label>
+                        <input asp-for="DiaChi" class="form-control" />
+                    </div>
+
+                    <div class="col-md-12 mb-4">
+                        <label class="form-label">Tải lên ảnh mới</label>
+                        <input type="file" class="form-control" name="AnhDaiDienFile" accept="image/*" onchange="previewAvatar(this)" />
+                    </div>
+                </div>
+
+                <div class="action-footer">
+                    @* Bạn hãy thay đổi href cho đúng với route quay lại trang chủ hoặc trang danh sách của bạn *@
+                    <a href="javascript:history.back()" class="btn-back-custom">
+                        &larr; Quay lại
+                    </a>
+                    <button type="submit" class="btn-save-custom">
+                        Lưu thay đổi hồ sơ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function previewAvatar(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}
