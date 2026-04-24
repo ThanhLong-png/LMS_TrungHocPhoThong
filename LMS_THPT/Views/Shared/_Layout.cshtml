@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -50,6 +50,20 @@
                     else if (User.IsInRole("HieuTruong"))
                     {
                         <a asp-controller="HieuTruong" asp-action="Index"
+                               class="d-flex align-items-center text-white text-decoration-none gap-2">
+
+                            <img src="@avatarUrl"
+                                 class="rounded-circle"
+                                 style="width:38px;height:38px;object-fit:cover;border:2px solid #fff;" />
+
+                            <span class="fw-semibold">
+                                @User.Identity.Name
+                            </span>
+                        </a>
+                    }
+                    else if (User.IsInRole("GiaoVien"))
+                    {
+                        <a asp-area="GiaoVien" asp-controller="GiaoVien" asp-action="Index"
                                class="d-flex align-items-center text-white text-decoration-none gap-2">
 
                             <img src="@avatarUrl"
