@@ -1,4 +1,4 @@
-﻿@model LMS_THPT.Models.NguoiDung
+@model LMS_THPT.Models.NguoiDung
 @{
     ViewData["Title"] = "Thêm giáo viên mới";
 }
@@ -73,23 +73,28 @@
             </div>
         }
 
-        <form asp-action="TaoGiaoVien" method="post" onsubmit="return validateForm()">
+        <form asp-action="TaoGiaoVien" method="post">
             @Html.AntiForgeryToken()
 
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Mã giáo viên</label>
-                   <input name="maGV" id="MaGV" class="input-custom" required 
-       placeholder="Ví dụ: GV202601"
-       oninput="handleMaGVInput()" />
-
-<small id="maGV-error" style="color:red; display:none;"></small>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <input type="text" class="input-custom"
+                               value="@ViewBag.MaGVPreview"
+                               readonly
+                               style="background:#f0f4ff;color:#1a1a2e;font-weight:700;font-size:16px;letter-spacing:1px;cursor:default;" />
+                        <span style="font-size:12px;color:#888;white-space:nowrap;">🔒 Tự động sinh</span>
+                    </div>
+                    <small style="color:#6c757d;">Mã được tạo tự động theo thứ tự GV0001, GV0002...</small>
                 </div>
 
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Mật khẩu mặc định</label>
-                    <input type="text" id="MatKhau" class="input-custom" readonly 
+                    <input type="text" class="input-custom" readonly
+                           value="@ViewBag.MaGVPreview"
                            style="background:#f8f9fa;color:#666;" />
+                    <small style="color:#6c757d;">Mật khẩu mặc định = Mã giáo viên</small>
                 </div>
             </div>
 
@@ -162,52 +167,6 @@
 
 @section Scripts {
 <script>
-let timeout = null;
-
-function handleMaGVInput() {
-    syncPassword();
-
-    clearTimeout(timeout);
-
-    timeout = setTimeout(checkMaGV, 500); // debounce 0.5s
-}
-
-function syncPassword() {
-    var maGVInput = document.getElementById('MaGV');
-    var matKhauInput = document.getElementById('MatKhau');
-
-    if (!maGVInput || !matKhauInput) return;
-
-    let value = maGVInput.value.trim().toUpperCase();
-    maGVInput.value = value;
-    matKhauInput.value = value;
-}
-
-function checkMaGV() {
-    const maGV = document.getElementById('MaGV').value;
-    const errorEl = document.getElementById('maGV-error');
-
-    if (!maGV) {
-        errorEl.style.display = "none";
-        return;
-    }
-
-    fetch(`/QuanLyGiaoVien/CheckMaGV?maGV=${maGV}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.exists) {
-                errorEl.innerText = "❌ Mã giáo viên đã tồn tại!";
-                errorEl.style.display = "block";
-            } else {
-                errorEl.innerText = "✔ Mã hợp lệ";
-                errorEl.style.color = "green";
-                errorEl.style.display = "block";
-            }
-        })
-        .catch(() => {
-            errorEl.innerText = "⚠ Không kiểm tra được!";
-            errorEl.style.display = "block";
-        });
-}
+    // Mã giáo viên được sinh tự động từ server - không cần JS kiểm tra
 </script>
 }

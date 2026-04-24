@@ -1,1 +1,1 @@
-# LMS_THPT
+# LMS_TrungHocPhoThong

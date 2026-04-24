@@ -1,4 +1,4 @@
-﻿@model LMS_THPT.Models.Lop
+@model LMS_THPT.Models.Lop
 @{
     ViewData["Title"] = "Học sinh lớp " + Model.TenLop;
 }
@@ -217,12 +217,15 @@
                     <div style="background: #fff8e1; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
                         <h6 style="font-size: 14px; font-weight: 700; color: #856404; margin-bottom: 8px;">Yêu cầu cấu trúc file:</h6>
                         <ul style="font-size: 13px; color: #856404; padding-left: 20px; margin: 0;">
-                            <li><b>Cột A:</b> Họ và Tên</li>
-                            <li><b>Cột B:</b> Mã học sinh</li>
-                            <li><b>Cột C:</b> Giới tính (Nam/Nữ)</li>
-                            <li><b>Cột D:</b> Ngày sinh</li>
-                            <li><b>Cột E:</b> Địa chỉ</li>
+                            <li><b>Cột A:</b> Họ và Tên <span style="color:#c62828;">*</span></li>
+                            <li><b>Cột B:</b> Giới tính (Nam/Nữ)</li>
+                            <li><b>Cột C:</b> Ngày sinh (dd/MM/yyyy)</li>
+                            <li><b>Cột D:</b> Địa chỉ</li>
                         </ul>
+                        <div style="margin-top:10px; font-size:12px; color:#5d6d1e; background:#f0f4c3; border-radius:5px; padding:8px 10px;">
+                            ✅ <b>Mã học sinh được tự động tạo</b> theo định dạng <code>NămLớpSTT</code><br/>
+                            Ví dụ lớp <b>10A1</b>, năm <b>2026</b> → <b>26A1001</b>, <b>26A1002</b>, ...
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer" style="border-top: 1px solid #eee;">

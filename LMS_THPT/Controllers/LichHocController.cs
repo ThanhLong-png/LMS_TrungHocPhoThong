@@ -1,4 +1,4 @@
-﻿using LMS_THPT.Data;
+using LMS_THPT.Data;
 using LMS_THPT.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -26,9 +26,17 @@ namespace LMS_THPT.Controllers
         // =====================================================
         // 📅 XEM THỜI KHÓA BIỂU THEO LỚP
         // =====================================================
-        public async Task<IActionResult> ThoiKhoaBieu(int? lopId)
+        public async Task<IActionResult> ThoiKhoaBieu(int? lopId, DateTime? date)
         {
             ViewBag.Lops = await _context.Lops.ToListAsync();
+
+            DateTime selectedDate = date ?? DateTime.Now.Date;
+            ViewBag.SelectedDate = selectedDate.ToString("yyyy-MM-dd");
+            ViewBag.SelectedLopId = lopId;
+            
+            // Tính Thứ
+            int thu = (int)selectedDate.DayOfWeek + 1;
+            if (thu == 1) thu = 8; // Chủ nhật
 
             var query = _context.LichHocs
                 .Include(x => x.Lop)
@@ -42,9 +50,16 @@ namespace LMS_THPT.Controllers
             }
 
             var data = await query
-                .OrderBy(x => x.Thu)
-                .ThenBy(x => x.TietHoc)
+                .Where(x => x.Thu == thu)
+                .OrderBy(x => x.TietHoc)
                 .ToListAsync();
+
+            var leaves = await _context.YeuCauGiaoVien
+                .Where(y => y.TrangThai == TrangThaiYeuCau.DaDuyet && 
+                            y.LoaiYeuCau == LoaiYeuCau.NghiPhep && 
+                            y.NgayNghi != null && y.NgayNghi.Value.Date == selectedDate.Date)
+                .ToListAsync();
+            ViewBag.Leaves = leaves;
 
             return View(data);
         }
@@ -71,7 +86,7 @@ namespace LMS_THPT.Controllers
         // =====================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(LichHoc model)
+        public async Task<IActionResult> Create(LichHoc model, string? date)
         {
             if (!ModelState.IsValid)
             {
@@ -89,7 +104,7 @@ namespace LMS_THPT.Controllers
             _context.LichHocs.Add(model);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("ThoiKhoaBieu", new { lopId = model.LopId });
+            return RedirectToAction("ThoiKhoaBieu", new { lopId = model.LopId, date = date });
         }
 
         // =====================================================
@@ -112,7 +127,7 @@ namespace LMS_THPT.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(LichHoc model)
+        public async Task<IActionResult> Edit(LichHoc model, string? date)
         {
             if (!ModelState.IsValid)
             {
@@ -133,14 +148,14 @@ namespace LMS_THPT.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("ThoiKhoaBieu", new { lopId = model.LopId });
+            return RedirectToAction("ThoiKhoaBieu", new { lopId = model.LopId, date = date });
         }
         // =====================================================
         // ❌ DELETE
         // =====================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, string? date)
         {
             var data = await _context.LichHocs.FindAsync(id);
 
@@ -151,10 +166,10 @@ namespace LMS_THPT.Controllers
                 _context.LichHocs.Remove(data);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("ThoiKhoaBieu", new { lopId = lopId });
+                return RedirectToAction("ThoiKhoaBieu", new { lopId = lopId, date = date });
             }
 
-            return RedirectToAction("ThoiKhoaBieu");
+            return RedirectToAction("ThoiKhoaBieu", new { date = date });
         }
 
         // =====================================================

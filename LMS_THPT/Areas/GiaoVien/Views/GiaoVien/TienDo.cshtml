@@ -1,0 +1,127 @@
+@* Views/GiaoVien/TienDo.cshtml *@
+@model LMS_THPT.ViewModels.TienDoViewModel
+@{
+    ViewData["Title"] = "Tiến độ học tập";
+    ViewData["ActivePage"] = "TienDo";
+    ViewData["PageTitle"] = "Theo dõi tiến độ học tập";
+    var monHocHienTai = (int)(ViewBag.MonHocHienTai ?? 0);
+}
+
+@section TopbarAction {
+    <a asp-action="TienDo" asp-route-monHocId="@monHocHienTai"
+       class="btn btn-primary">Làm mới</a>
+}
+
+<!-- KPI -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Trung bình lớp</div>
+        <div class="stat-value">@Model.DiemTrungBinhLop.ToString("0.#")</div>
+        <div class="stat-sub">Điểm tổng kết</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Hoàn thành</div>
+        <div class="stat-value success">@Model.TiLeHoanThanh%</div>
+        <div class="stat-sub">Tỷ lệ nộp bài</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Học sinh xuất sắc</div>
+        <div class="stat-value">@Model.SoHocSinhXuatSac</div>
+        <div class="stat-sub">Điểm ≥ 9.0</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Cần hỗ trợ</div>
+        <div class="stat-value @(Model.SoHocSinhCanHoTro > 0 ? "danger" : "")">@Model.SoHocSinhCanHoTro</div>
+        <div class="stat-sub">Điểm dưới 5.0</div>
+    </div>
+</div>
+
+<div class="two-col">
+    <!-- Tiến độ từng học sinh -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Tiến độ từng học sinh</span>
+            @if (Model.DanhSachLop.Any())
+            {
+                <select class="form-control form-control-sm" style="width:auto"
+                        onchange="filterLop(this.value)">
+                    <option value="">-- Tất cả lớp --</option>
+                    @foreach (var lop in Model.DanhSachLop)
+                    {
+                        <option value="@lop">@lop</option>
+                    }
+                </select>
+            }
+        </div>
+
+        @if (!Model.TienDoHocSinh.Any())
+        {
+            <div style="color:var(--text3);font-size:13px;padding:12px 0">Chưa có dữ liệu tiến độ.</div>
+        }
+
+        @foreach (var hs in Model.TienDoHocSinh)
+        {
+            <div class="student-row" data-lop="@hs.TenLop">
+                <div class="avatar-sm">@hs.TenVietTat</div>
+                <div class="student-info">
+                    <div class="student-name">@hs.TenHocSinh</div>
+                    <div style="margin-top:5px">
+                        <div class="progress-bar">
+                            <div class="progress-fill"
+                                 style="width:@(hs.PhanTram)%;background:@hs.MauBar">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align:right;min-width:44px">
+                    <div style="font-size:13px;font-weight:600;color:@hs.MauBar">
+                        @hs.Diem.ToString("0.#")
+                    </div>
+                    <div style="font-size:10px;color:var(--text3)">@hs.PhanTram%</div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Thống kê xếp loại -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Thống kê kết quả môn học</span>
+        </div>
+
+        @foreach (var r in Model.ThongKeXepLoai)
+        {
+            <div class="rank-row">
+                <span class="rank-label">@r.NhanXepLoai</span>
+                <div class="rank-bar-wrap">
+                    <div class="rank-bar" style="width:@(r.PhanTram)%;background:@r.Mau"></div>
+                </div>
+                <span class="rank-count">@r.SoLuong hs</span>
+            </div>
+        }
+
+        @{
+            var tongHs = Model.ThongKeXepLoai.Sum(x => x.SoLuong);
+        }
+        <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:12px;
+                    display:flex;justify-content:space-between;font-size:12px;color:var(--text2)">
+            <span>Tổng: @tongHs học sinh</span>
+            <span>Điểm TB: @Model.DiemTrungBinhLop.ToString("0.#") / 10</span>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function filterLop(tenLop) {
+    const rows = document.querySelectorAll('.student-row');
+    rows.forEach(row => {
+        if (!tenLop || row.getAttribute('data-lop') === tenLop) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
+}

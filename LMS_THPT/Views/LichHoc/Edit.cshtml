@@ -273,6 +273,7 @@
 
         <form asp-action="Edit" method="post">
             @Html.AntiForgeryToken()
+            <input type="hidden" name="date" value="@Context.Request.Query["date"]" />
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="LopId" />
 
@@ -321,7 +322,7 @@
 
             <div class="lh-card-footer">
                 <button type="submit" class="lh-btn lh-btn-primary">Lưu thay đổi</button>
-                <a href="/LichHoc/ThoiKhoaBieu?lopId=@Model.LopId" class="lh-btn lh-btn-ghost">Hủy bỏ</a>
+                <a href="/LichHoc/ThoiKhoaBieu?lopId=@Model.LopId&date=@Context.Request.Query["date"]" class="lh-btn lh-btn-ghost">Hủy bỏ</a>
             </div>
 
         </form>
@@ -332,6 +333,7 @@
             <form asp-action="Delete" asp-controller="LichHoc" method="post"
                   onsubmit="return confirm('Xác nhận xóa lịch học này?')">
                 @Html.AntiForgeryToken()
+                <input type="hidden" name="date" value="@Context.Request.Query["date"]" />
                 <input type="hidden" name="id" value="@Model.Id" />
                 <button type="submit" class="lh-btn-delete">Xóa</button>
             </form>

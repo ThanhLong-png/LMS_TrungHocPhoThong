@@ -59,7 +59,7 @@
         </div>
     </div>
 
-    @if (User.IsInRole("GiangVien") || User.IsInRole("Admin"))
+    @if (User.IsInRole("GiaoVien") || User.IsInRole("Admin"))
     {
         <div>
             <a asp-action="CreateBaiGiang" asp-route-lopId="@ViewBag.LopId" asp-route-monHocId="@ViewBag.MonHocId" class="btn-primary-soft">+ Viết bài giảng</a>
@@ -111,8 +111,8 @@
         @{
     var roleText = "";
 
-    if (User.IsInRole("GiangVien"))
-        roleText = "Giảng viên";
+    if (User.IsInRole("GiaoVien"))
+        roleText = "Giáo viên";
     else if (User.IsInRole("HocSinh"))
         roleText = "Học sinh";
     else if (User.IsInRole("Admin"))

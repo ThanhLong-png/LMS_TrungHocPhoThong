@@ -1,0 +1,160 @@
+@model LMS_THPT.Models.ThongBao
+@{
+    ViewData["Title"] = "Chỉnh Sửa Thông Báo";
+}
+
+<style>
+    /* MONOCHROME MINIMALIST STYLE */
+    .page-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+        border-bottom: 2px solid #000;
+        padding-bottom: 16px;
+    }
+
+    .page-header-icon {
+        font-size: 32px;
+        background: #fff;
+        color: #000;
+        border: 2px solid #000;
+        border-radius: 0;
+        width: 60px; height: 60px;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 4px 4px 0px rgba(0,0,0,1);
+    }
+
+    .page-header h1 {
+        font-size: 24px;
+        font-weight: 900;
+        color: #000;
+        margin: 0 0 3px 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .page-header p {
+        font-size: 13px;
+        font-weight: 600;
+        color: #555;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .panel {
+        background: #fff;
+        border-radius: 0;
+        padding: 30px;
+        box-shadow: 4px 4px 0px rgba(0,0,0,1);
+        border: 2px solid #000;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-group { margin-bottom: 24px; }
+
+    .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 800;
+        color: #000;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #000;
+        border-radius: 0;
+        font-size: 14px;
+        background: #fff;
+        outline: none;
+        transition: all 0.2s;
+        box-sizing: border-box;
+        font-weight: 600;
+    }
+
+    .form-input:focus { box-shadow: 2px 2px 0px #000; }
+
+    textarea.form-input { min-height: 200px; resize: vertical; }
+
+    .switch-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 12px;
+    }
+
+    .btn-submit {
+        padding: 12px 30px;
+        background: #000;
+        color: #fff;
+        border: 2px solid #000;
+        border-radius: 0;
+        font-size: 14px;
+        font-weight: 900;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-submit:hover { background: #fff; color: #000; box-shadow: 2px 2px 0px #000; transform: translate(-2px, -2px); }
+
+    .btn-back {
+        padding: 12px 24px;
+        background: #fff;
+        color: #000;
+        border-radius: 0;
+        font-size: 14px;
+        font-weight: 900;
+        text-decoration: none;
+        border: 2px solid #000;
+        text-transform: uppercase;
+        transition: all 0.2s;
+    }
+
+    .btn-back:hover { background: #000; color: #fff; box-shadow: 2px 2px 0px #000; text-decoration: none; transform: translate(-2px, -2px); }
+</style>
+
+<div class="page-header">
+    <div class="page-header-icon">✏️</div>
+    <div>
+        <h1>Chỉnh Sửa Thông Báo</h1>
+        <p>Cập nhật nội dung thông báo đã đăng</p>
+    </div>
+</div>
+
+<div class="panel">
+    <form asp-action="SuaThongBao" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div class="form-group">
+            <label asp-for="TieuDe">Tiêu đề <span style="color:#000; font-weight:bold;">*</span></label>
+            <input type="text" name="tieuDe" value="@Model.TieuDe" class="form-input" required maxlength="200" />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="NoiDung">Nội dung <span style="color:#000; font-weight:bold;">*</span></label>
+            <textarea name="noiDung" class="form-input" required>@Model.NoiDung</textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="switch-container">
+                <input type="checkbox" name="hienThi" value="true" @(Model.HienThi ? "checked" : "") />
+                <span>Hiển thị thông báo này</span>
+            </label>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:30px;">
+            <button type="submit" class="btn-submit">💾 Lưu Thay Đổi</button>
+            <a asp-action="QuanLyThongBao" class="btn-back">Hủy bỏ</a>
+        </div>
+    </form>
+</div>

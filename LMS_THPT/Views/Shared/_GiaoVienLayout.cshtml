@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - LMS THPT</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/teacher-dashboard.css" asp-append-version="true" />
+    
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="app-shell">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav class="sidebar-nav" style="margin-top: 20px;">
+                <div class="nav-group-label">MENU CHÍNH</div>
+                <a asp-area="GiaoVien" asp-controller="GiaoVien" asp-action="Index" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Dashboard" ? "active" : "")">
+                    <i class="fa-solid fa-chart-pie nav-icon"></i>
+                    <span>Tổng quan</span>
+                </a>
+                <a asp-area="GiaoVien" asp-controller="GiaoVien" asp-action="LopChuNhiem" class="nav-item @(ViewData["ActivePage"]?.ToString() == "LopChuNhiem" ? "active" : "")">
+                    <i class="fa-solid fa-users nav-icon"></i>
+                    <span>Quản lý lớp chủ nhiệm</span>
+                </a>
+                <a asp-area="GiaoVien" asp-controller="GiangDay" asp-action="Index" class="nav-item @(ViewData["ActivePage"]?.ToString() == "GiangDay" ? "active" : "")">
+                    <i class="fa-solid fa-chalkboard-user nav-icon"></i>
+                    <span>Lớp học hiện có</span>
+                </a>
+                <a asp-area="GiaoVien" asp-controller="YeuCau" asp-action="MyRequests" class="nav-item @(ViewData["ActivePage"]?.ToString() == "YeuCau" ? "active" : "")">
+                    <i class="fa-solid fa-envelope nav-icon"></i>
+                    <span>Gửi yêu cầu</span>
+                </a>
+                <a asp-area="GiaoVien" asp-controller="GiaoVien" asp-action="QuanLyDiemSo" class="nav-item @(ViewData["ActivePage"]?.ToString() == "DiemSo" ? "active" : "")">
+                    <i class="fa-solid fa-book-open nav-icon"></i>
+                    <span>Điểm số</span>
+                </a>
+                <a asp-area="GiaoVien" asp-controller="GiaoVien" asp-action="QuanLyBaiTap" class="nav-item @(ViewData["ActivePage"]?.ToString() == "BaiTap" ? "active" : "")">
+                    <i class="fa-solid fa-file-signature nav-icon"></i>
+                    <span>Bài tập</span>
+                </a>
+                <a asp-area="GiaoVien" asp-controller="GiaoVien" asp-action="TienDo" class="nav-item @(ViewData["ActivePage"]?.ToString() == "TienDo" ? "active" : "")">
+                    <i class="fa-solid fa-bars-progress nav-icon"></i>
+                    <span>Quản lý tiến độ</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer dropup">
+                <div class="teacher-profile dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                    @{
+                        var avatarClaim = User.Claims.FirstOrDefault(c => c.Type == "AnhDaiDien")?.Value;
+                        var avatarUrl = string.IsNullOrEmpty(avatarClaim)
+                            ? Url.Content("~/images/default-avatar.png")
+                            : Url.Content(avatarClaim.StartsWith("~") ? avatarClaim : "~/" + avatarClaim.TrimStart('/'));
+                    }
+                    <img src="@avatarUrl" class="avatar-sm" style="object-fit:cover; border-radius: 50%; width: 40px; height: 40px;" />
+                    <div style="flex-grow: 1; overflow: hidden;">
+                        <div class="teacher-name" style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-weight: 600;">@User.Identity.Name</div>
+                        <div class="teacher-role" style="font-size: 0.85em; opacity: 0.8;">Giáo viên</div>
+                    </div>
+                </div>
+                <ul class="dropdown-menu shadow" style="width: 100%; border-radius: 8px; margin-bottom: 10px; padding: 8px;">
+                    <li><a class="dropdown-item rounded" asp-area="" asp-controller="Profile" asp-action="Edit" style="padding: 10px;"><i class="fa-solid fa-user-pen me-2"></i>Sửa thông tin cá nhân</a></li>
+                    <li><a class="dropdown-item rounded" asp-area="" asp-controller="DoiMatKhau" asp-action="Index" style="padding: 10px;"><i class="fa-solid fa-key me-2"></i>Đổi mật khẩu</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" style="margin:0;">
+                            <button type="submit" class="dropdown-item rounded text-danger" style="padding: 10px;">
+                                <i class="fa-solid fa-right-from-bracket me-2"></i>Đăng xuất
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Area -->
+        <main class="main-area">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="page-title">@ViewData["PageTitle"]</div>
+                <div class="topbar-actions">
+                    @await RenderSectionAsync("TopbarAction", required: false)
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="page-content">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/teacher-dashboard.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

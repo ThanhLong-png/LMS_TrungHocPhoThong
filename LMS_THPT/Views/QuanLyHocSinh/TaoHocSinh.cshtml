@@ -1,6 +1,8 @@
 ﻿@{
     ViewData["Title"] = "Thêm Học sinh";
     int lopId = ViewBag.LopId;
+    string tenLop = ViewBag.TenLop ?? "";
+    string maHocSinhGoi = ViewBag.MaHocSinhGoi ?? "";
 }
 
 <style>
@@ -160,9 +162,22 @@
                        placeholder="VD: Nguyễn Văn A" />
             </div>
             <div class="form-group">
-                <label class="form-label-custom">Mã học sinh <span>*</span></label>
-                <input type="text" name="maHocSinh" id="maHocSinh" class="form-control-custom"
-                       placeholder="VD: HS001" />
+                <label class="form-label-custom">Mã học sinh</label>
+                <div style="display:flex;gap:6px;align-items:center;">
+                    <input type="text" id="maHocSinh" name="maHocSinhHienThi"
+                           class="form-control-custom"
+                           value="@maHocSinhGoi"
+                           readonly
+                           style="background:#f7f8fa;color:#1a1a2e;font-weight:700;letter-spacing:1px;cursor:default;"
+                           title="Mã được tự động sinh" />
+                    <button type="button" id="btnRefreshMa" title="Làm mới mã"
+                            style="padding:8px 10px;background:#e8eaf6;border:1px solid #c5cae9;border-radius:6px;cursor:pointer;font-size:15px;flex-shrink:0;"
+                            onclick="refreshMa()">↻</button>
+                </div>
+                <div class="field-hint">
+                    ℹ️ Mã tự động: <strong id="maBadge" style="color:#1a1a2e;">@maHocSinhGoi</strong>
+                    &nbsp;<span style="color:#aaa;">(Năm + Lớp + STT)</span>
+                </div>
             </div>
         </div>
 
@@ -193,9 +208,10 @@
         <div class="form-group">
             <label class="form-label-custom">Mật khẩu <span>*</span></label>
             <input type="text" name="matKhau" id="matKhau" class="form-control-custom"
+                   value="@maHocSinhGoi"
                    placeholder="Mặc định = mã học sinh" />
             <div class="field-hint">
-                Mật khẩu mặc định theo mã học sinh: <strong id="matKhauHint">—</strong>
+                Mật khẩu mặc định theo mã học sinh: <strong id="matKhauHint">@maHocSinhGoi</strong>
             </div>
         </div>
 
@@ -208,21 +224,40 @@
 
 @section Scripts {
     <script>
-        const maInput = document.getElementById('maHocSinh');
+        const lopId = @lopId;
         const mkInput = document.getElementById('matKhau');
         const mkHint  = document.getElementById('matKhauHint');
+        const maInput = document.getElementById('maHocSinh');
+        const maBadge = document.getElementById('maBadge');
         let userEditedPassword = false;
 
         mkInput.addEventListener('input', () => {
             userEditedPassword = true;
         });
 
-        maInput.addEventListener('input', () => {
-            const ma = maInput.value.trim().toUpperCase();
-            mkHint.textContent = ma || '—';
+        function applyMa(ma) {
+            maInput.value = ma;
+            maBadge.textContent = ma;
+            mkHint.textContent = ma;
             if (!userEditedPassword) {
                 mkInput.value = ma;
             }
-        });
+        }
+
+        async function refreshMa() {
+            const btn = document.getElementById('btnRefreshMa');
+            btn.disabled = true;
+            btn.textContent = '...';
+            try {
+                const res = await fetch(`/QuanLyHocSinh/GetNextMaHocSinh?lopId=${lopId}`);
+                const data = await res.json();
+                applyMa(data.ma);
+            } catch (e) {
+                console.error('Không thể lấy mã:', e);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '↻';
+            }
+        }
     </script>
 }

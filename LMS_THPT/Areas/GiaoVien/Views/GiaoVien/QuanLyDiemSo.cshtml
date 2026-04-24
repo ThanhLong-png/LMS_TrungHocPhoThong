@@ -1,0 +1,199 @@
+@model List<LMS_THPT.ViewModels.NhapDiemItem>
+@{
+    ViewData["Title"] = "Quản lý điểm số";
+    ViewData["PageTitle"] = "Điểm số theo lớp";
+    
+    var lopMonHocs = ViewBag.LopMonHocs as List<LMS_THPT.Models.LopMonHoc> ?? new List<LMS_THPT.Models.LopMonHoc>();
+    var lopId = (int)(ViewBag.LopHienTai ?? 0);
+    var monHocId = (int)(ViewBag.MonHocHienTai ?? 0);
+}
+
+@section TopbarAction {
+    <button type="button" class="btn btn-primary" onclick="luuTatCaDiem()">
+        <i class="fa fa-save"></i> Lưu tất cả điểm
+    </button>
+}
+
+@if (lopMonHocs.Any())
+{
+    <div class="tab-bar mb-16">
+        @foreach (var lmh in lopMonHocs)
+        {
+            var isActive = (lmh.LopId == lopId && lmh.MonHocId == monHocId);
+            <a asp-action="QuanLyDiemSo" asp-route-lopId="@lmh.LopId" asp-route-monHocId="@lmh.MonHocId"
+               class="tab-item @(isActive ? "active" : "")">
+                Lớp @lmh.Lop?.TenLop - @lmh.MonHoc?.TenMonHoc
+            </a>
+        }
+    </div>
+}
+
+<div class="card mb-16">
+    <div class="card-header">
+        <span class="card-title">Bảng điểm lớp @ViewBag.TenLopHienTai - Môn @ViewBag.TenMonHienTai</span>
+    </div>
+    <div class="table-wrap">
+        @Html.AntiForgeryToken()
+        <table>
+            <thead>
+                <tr>
+                    <th>Học sinh</th>
+                    <th width="80">Miệng 1</th>
+                    <th width="80">Miệng 2</th>
+                    <th width="80">Miệng 3</th>
+                    <th width="80">Miệng 4</th>
+                    <th width="120">Giữa kỳ(40%)</th>
+                    <th width="120">Cuối kỳ(60%)</th>
+                    <th width="120">Tổng kết</th>
+                    <th>Xếp loại</th>
+                    <th width="80"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var g in Model)
+                {
+                    <tr data-hs-id="@g.HocSinhId" data-mon-hoc-id="@monHocId">
+                        <td class="fw-medium">@g.TenHocSinh</td>
+                        <td>
+                            <input type="number" class="input-inline dm1-input" value="@g.DiemMieng" min="0" max="10" step="0.1" placeholder="--" onchange="tinhTongKet(this)"/>
+                        </td>
+                        <td>
+                            <input type="number" class="input-inline dm2-input" value="@g.DiemMieng2" min="0" max="10" step="0.1" placeholder="--" onchange="tinhTongKet(this)"/>
+                        </td>
+                        <td>
+                            <input type="number" class="input-inline dm3-input" value="@g.DiemMieng3" min="0" max="10" step="0.1" placeholder="--" onchange="tinhTongKet(this)"/>
+                        </td>
+                        <td>
+                            <input type="number" class="input-inline dm4-input" value="@g.DiemMieng4" min="0" max="10" step="0.1" placeholder="--" onchange="tinhTongKet(this)"/>
+                        </td>
+                        <td>
+                            <input type="number" class="input-inline gk-input"
+                                   value="@g.DiemGiuaKy" min="0" max="10" step="0.1"
+                                   placeholder="--" onchange="tinhTongKet(this)" />
+                        </td>
+                        <td>
+                            <input type="number" class="input-inline ck-input"
+                                   value="@g.DiemCuoiKy" min="0" max="10" step="0.1"
+                                   placeholder="--" onchange="tinhTongKet(this)" />
+                        </td>
+                        <td class="td-tongket fw-bold" style="color:var(--blue)">
+                            @(g.DiemTongKet?.ToString("0.#") ?? "--")
+                        </td>
+                        <td>
+                            <span class="badge td-xeploai @(g.DiemTongKet >= 5 ? "badge-green" : g.DiemTongKet != null ? "badge-red" : "badge-amber")">
+                                @g.XepLoai
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn-link" onclick="luuDiem(this)">Lưu</button>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="7" class="text-center">Chưa có dữ liệu học sinh trong lớp này.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function getToken() {
+            return document.querySelector('input[name="__RequestVerificationToken"]').value;
+        }
+
+        function tinhTongKet(input) {
+            const row = input.closest('tr');
+            const dm1 = parseFloat(row.querySelector('.dm1-input').value);
+            const dm2 = parseFloat(row.querySelector('.dm2-input').value);
+            const dm3 = parseFloat(row.querySelector('.dm3-input').value);
+            const dm4 = parseFloat(row.querySelector('.dm4-input').value);
+            const gk = parseFloat(row.querySelector('.gk-input').value);
+            const ck = parseFloat(row.querySelector('.ck-input').value);
+            const badge = row.querySelector('.td-xeploai');
+
+            if (!isNaN(gk) && !isNaN(ck)) {
+                let dms = [];
+                if (!isNaN(dm1)) dms.push(dm1);
+                if (!isNaN(dm2)) dms.push(dm2);
+                if (!isNaN(dm3)) dms.push(dm3);
+                if (!isNaN(dm4)) dms.push(dm4);
+
+                let tong = 0;
+                if (dms.length > 0) {
+                    const avgDm = dms.reduce((a, b) => a + b, 0) / dms.length;
+                    tong = (avgDm + gk * 2 + ck * 3) / 6;
+                } else {
+                    tong = (gk * 0.4 + ck * 0.6);
+                }
+                tong = tong.toFixed(1);
+                row.querySelector('.td-tongket').textContent = tong;
+
+                let xl = 'Yếu', cls = 'badge-red';
+                const d = parseFloat(tong);
+                if (d >= 9.0) { xl = 'Xuất sắc'; cls = 'badge-green'; }
+                else if (d >= 8.0) { xl = 'Giỏi'; cls = 'badge-green'; }
+                else if (d >= 6.5) { xl = 'Khá'; cls = 'badge-blue'; }
+                else if (d >= 5.0) { xl = 'Trung bình'; cls = 'badge-amber'; }
+
+                badge.textContent = xl;
+                badge.className = 'badge td-xeploai ' + cls;
+            }
+        }
+
+        function luuDiem(btn) {
+            const row = btn.closest('tr');
+            const payload = {
+                HocSinhId : row.dataset.hsId,
+                MonHocId  : parseInt(row.dataset.monHocId),
+                DiemMieng : parseFloat(row.querySelector('.dm1-input').value) || null,
+                DiemMieng2: parseFloat(row.querySelector('.dm2-input').value) || null,
+                DiemMieng3: parseFloat(row.querySelector('.dm3-input').value) || null,
+                DiemMieng4: parseFloat(row.querySelector('.dm4-input').value) || null,
+                DiemGiuaKy: parseFloat(row.querySelector('.gk-input').value) || null,
+                DiemCuoiKy: parseFloat(row.querySelector('.ck-input').value) || null
+            };
+            fetch('@Url.Action("LuuDiem", "GiaoVien", new { area = "GiaoVien" })',{
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() },
+                body: JSON.stringify(payload)
+            }).then(r => r.json()).then(d => showToast(d.message, d.success ? 'success' : 'error'));
+        }
+
+        function luuTatCaDiem() {
+            const rows = document.querySelectorAll('tbody tr');
+            let promises = [];
+            rows.forEach(row => {
+                const dm1 = row.querySelector('.dm1-input')?.value;
+                const dm2 = row.querySelector('.dm2-input')?.value;
+                const dm3 = row.querySelector('.dm3-input')?.value;
+                const dm4 = row.querySelector('.dm4-input')?.value;
+                const gk = row.querySelector('.gk-input')?.value;
+                const ck = row.querySelector('.ck-input')?.value;
+                if (dm1 || dm2 || dm3 || dm4 || gk || ck) {
+                    promises.push(
+                        fetch('@Url.Action("LuuDiem", "GiaoVien", new { area = "GiaoVien" })',{
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() },
+                            body: JSON.stringify({
+                                HocSinhId : row.dataset.hsId,
+                                MonHocId  : parseInt(row.dataset.monHocId),
+                                DiemMieng : parseFloat(dm1) || null,
+                                DiemMieng2: parseFloat(dm2) || null,
+                                DiemMieng3: parseFloat(dm3) || null,
+                                DiemMieng4: parseFloat(dm4) || null,
+                                DiemGiuaKy: parseFloat(gk) || null,
+                                DiemCuoiKy: parseFloat(ck) || null
+                            })
+                        })
+                    );
+                }
+            });
+            Promise.all(promises).then(() => {
+                showToast('Đã lưu tất cả điểm!', 'success');
+            });
+        }
+    </script>
+}

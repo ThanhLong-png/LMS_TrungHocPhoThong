@@ -26,6 +26,11 @@ namespace LMS_THPT.Controllers
         // ================= TRANG CHỦ =================
         public async Task<IActionResult> Index()
         {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Welcome");
+            }
+
             var thongBao = await _context.ThongBaos
                 .Where(x => x.HienThi)
                 .OrderByDescending(x => x.NgayDang)
@@ -33,14 +38,6 @@ namespace LMS_THPT.Controllers
                 .ToListAsync();
 
             ViewBag.ThongBao = thongBao;
-
-            if (User.Identity?.IsAuthenticated == true)
-            {
-                ViewBag.SoHocSinh = await _context.Users.CountAsync(u => u.MaHocSinh != null);
-                ViewBag.SoGiaoVien = await _context.Users.CountAsync(u => u.ChuyenMon != null);
-                ViewBag.SoLop = await _context.Lops.CountAsync();
-                ViewBag.SoMonHoc = await _context.DanhSachMonHoc.CountAsync(m => m.IsActive);
-            }
 
             return View();
         }

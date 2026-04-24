@@ -1,4 +1,4 @@
-﻿namespace LMS_THPT.Models
+namespace LMS_THPT.Models
 {
     public class LichHoc
     {
@@ -10,7 +10,12 @@
 
         public int Thu { get; set; }
         public int TietHoc { get; set; }
-        public string PhongHoc { get; set; }
+        public string PhongHoc { get; set; } = string.Empty;
+
+        // Thông tin thời gian mở rộng (từ branch admin)
+        public DateTime NgayHoc { get; set; } = DateTime.Now;
+        public TimeSpan GioBatDau { get; set; }
+        public TimeSpan GioKetThuc { get; set; }
 
         // ✅ FIX QUAN TRỌNG
         public Lop? Lop { get; set; }

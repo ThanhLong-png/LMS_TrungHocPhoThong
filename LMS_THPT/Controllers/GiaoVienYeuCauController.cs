@@ -1,4 +1,4 @@
-﻿// Controllers/GiaoVienYeuCauController.cs
+// Controllers/GiaoVienYeuCauController.cs
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +7,7 @@ using LMS_THPT.Data;
 using LMS_THPT.Models;
 namespace LMS_THPT.Controllers   // ← THÊM DÒNG NÀY
 {
-    [Authorize(Roles = "GiangVien")]
+    [Authorize(Roles = "GiaoVien")]
     public class GiaoVienYeuCauController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -42,9 +42,23 @@ namespace LMS_THPT.Controllers   // ← THÊM DÒNG NÀY
         }
 
         // GET: Form tạo yêu cầu mới
-        public IActionResult TaoYeuCau()
+        public IActionResult TaoYeuCau(string? ngayNghi, int? tuTiet, int? denTiet, string? monHoc)
         {
-            return View();
+            var model = new YeuCauGiaoVien();
+            if (DateTime.TryParse(ngayNghi, out DateTime date))
+            {
+                model.NgayNghi = date;
+            }
+            if (tuTiet.HasValue) model.TuTiet = tuTiet.Value;
+            if (denTiet.HasValue) model.DenTiet = denTiet.Value;
+            
+            if (!string.IsNullOrEmpty(monHoc))
+            {
+                model.TieuDe = $"Xin nghỉ {monHoc}";
+                model.LoaiYeuCau = LoaiYeuCau.NghiPhep;
+            }
+
+            return View(model);
         }
 
         // POST: Gửi yêu cầu mới
@@ -107,6 +121,36 @@ namespace LMS_THPT.Controllers   // ← THÊM DÒNG NÀY
 
             TempData["Success"] = "Đã hủy yêu cầu thành công.";
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> ThoiKhoaBieuCaNhan(DateTime? date)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound();
+            
+            DateTime selectedDate = date ?? DateTime.Now;
+            ViewBag.SelectedDate = selectedDate.ToString("yyyy-MM-dd");
+            int diff = (7 + (selectedDate.DayOfWeek - DayOfWeek.Monday)) % 7;
+            DateTime startOfWeek = selectedDate.AddDays(-1 * diff).Date;
+            ViewBag.StartOfWeek = startOfWeek;
+            
+            var lichs = await _context.LichHocs
+                .Include(l => l.Lop)
+                .Include(l => l.MonHoc)
+                .Where(l => l.GiaoVienId == user.Id)
+                .OrderBy(l => l.Thu)
+                .ThenBy(l => l.TietHoc)
+                .ToListAsync();
+
+            DateTime endOfWeek = startOfWeek.AddDays(6);
+            var leaves = await _context.YeuCauGiaoVien
+                .Where(y => y.MaGiaoVien == user.Id && 
+                            y.TrangThai == TrangThaiYeuCau.DaDuyet && 
+                            y.NgayNghi >= startOfWeek && y.NgayNghi <= endOfWeek)
+                .ToListAsync();
+            ViewBag.Leaves = leaves;
+
+            return View(lichs);
         }
     }
 }
