@@ -7,7 +7,7 @@
     var baiNopList = (List<LMS_THPT.Models.BaiNop>)ViewBag.BaiNop;
     var taiLieus   = (List<LMS_THPT.Models.TaiLieu>)ViewBag.TaiLieus;
     var lopMonHoc  = (LMS_THPT.Models.LopMonHoc?)ViewBag.LopMonHoc;
-    string? gvName = lopMonHoc?.GiaoVien?.HoTen ?? Model.GiangVien?.HoTen;
+    string? gvName = lopMonHoc?.GiaoVien?.HoTen ?? Model.GiaoVien?.HoTen;
     var now = DateTime.Now;
 }
 <style>

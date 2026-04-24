@@ -69,7 +69,7 @@ else
         {
             var lm = Model[i];
             if (lm.MonHoc == null) continue;
-            string gvName = lm.GiaoVien?.HoTen ?? lm.MonHoc.GiangVien?.HoTen ?? "Chưa phân công GV";
+            string gvName = lm.GiaoVien?.HoTen ?? lm.MonHoc.GiaoVien?.HoTen ?? "Chưa phân công GV";
             <div class="col-sm-6 col-lg-4 col-xl-3">
                 <a href="@Url.Action("ChiTietMonHoc","HocSinh",new{id=lm.MonHoc.Id})" class="mon-card">
                     <div class="mon-card-header" style="background:@Grad(i)">

@@ -378,7 +378,7 @@ namespace LMS_THPT.Controllers
             if (user.LopId.HasValue)
             {
                 lopMonHocs = await _context.LopMonHocs
-                    .Include(x => x.MonHoc).ThenInclude(m => m!.GiangVien)
+                    .Include(x => x.MonHoc).ThenInclude(m => m!.GiaoVien)
                     .Include(x => x.GiaoVien)
                     .Where(x => x.LopId == user.LopId.Value)
                     .OrderBy(x => x.MonHoc!.TenMonHoc)
@@ -389,7 +389,7 @@ namespace LMS_THPT.Controllers
             if (lopMonHocs.Count == 0)
             {
                 var allMons = await _context.DanhSachMonHoc
-                    .Include(m => m.GiangVien)
+                    .Include(m => m.GiaoVien)
                     .Where(m => m.IsActive)
                     .OrderBy(m => m.TenMonHoc)
                     .ToListAsync();
@@ -419,7 +419,7 @@ namespace LMS_THPT.Controllers
             if (user == null) return RedirectToAction("Login", "Account");
 
             var monHoc = await _context.DanhSachMonHoc
-                .Include(m => m.GiangVien)
+                .Include(m => m.GiaoVien)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (monHoc == null) return NotFound();

@@ -1,4 +1,4 @@
-﻿namespace LMS_THPT.Models
+namespace LMS_THPT.Models
 {
     public class MonHoc
     {
@@ -16,7 +16,7 @@
         public int KhoiId { get; set; }              // ← thêm
         public Khoi Khoi { get; set; }               // ← navigation
 
-        // Giảng viên phụ trách
+        // Giáo viên phụ trách
         public string? GiaoVienId { get; set; }
         public NguoiDung? GiaoVien { get; set; }
 

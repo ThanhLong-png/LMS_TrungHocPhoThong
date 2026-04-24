@@ -150,6 +150,7 @@ namespace LMS_THPT.Migrations
                     DuongDanFile = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NgayNop = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TrangThai = table.Column<int>(type: "int", nullable: false),
+                    GhiChu = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Diem = table.Column<double>(type: "float", nullable: true),
                     NhanXet = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NgayCham = table.Column<DateTime>(type: "datetime2", nullable: true),

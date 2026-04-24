@@ -75,6 +75,20 @@
                             </span>
                         </a>
                     }
+                    else if (User.IsInRole("HocSinh"))
+                    {
+                        <a asp-controller="HocSinh" asp-action="Index"
+                               class="d-flex align-items-center text-white text-decoration-none gap-2">
+
+                            <img src="@avatarUrl"
+                                 class="rounded-circle"
+                                 style="width:38px;height:38px;object-fit:cover;border:2px solid #fff;" />
+
+                            <span class="fw-semibold">
+                                @User.Identity.Name
+                            </span>
+                        </a>
+                    }
                     else
                     {
                         <a asp-controller="Home" asp-action="Welcome"

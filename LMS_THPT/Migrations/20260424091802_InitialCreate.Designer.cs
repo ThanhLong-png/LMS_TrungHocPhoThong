@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS_THPT.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260424080326_InitialCreate")]
+    [Migration("20260424091802_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -82,6 +82,9 @@ namespace LMS_THPT.Migrations
                         .HasColumnType("float");
 
                     b.Property<string>("DuongDanFile")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GhiChu")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("HocSinhId")
