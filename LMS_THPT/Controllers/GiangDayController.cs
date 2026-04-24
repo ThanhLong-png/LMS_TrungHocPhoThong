@@ -43,20 +43,37 @@ namespace LMS_THPT.Controllers
                 return View(new List<BaiGiang>());
             }
 
-            // ✅ BÀI GIẢNG
-            var posts = await _context.DanhSachBaiGiang
+            // ✅ BÀI GIẢNG - lọc theo cả monHocId và lopId (nếu có)
+            // Bài giảng hiện chưa lưu lopId trực tiếp, lọc theo monHocId là đủ cho feed của giáo viên
+            var postsQuery = _context.DanhSachBaiGiang
                 .Include(b => b.TaiLieus)
                 .Include(b => b.MonHoc)
                 .Include(b => b.NguoiDung)
-                .Where(b => b.MonHocId == monHocId && b.IsActive)
+                .Where(b => b.MonHocId == monHocId && b.IsActive);
+
+            var posts = await postsQuery
                 .OrderByDescending(b => b.NgayTao)
                 .ToListAsync();
 
-            // ✅ BÀI TẬP
-            var taps = await _context.DanhSachBaiTap
+            // ✅ BÀI TẬP - lọc theo monHocId, và nếu có lopId thì lọc thêm theo GV phụ trách lớp đó
+            IQueryable<BaiTap> tapsQuery = _context.DanhSachBaiTap
                 .Where(t => t.MonHocId == monHocId)
+                .Include(x => x.NguoiDung);
+
+            // Nếu có lopId, chỉ lấy bài tập của giáo viên dạy lớp đó (tránh GV cùng môn thấy bài của nhau)
+            if (lopId.HasValue)
+            {
+                var gvCuaLop = await _context.LopMonHocs
+                    .Where(lm => lm.LopId == lopId.Value && lm.MonHocId == monHocId.Value)
+                    .Select(lm => lm.GiaoVienId)
+                    .FirstOrDefaultAsync();
+
+                if (gvCuaLop != null)
+                    tapsQuery = tapsQuery.Where(t => t.NguoiDungId == gvCuaLop);
+            }
+
+            var taps = await tapsQuery
                 .OrderByDescending(t => t.NgayTao)
-                .Include(x => x.NguoiDung)
                 .ToListAsync();
 
             ViewBag.BaiTaps = taps;
@@ -72,7 +89,7 @@ namespace LMS_THPT.Controllers
                          && b.ParentId == null)
                 .ToListAsync();
 
-            // ✅ COMMENT BÀI TẬP
+            // ✅ COMMENT BÀI TậP
             var baiTapIds = taps.Select(t => t.Id).ToList();
 
             var binhLuanBaiTap = await _context.DanhSachBinhLuan

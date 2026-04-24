@@ -529,7 +529,7 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
         // ────────────────────────────────────────────────────────────────────
         // 3.4 BÀI TẬP & ĐÁNH GIÁ
         // ────────────────────────────────────────────────────────────────────
-        public async Task<IActionResult> QuanLyBaiTap(int monHocId = 0)
+        public async Task<IActionResult> QuanLyBaiTap(int lopId = 0, int monHocId = 0)
         {
             var gv = await _userManager.GetUserAsync(User);
             if (gv == null) return RedirectToAction("Login", "Account", new { area = "" });
@@ -539,13 +539,26 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
                 .Select(x => x.MonHocId)
                 .ToListAsync();
 
-            if (monHocId == 0 && monHocIds.Any()) monHocId = monHocIds.First();
+            var lopMonHocs = await _db.LopMonHocs
+                .Include(x => x.Lop)
+                .Include(x => x.MonHoc)
+                .Where(x => monHocIds.Contains(x.MonHocId))
+                .ToListAsync();
+
+            // Nếu chưa chọn lớp → dùng lớp đầu tiên
+            if (lopId == 0 && lopMonHocs.Any())
+                lopId = lopMonHocs.First().LopId;
+
+            // Nếu chưa chọn môn (hoặc môn không thuộc lớp đang chọn) → dùng môn đầu tiên của lớp đó
+            var monsOfLop = lopMonHocs.Where(x => x.LopId == lopId).ToList();
+            if ((monHocId == 0 || !monsOfLop.Any(x => x.MonHocId == monHocId)) && monsOfLop.Any())
+                monHocId = monsOfLop.First().MonHocId;
 
             var baiNops = await _db.BaiNops
                 .Include(x => x.HocSinh)
                 .ThenInclude(u => u.Lop)
                 .Include(x => x.BaiTap)
-                .Where(x => x.BaiTap.MonHocId == monHocId)
+                .Where(x => x.BaiTap.MonHocId == monHocId && x.HocSinh!.LopId == lopId)
                 .OrderBy(x => x.Diem)
                 .ThenByDescending(x => x.NgayNop)
                 .Take(8)
@@ -566,7 +579,7 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
                 .Include(x => x.HocSinh)
                 .ThenInclude(u => u.Lop)
                 .Include(x => x.BaiTap)
-                .Where(x => x.BaiTap.MonHocId == monHocId)
+                .Where(x => x.BaiTap.MonHocId == monHocId && x.HocSinh!.LopId == lopId)
                 .Select(x => new BaiNopDiemItem
                 {
                     BaiNopId = x.Id,
@@ -585,8 +598,14 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
                 DanhSachDiem = diemBaiTap
             };
 
-            ViewBag.MonHocIds = monHocIds;
+            ViewBag.LopMonHocs = lopMonHocs;
+            ViewBag.LopHienTai = lopId;
             ViewBag.MonHocHienTai = monHocId;
+            
+            var currentLop = lopMonHocs.FirstOrDefault(x => x.LopId == lopId && x.MonHocId == monHocId);
+            ViewBag.TenLopHienTai = currentLop?.Lop?.TenLop ?? "";
+            ViewBag.TenMonHienTai = currentLop?.MonHoc?.TenMonHoc ?? "";
+
             return View(vm);
         }
 
@@ -610,6 +629,7 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
             var gv = await _userManager.GetUserAsync(User);
             if (gv == null) return RedirectToAction("Login", "Account", new { area = "" });
 
+            // Lấy tất cả môn học của giáo viên
             var monHocIds = await _db.MonHocGiaoViens
                 .Where(x => x.NguoiDungId == gv.Id)
                 .Select(x => x.MonHocId)
@@ -617,15 +637,25 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
 
             if (monHocId == 0 && monHocIds.Any()) monHocId = monHocIds.First();
 
-            var lopIds = await _db.LopMonHocs
-                .Where(x => x.MonHocId == monHocId)
-                .Select(x => x.LopId)
+            // Lấy TẤT CẢ các lớp giáo viên này phụ trách (mọi môn)
+            var allLopMonHocs = await _db.LopMonHocs
+                .Include(x => x.Lop)
+                .Include(x => x.MonHoc)
+                .Where(x => monHocIds.Contains(x.MonHocId))
                 .ToListAsync();
 
+            // Lớp học của môn đang chọn
+            var lopIdsOfMon = allLopMonHocs
+                .Where(x => x.MonHocId == monHocId)
+                .Select(x => x.LopId)
+                .Distinct()
+                .ToList();
+
+            // Học sinh thuộc các lớp học môn đang chọn
             var hocSinhList = await _db.NguoiDungs
                 .Include(u => u.Lop)
-                .Where(u => u.LopId.HasValue && lopIds.Contains(u.LopId.Value))
-                .Distinct()
+                .Where(u => u.LopId.HasValue && lopIdsOfMon.Contains(u.LopId.Value))
+                .OrderBy(u => u.Lop!.TenLop).ThenBy(u => u.HoTen)
                 .ToListAsync();
 
             var hocSinhIds = hocSinhList.Select(u => u.Id).ToList();
@@ -637,12 +667,19 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
 
             var tongBaiTap = await _db.BaiTaps.CountAsync(x => x.MonHocId == monHocId);
 
+            // Lấy số bài nộp theo từng học sinh một lần (tránh N+1)
+            var baiNopCounts = await _db.BaiNops
+                .Where(x => hocSinhIds.Contains(x.HocSinhId) && x.BaiTap.MonHocId == monHocId)
+                .GroupBy(x => x.HocSinhId)
+                .Select(g => new { HocSinhId = g.Key, SoLuong = g.Count() })
+                .ToListAsync();
+
             var tienDoHs = new List<TienDoHocSinhItem>();
             foreach (var nguoiDung in hocSinhList)
             {
                 var hsId = nguoiDung.Id;
                 var diem = diemList.FirstOrDefault(d => d.NguoiDungId == hsId);
-                var soBaiNop = await _db.BaiNops.CountAsync(x => x.HocSinhId == hsId && x.BaiTap.MonHocId == monHocId);
+                var soBaiNop = baiNopCounts.FirstOrDefault(b => b.HocSinhId == hsId)?.SoLuong ?? 0;
                 var pct = tongBaiTap == 0 ? 0 : Math.Min(100, soBaiNop * 100 / tongBaiTap);
                 var tongKet = diem != null && diem.DiemGiuaKy.HasValue && diem.DiemCuoiKy.HasValue
                     ? Math.Round(diem.DiemGiuaKy.Value * 0.4 + diem.DiemCuoiKy.Value * 0.6, 1) : 0;
@@ -684,26 +721,30 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
 
             var diemTB = tienDoHs.Any() ? Math.Round(tienDoHs.Average(x => x.Diem), 1) : 0;
 
-            var lopList = await _db.LopMonHocs
-                .Include(x => x.Lop)
-                .Where(x => monHocIds.Contains(x.MonHocId))
-                .Select(x => x.Lop.TenLop ?? "")
+            // Danh sách lớp để lọc: chỉ các lớp thuộc môn đang chọn
+            var lopList = allLopMonHocs
+                .Where(x => x.MonHocId == monHocId)
+                .Select(x => x.Lop?.TenLop ?? "")
+                .Where(s => !string.IsNullOrEmpty(s))
                 .Distinct()
-                .ToListAsync();
+                .OrderBy(s => s)
+                .ToList();
 
             var vm = new TienDoViewModel
             {
                 DiemTrungBinhLop = diemTB,
-                TiLeHoanThanh = tienDoHs.Any() ? tienDoHs.Average(x => x.PhanTram) is var avg ? (int)avg : 0 : 0,
+                TiLeHoanThanh = tienDoHs.Any() ? (int)tienDoHs.Average(x => x.PhanTram) : 0,
                 SoHocSinhXuatSac = tienDoHs.Count(x => x.Diem >= 9.0),
                 SoHocSinhCanHoTro = tienDoHs.Count(x => x.Diem < 5.0),
-                TienDoHocSinh = tienDoHs.OrderByDescending(x => x.Diem).ToList(),
+                TienDoHocSinh = tienDoHs.OrderBy(x => x.TenLop).ThenByDescending(x => x.Diem).ToList(),
                 ThongKeXepLoai = xepLoai,
                 DanhSachLop = lopList
             };
 
+            // Truyền thêm danh sách môn học và thông tin lớp-môn cho view
             ViewBag.MonHocIds = monHocIds;
             ViewBag.MonHocHienTai = monHocId;
+            ViewBag.AllLopMonHocs = allLopMonHocs;
             return View(vm);
         }
 
