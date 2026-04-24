@@ -1,0 +1,470 @@
+@model LMS_THPT.Models.NguoiDung
+@{
+    ViewData["Title"] = "Thông tin cá nhân";
+    Layout = "~/Views/Shared/_LayoutHocSinh.cshtml";
+    var user = Model;
+    var avatarSrc = string.IsNullOrEmpty(user.AnhDaiDien)
+        ? Url.Content("~/images/default-avatar.svg")
+        : Url.Content("~" + user.AnhDaiDien.TrimStart('~'));
+}
+
+<style>
+    /* ===== FONT & BASE ===== */
+    .profile-page * {
+        font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    }
+
+    /* ===== PAGE HEADER ===== */
+    .profile-hero {
+        background: linear-gradient(135deg, #1a1f36 0%, #3730a3 100%);
+        border-radius: 20px;
+        padding: 2rem 2.5rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .profile-hero::before {
+        content: '';
+        position: absolute;
+        top: -40%;
+        right: -5%;
+        width: 280px;
+        height: 280px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .profile-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -50%;
+        left: 10%;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .profile-hero-info {
+        position: relative;
+        z-index: 1;
+    }
+
+    .profile-hero h1 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: 0.25rem;
+        letter-spacing: -0.02em;
+    }
+
+    .profile-hero p {
+        font-size: 0.9rem;
+        opacity: 0.75;
+        margin: 0;
+    }
+
+    /* ===== AVATAR SECTION ===== */
+    .avatar-zone {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        flex-shrink: 0;
+        z-index: 1;
+    }
+
+    .avatar-img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid rgba(255, 255, 255, 0.35);
+        display: block;
+    }
+
+    .avatar-overlay {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .avatar-zone:hover .avatar-overlay { opacity: 1; }
+
+    .avatar-overlay span {
+        color: #fff;
+        font-size: 1.5rem;
+    }
+
+    /* ===== CARDS ===== */
+    .profile-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-card-head {
+        padding: 1rem 1.5rem;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #1e293b;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .profile-card-body { padding: 1.5rem; }
+
+    /* ===== FORM CONTROLS ===== */
+    .form-label-hs {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.4rem;
+        display: block;
+    }
+
+    .form-control-hs,
+    .form-select-hs {
+        width: 100%;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 0.6rem 1rem;
+        font-size: 0.92rem;
+        color: #1e293b;
+        background: #f8fafc;
+        transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+        outline: none;
+        font-family: inherit;
+    }
+
+    .form-control-hs:focus,
+    .form-select-hs:focus {
+        border-color: #6366f1;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    }
+
+    .form-control-hs[readonly] {
+        background: #f1f5f9;
+        color: #94a3b8;
+        cursor: not-allowed;
+    }
+
+    /* ===== FILE INPUT ===== */
+    .file-zone {
+        border: 2px dashed #e2e8f0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s;
+    }
+
+    .file-zone:hover { border-color: #6366f1; background: #faf5ff; }
+
+    .file-zone-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .file-zone-label { font-size: 0.85rem; color: #64748b; }
+    .file-zone-label strong { color: #6366f1; }
+    .file-zone-hint { font-size: 0.75rem; color: #94a3b8; margin-top: 0.3rem; }
+
+    /* ===== BUTTONS ===== */
+    .btn-save-hs {
+        background: linear-gradient(135deg, #6366f1, #4338ca);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-size: 0.95rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-save-hs:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+    }
+
+    .btn-back-hs {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .btn-back-hs:hover { background: #e2e8f0; color: #1e293b; }
+
+    /* ===== INFO BADGE ===== */
+    .info-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.3rem 0.85rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        background: #eff6ff;
+        color: #3730a3;
+    }
+
+    /* ===== ALERT ===== */
+    .hs-toast {
+        border-radius: 12px;
+        padding: 0.9rem 1.2rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        border: none;
+    }
+
+    .hs-toast-success {
+        background: #f0fdf4;
+        color: #15803d;
+        border-left: 4px solid #22c55e;
+    }
+
+    .hs-toast-error {
+        background: #fef2f2;
+        color: #dc2626;
+        border-left: 4px solid #ef4444;
+    }
+</style>
+
+<div class="profile-page">
+
+    <!-- HERO HEADER -->
+    <div class="profile-hero">
+        <div class="avatar-zone">
+            <img id="avatarPreview" src="@avatarSrc" class="avatar-img" alt="Avatar" />
+            <label for="AnhDaiDienFile" class="avatar-overlay" title="Đổi ảnh đại diện">
+                <span>📷</span>
+            </label>
+        </div>
+        <div class="profile-hero-info">
+            <h1>@user.HoTen</h1>
+            <p>✉️ @user.Email</p>
+            @if (!string.IsNullOrEmpty(user.MaHocSinh))
+            {
+                <p style="margin-top:.25rem">🪪 Mã HS: <strong>@user.MaHocSinh</strong></p>
+            }
+            @if (user.Lop != null)
+            {
+                <span class="info-badge" style="margin-top:.6rem">🏫 @user.Lop.TenLop</span>
+            }
+        </div>
+    </div>
+
+    <!-- ALERTS -->
+    @if (TempData["msg"] != null)
+    {
+        <div class="hs-toast hs-toast-success">
+            <span>✅</span> @TempData["msg"]
+        </div>
+    }
+    @if (TempData["error"] != null)
+    {
+        <div class="hs-toast hs-toast-error">
+            <span>❌</span> @TempData["error"]
+        </div>
+    }
+
+    <!-- FORM -->
+    <form asp-action="SuaThongTin" asp-controller="HocSinh" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <div class="row g-4">
+
+            <!-- LEFT: THÔNG TIN CƠ BẢN -->
+            <div class="col-lg-7">
+                <div class="profile-card">
+                    <div class="profile-card-head">
+                        👤 Thông tin cá nhân
+                    </div>
+                    <div class="profile-card-body">
+                        <div class="row g-3">
+
+                            <div class="col-12">
+                                <label class="form-label-hs">Họ và tên <span style="color:#ef4444">*</span></label>
+                                <input type="text"
+                                       name="HoTen"
+                                       value="@user.HoTen"
+                                       class="form-control-hs"
+                                       placeholder="Nhập họ và tên đầy đủ"
+                                       required />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label-hs">Ngày sinh</label>
+                                <input type="date"
+                                       name="NgaySinh"
+                                       value="@(user.NgaySinh?.ToString("yyyy-MM-dd") ?? "")"
+                                       class="form-control-hs" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label-hs">Giới tính</label>
+                                @{
+                                    var gioiTinhList = new[] { "Nam", "Nữ", "Khác" };
+                                }
+                                <select name="GioiTinh" class="form-select-hs">
+                                    <option value="">-- Chọn --</option>
+                                    @foreach (var gt in gioiTinhList)
+                                    {
+                                        if (gt == user.GioiTinh)
+                                        {
+                                            <option value="@gt" selected="selected">@gt</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@gt">@gt</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label-hs">Địa chỉ</label>
+                                <input type="text"
+                                       name="DiaChi"
+                                       value="@(user.DiaChi ?? "")"
+                                       class="form-control-hs"
+                                       placeholder="Nhập địa chỉ liên hệ" />
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label-hs">Email</label>
+                                <input type="email" value="@user.Email" class="form-control-hs" readonly />
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(user.MaHocSinh))
+                            {
+                                <div class="col-12">
+                                    <label class="form-label-hs">Mã học sinh</label>
+                                    <input type="text" value="@user.MaHocSinh" class="form-control-hs" readonly />
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: ẢNH ĐẠI DIỆN + THÔNG TIN LỚP -->
+            <div class="col-lg-5">
+
+                <!-- ẢNH ĐẠI DIỆN -->
+                <div class="profile-card">
+                    <div class="profile-card-head">
+                        📷 Ảnh đại diện
+                    </div>
+                    <div class="profile-card-body">
+                        <label for="AnhDaiDienFile" class="file-zone">
+                            <div class="file-zone-icon">🖼️</div>
+                            <div class="file-zone-label">
+                                <strong>Nhấn để chọn ảnh</strong> hoặc kéo thả vào đây
+                            </div>
+                            <div class="file-zone-hint">JPG, PNG, GIF, WEBP · Tối đa 5MB</div>
+                        </label>
+                        <input type="file"
+                               id="AnhDaiDienFile"
+                               name="AnhDaiDienFile"
+                               accept="image/*"
+                               style="display:none"
+                               onchange="previewAndUpdateHero(this)" />
+                        <div id="selectedFileName"
+                             style="font-size:.8rem;color:#64748b;margin-top:.6rem;text-align:center;display:none"></div>
+                    </div>
+                </div>
+
+                <!-- THÔNG TIN LỚP (chỉ đọc) -->
+                @if (user.Lop != null)
+                {
+                    <div class="profile-card">
+                        <div class="profile-card-head">
+                            🏫 Thông tin lớp học
+                        </div>
+                        <div class="profile-card-body">
+                            <div style="display:flex;flex-direction:column;gap:.8rem">
+                                <div>
+                                    <div class="form-label-hs">Lớp</div>
+                                    <div style="font-weight:700;font-size:1.1rem;color:#1e293b">@user.Lop.TenLop</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- NGÀY CẬP NHẬT -->
+                @if (user.NgayCapNhat.HasValue)
+                {
+                    <p style="font-size:.78rem;color:#94a3b8;text-align:center;margin-top:.5rem">
+                        🕐 Cập nhật lần cuối: @user.NgayCapNhat.Value.ToString("dd/MM/yyyy HH:mm")
+                    </p>
+                }
+
+            </div>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div style="display:flex;align-items:center;gap:1rem;margin-top:1rem;flex-wrap:wrap">
+            <a asp-controller="HocSinh" asp-action="Index" class="btn-back-hs">
+                ← Quay lại
+            </a>
+            <button type="submit" class="btn-save-hs">
+                💾 Lưu thay đổi
+            </button>
+        </div>
+
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        function previewAndUpdateHero(input) {
+            if (!input.files || !input.files[0]) return;
+            var file = input.files[0];
+
+            // Hiện tên file
+            var nameEl = document.getElementById('selectedFileName');
+            nameEl.textContent = '📎 ' + file.name;
+            nameEl.style.display = 'block';
+
+            // Preview ảnh tức thì: cả avatar nhỏ trong hero và ảnh preview lớn
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('avatarPreview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+}

@@ -1,0 +1,360 @@
+@model List<LMS_THPT.Models.BaiTap>
+@{
+    ViewData["Title"] = "Danh sách bài tập";
+    Layout = "~/Views/Shared/_LayoutHocSinh.cshtml";
+
+    var baiNopList = (List<LMS_THPT.Models.BaiNop>)ViewBag.BaiNop;
+    var monHocs = (List<LMS_THPT.Models.MonHoc>)ViewBag.MonHocs;
+    int? selectedMon = ViewBag.SelectedMonHoc;
+    string? trangThai = ViewBag.TrangThai;
+    var now = DateTime.Now;
+
+    string TrangThaiLabel(string? tt) => tt switch
+    {
+        "chuaNop" => "Chưa nộp",
+        "daNop" => "Đã nộp",
+        "sapHetHan" => "Sắp hết hạn",
+        "hetHan" => "Hết hạn",
+        _ => "Tất cả"
+    };
+}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #3730a3 0%, #4f46e5 100%);
+        border-radius: 16px;
+        padding: 1.8rem 2rem;
+        color: #fff;
+        margin-bottom: 2rem;
+    }
+
+    .filter-bar {
+        background: #fff;
+        border-radius: 14px;
+        padding: 1.2rem 1.5rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-chip {
+        padding: 0.35rem 1rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-block;
+    }
+
+    .filter-chip.active { background: #4f46e5; color: #fff; }
+    .filter-chip:not(.active) { background: #f1f5f9; color: #475569; }
+    .filter-chip:not(.active):hover { background: #e2e8f0; color: #1e293b; }
+
+    .bt-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+        border: 1px solid rgba(0,0,0,0.05);
+        overflow: hidden;
+        margin-bottom: 1.2rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .bt-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .bt-header {
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .bt-body {
+        padding: 1rem 1.5rem 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .status-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .st-done { background: #dcfce7; color: #15803d; }
+    .st-late { background: #fee2e2; color: #dc2626; }
+    .st-urgent { background: #ffedd5; color: #c2410c; }
+    .st-open { background: #f0fdf4; color: #15803d; }
+    .st-closed { background: #f1f5f9; color: #64748b; }
+
+    .deadline-bar {
+        height: 4px;
+        border-radius: 999px;
+        background: #e2e8f0;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+
+    .btn-nop {
+        background: linear-gradient(135deg, #4f46e5, #3730a3);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 0.5rem 1.4rem;
+        font-size: 0.88rem;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: opacity 0.2s;
+    }
+    .btn-nop:hover { opacity: 0.85; color: #fff; }
+
+    .btn-renop {
+        background: #fff;
+        color: #4f46e5;
+        border: 2px solid #4f46e5;
+        border-radius: 10px;
+        padding: 0.4rem 1.2rem;
+        font-size: 0.88rem;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: all 0.2s;
+    }
+    .btn-renop:hover { background: #eff6ff; }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 1rem;
+        color: #94a3b8;
+    }
+
+    .score-pill {
+        background: linear-gradient(135deg, #fbbf24, #d97706);
+        color: #fff;
+        border-radius: 999px;
+        padding: 3px 12px;
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    .score-pending {
+        background: #f1f5f9;
+        color: #64748b;
+        border-radius: 999px;
+        padding: 3px 12px;
+        font-size: 0.82rem;
+    }
+</style>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+        <div style="font-size:2.5rem;">📝</div>
+        <div>
+            <h1 class="fw-bold mb-0" style="font-size:1.6rem;">Bài tập &amp; Kiểm tra</h1>
+            <p class="mb-0 opacity-75" style="font-size:0.9rem;">
+                @Model.Count bài tập
+                @if (!string.IsNullOrEmpty(trangThai)) { <text>&bull; Đang lọc: @TrangThaiLabel(trangThai)</text> }
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+    <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+        <span class="text-muted" style="font-size:0.82rem;">Trạng thái:</span>
+        @{
+            var filters = new[] {
+                ("", "Tất cả"),
+                ("chuaNop", "⬜ Chưa nộp"),
+                ("daNop", "✅ Đã nộp"),
+                ("sapHetHan", "⚠️ Sắp hết hạn"),
+                ("hetHan", "🔴 Hết hạn")
+            };
+        }
+        @foreach (var (val, label) in filters)
+        {
+            <a href="@Url.Action("BaiTap","HocSinh", new { monHocId = selectedMon, trangThai = val })"
+               class="filter-chip @(trangThai == (string.IsNullOrEmpty(val) ? null : val) ? "active" : "")">
+                @label
+            </a>
+        }
+    </div>
+
+    @if (monHocs.Any())
+    {
+        <div class="d-flex flex-wrap gap-2 align-items-center pt-2 border-top">
+            <span class="text-muted" style="font-size:0.82rem;">Môn học:</span>
+            <a href="@Url.Action("BaiTap","HocSinh", new { trangThai })"
+               class="filter-chip @(!selectedMon.HasValue ? "active" : "")">Tất cả</a>
+            @foreach (var mon in monHocs)
+            {
+                <a href="@Url.Action("BaiTap","HocSinh", new { monHocId = mon.Id, trangThai })"
+                   class="filter-chip @(selectedMon == mon.Id ? "active" : "")">
+                    @mon.TenMonHoc
+                </a>
+            }
+        </div>
+    }
+</div>
+
+@if (TempData["msg"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius:12px; border:none; background:#dcfce7; color:#15803d;">
+        @TempData["msg"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius:12px; border:none; background:#fee2e2; color:#dc2626;">
+        @TempData["error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- DANH SÁCH BÀI TẬP -->
+@if (Model.Count == 0)
+{
+    <div class="empty-state">
+        <div style="font-size:3.5rem; margin-bottom:1rem;">📭</div>
+        <h5>Không có bài tập nào</h5>
+        <p>Thử chọn bộ lọc khác.</p>
+    </div>
+}
+else
+{
+    @foreach (var item in Model)
+    {
+        var daNop = baiNopList.FirstOrDefault(bn => bn.BaiTapId == item.Id);
+        bool conHan = item.HanNop > now;
+        bool sapHetHanFlag = conHan && item.HanNop <= now.AddDays(3);
+        bool hetHanFlag = !conHan;
+
+        // Tính % thời gian còn lại
+        var tongThoiGian = (item.HanNop - item.NgayTao).TotalMinutes;
+        var daQua = (now - item.NgayTao).TotalMinutes;
+        var pctUsed = tongThoiGian <= 0 ? 100 : Math.Min(100, daQua / tongThoiGian * 100);
+
+        string barColor = hetHanFlag ? "#dc2626" : sapHetHanFlag ? "#d97706" : "#4f46e5";
+
+        <div class="bt-card">
+            <div class="bt-header">
+                <div class="d-flex align-items-start justify-content-between gap-2 flex-wrap">
+                    <div>
+                        <div class="fw-bold" style="font-size:1.05rem; color:#1e293b;">@item.TieuDe</div>
+                        @if (!string.IsNullOrEmpty(item.MoTa))
+                        {
+                            <div class="text-muted mt-1" style="font-size:0.88rem;">@item.MoTa</div>
+                        }
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        @if (item.MonHoc != null)
+                        {
+                            <span style="background:#eff6ff; color:#1d4ed8; padding:3px 12px; border-radius:8px; font-size:0.8rem; font-weight:600;">
+                                📚 @item.MonHoc.TenMonHoc
+                            </span>
+                        }
+
+                        @if (daNop != null)
+                        {
+                            @if (daNop.TrangThai == LMS_THPT.Models.TrangThaiBaiNop.NopTre)
+                            {
+                                <span class="status-tag st-late">⚠ Nộp trễ</span>
+                            }
+                            else
+                            {
+                                <span class="status-tag st-done">✅ Đã nộp</span>
+                            }
+                        }
+                        else if (hetHanFlag)
+                        {
+                            <span class="status-tag st-late">🔴 Hết hạn</span>
+                        }
+                        else if (sapHetHanFlag)
+                        {
+                            <span class="status-tag st-urgent">⚠️ Sắp hết hạn</span>
+                        }
+                        else
+                        {
+                            <span class="status-tag st-open">🟢 Còn hạn</span>
+                        }
+                    </div>
+                </div>
+
+                <!-- DEADLINE BAR -->
+                <div class="mt-2">
+                    <div class="d-flex justify-content-between" style="font-size:0.78rem; color:#94a3b8;">
+                        <span>Tạo: @item.NgayTao.ToString("dd/MM/yyyy")</span>
+                        <span style="color:@barColor; font-weight:600;">
+                            Hạn: @item.HanNop.ToString("dd/MM/yyyy HH:mm")
+                        </span>
+                    </div>
+                    <div class="deadline-bar">
+                        <div style="width:@pctUsed%; height:100%; background:@barColor; transition:width 0.5s;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bt-body">
+                <div class="d-flex gap-3 align-items-center flex-wrap">
+                    <span class="text-muted" style="font-size:0.85rem;">
+                        🏆 Điểm tối đa: <strong>@item.DiemToiDa</strong>
+                    </span>
+
+                    @if (daNop != null)
+                    {
+                        if (daNop.Diem.HasValue)
+                        {
+                            <span class="score-pill">@daNop.Diem / @item.DiemToiDa</span>
+                        }
+                        else
+                        {
+                            <span class="score-pending">⌛ Chờ chấm điểm</span>
+                        }
+
+                        <span class="text-muted" style="font-size:0.82rem;">
+                            Nộp lúc: @daNop.NgayNop.ToString("dd/MM HH:mm")
+                        </span>
+                    }
+                </div>
+
+                <div class="d-flex gap-2">
+                    @if (daNop != null)
+                    {
+                        <a href="@Url.Action("NopBai","HocSinh", new { id = item.Id })"
+                           class="btn-renop">
+                            🔄 Nộp lại
+                        </a>
+                    }
+                    else if (conHan || item.TrangThai != LMS_THPT.Models.TrangThaiBaiTap.DaDong)
+                    {
+                        <a href="@Url.Action("NopBai","HocSinh", new { id = item.Id })"
+                           class="btn-nop">
+                            📤 Nộp bài
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="text-muted" style="font-size:0.85rem;">Đã đóng</span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}

@@ -1,4 +1,4 @@
-﻿namespace LMS_THPT.Models
+namespace LMS_THPT.Models
 {
     public enum TrangThaiBaiNop
     {
@@ -14,6 +14,9 @@
         public string? DuongDanFile { get; set; }
         public DateTime NgayNop { get; set; } = DateTime.Now;
         public TrangThaiBaiNop TrangThai { get; set; } = TrangThaiBaiNop.DaNop;
+
+        // Ghi chú khi nộp lại / chỉnh sửa bài
+        public string? GhiChu { get; set; }
 
         // Chấm điểm
         public double? Diem { get; set; }

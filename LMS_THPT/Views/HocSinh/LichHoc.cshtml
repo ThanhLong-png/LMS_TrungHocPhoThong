@@ -1,0 +1,340 @@
+@model IList<LMS_THPT.Models.LichHoc>
+@{
+    ViewData["Title"] = "Lịch học";
+    Layout = "~/Views/Shared/_LayoutHocSinh.cshtml";
+
+    var baiTapSapHan = (List<LMS_THPT.Models.BaiTap>)ViewBag.BaiTapSapHan;
+    var baiDaNop = (List<int>)ViewBag.BaiDaNop;
+    string lopTen = ViewBag.LopTen ?? "—";
+    var now = DateTime.Now;
+
+    string[] thuNames = { "", "", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật" };
+    Func<int, string> GetThuName = (t) => (t >= 2 && t <= 8) ? thuNames[t] : $"Thứ {t}";
+    int[] thuOrder = { 2, 3, 4, 5, 6, 7, 8 };
+
+    // Nhóm theo thứ
+    var lichTheoThu = Model
+        .GroupBy(x => x.Thu)
+        .OrderBy(g => g.Key)
+        .ToDictionary(g => g.Key, g => g.OrderBy(x => x.TietHoc).ToList());
+}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #1e3a5f 0%, #0f3460 100%);
+        border-radius: 16px;
+        padding: 1.8rem 2rem;
+        color: #fff;
+        margin-bottom: 2rem;
+    }
+
+    .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 1.5rem;
+    }
+
+    @@media (max-width: 900px) {
+        .main-grid { grid-template-columns: 1fr; }
+    }
+
+    .section-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+        border: 1px solid rgba(0,0,0,0.05);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-header {
+        padding: 1.1rem 1.5rem;
+        font-weight: 700;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
+    }
+
+    /* TIMETABLE GRID */
+    .tt-day {
+        margin-bottom: 1.2rem;
+    }
+
+    .tt-day-header {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 0.6rem;
+    }
+
+    .tt-day-badge {
+        background: linear-gradient(135deg, #1e3a5f, #1a56a4);
+        color: #fff;
+        border-radius: 10px;
+        padding: 0.3rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    .tt-session {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.85rem 1rem;
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        transition: all 0.15s;
+    }
+    .tt-session:hover { background: #eff6ff; border-color: #bfdbfe; }
+
+    .tt-tiet {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #1a56a4, #0f3460);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.95rem;
+        flex-shrink: 0;
+    }
+
+    .tt-info { flex-grow: 1; }
+    .tt-mon { font-weight: 600; color: #1e293b; font-size: 0.92rem; }
+    .tt-gv { font-size: 0.8rem; color: #64748b; margin-top:2px; }
+
+    .tt-room {
+        background: #e0e7ff;
+        color: #3730a3;
+        padding: 3px 10px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .empty-day {
+        padding: 1.5rem;
+        text-align: center;
+        color: #cbd5e1;
+        font-size: 0.88rem;
+        border: 1px dashed #e2e8f0;
+        border-radius: 12px;
+    }
+
+    /* DEADLINE ITEMS */
+    .dl-item {
+        padding: 0.9rem 1.2rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.8rem;
+    }
+    .dl-item:last-child { border-bottom: none; }
+
+    .dl-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-top: 5px;
+        flex-shrink: 0;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: #475569;
+        text-decoration: none;
+        font-size: 0.88rem;
+        margin-bottom: 1.2rem;
+    }
+    .btn-back:hover { color: #1e3a5f; }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #94a3b8;
+    }
+</style>
+
+<a href="@Url.Action("Index","HocSinh")" class="btn-back">← Quay lại Dashboard</a>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+        <div style="font-size:2.5rem;">📅</div>
+        <div>
+            <h1 class="fw-bold mb-0" style="font-size:1.6rem;">Lịch học</h1>
+            <p class="mb-0 opacity-75" style="font-size:0.9rem;">
+                Lớp: <strong>@lopTen</strong> &bull; @Model.Count tiết học / tuần
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="main-grid">
+    <!-- LEFT: THỜI KHÓA BIỂU -->
+    <div>
+        <div class="section-card">
+            <div class="section-header">
+                🗓️ Thời khóa biểu
+            </div>
+            <div class="p-4">
+
+                @if (!Model.Any())
+                {
+                    <div class="empty-state">
+                        <div style="font-size:3rem; margin-bottom:0.8rem;">🏫</div>
+                        <h6>Chưa có lịch học</h6>
+                        <p style="font-size:0.88rem;">Bạn chưa được phân lớp hoặc chưa có lịch học được thiết lập.</p>
+                    </div>
+                }
+                else
+                {
+                    @foreach (var thu in thuOrder)
+                    {
+                        var hasSessions = lichTheoThu.ContainsKey(thu);
+                        <div class="tt-day">
+                            <div class="tt-day-header">
+                                <span class="tt-day-badge">
+                                    @GetThuName(thu)
+                                </span>
+                                @if (hasSessions)
+                                {
+                                    <span class="text-muted" style="font-size:0.8rem;">
+                                        @lichTheoThu[thu].Count tiết
+                                    </span>
+                                }
+                            </div>
+
+                            @if (!hasSessions)
+                            {
+                                <div class="empty-day">Không có lịch học</div>
+                            }
+                            else
+                            {
+                                @foreach (var session in lichTheoThu[thu])
+                                {
+                                    <div class="tt-session">
+                                        <div class="tt-tiet">@session.TietHoc</div>
+                                        <div class="tt-info">
+                                            <div class="tt-mon">@(session.MonHoc?.TenMonHoc ?? "—")</div>
+                                            @if (session.GiaoVien != null)
+                                            {
+                                                <div class="tt-gv">👨‍🏫 @session.GiaoVien.HoTen</div>
+                                            }
+                                        </div>
+                                        <div class="tt-room">🚪 @session.PhongHoc</div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                }
+
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: SIDEBAR -->
+    <div>
+        <!-- HẠN NỘP BÀI SẮP TỚI -->
+        <div class="section-card">
+            <div class="section-header">⏰ Hạn nộp bài sắp tới</div>
+
+            @if (!baiTapSapHan.Any())
+            {
+                <div class="text-center py-4 text-muted" style="font-size:0.88rem;">
+                    🎉 Không có bài tập sắp hết hạn
+                </div>
+            }
+            else
+            {
+                @foreach (var bt in baiTapSapHan)
+                {
+                    bool daNop = baiDaNop.Contains(bt.Id);
+                    var conLai = bt.HanNop - now;
+                    bool urgent = conLai.TotalHours < 24;
+
+                    string dotColor = daNop ? "#22c55e" : urgent ? "#dc2626" : "#f59e0b";
+                    string bgColor = daNop ? "#f0fdf4" : urgent ? "#fef2f2" : "#fffbeb";
+
+                    <div class="dl-item" style="background:@bgColor;">
+                        <div class="dl-dot" style="background:@dotColor;"></div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold" style="font-size:0.88rem; color:#1e293b;">@bt.TieuDe</div>
+                            <div style="font-size:0.78rem; color:#64748b;">
+                                📚 @(bt.MonHoc?.TenMonHoc ?? "—")
+                            </div>
+                            <div style="font-size:0.78rem; margin-top:3px;">
+                                @if (daNop)
+                                {
+                                    <span style="color:#15803d; font-weight:600;">✅ Đã nộp</span>
+                                }
+                                else
+                                {
+                                    <span style="color:@(urgent ? "#dc2626" : "#d97706"); font-weight:600;">
+                                        ⏰ @bt.HanNop.ToString("dd/MM HH:mm")
+                                    </span>
+                                    <text> · Còn </text>
+                                    if (conLai.TotalDays >= 1)
+                                    {
+                                        <text>@((int)conLai.TotalDays)n @conLai.Hours&#103;</text>
+                                    }
+                                    else
+                                    {
+                                        <text>@((int)conLai.TotalHours)&#103; @conLai.Minutes&#112;</text>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        @if (!daNop)
+                        {
+                            <a href="@Url.Action("NopBai","HocSinh", new { id = bt.Id })"
+                               style="background:#4f46e5; color:#fff; border-radius:8px; padding:3px 10px; font-size:0.75rem; text-decoration:none; white-space:nowrap;">
+                                Nộp
+                            </a>
+                        }
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- THỐNG KÊ -->
+        <div class="section-card">
+            <div class="section-header">📊 Thống kê lịch học</div>
+            <div class="p-3">
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <span class="text-muted" style="font-size:0.88rem;">Tổng số tiết</span>
+                    <strong>@Model.Count</strong>
+                </div>
+                @foreach (var thu in thuOrder.Where(t => lichTheoThu.ContainsKey(t)))
+                {
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-muted" style="font-size:0.88rem;">
+                            @GetThuName(thu)
+                        </span>
+                        <span class="fw-semibold" style="color:#1e3a5f;">@lichTheoThu[thu].Count tiết</span>
+                    </div>
+                }
+                @{
+                    var monHocCount = Model.Where(x => x.MonHoc != null)
+                        .GroupBy(x => x.MonHoc!.TenMonHoc)
+                        .Count();
+                }
+                <div class="d-flex justify-content-between align-items-center pt-2">
+                    <span class="text-muted" style="font-size:0.88rem;">Số môn học</span>
+                    <strong>@monHocCount</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

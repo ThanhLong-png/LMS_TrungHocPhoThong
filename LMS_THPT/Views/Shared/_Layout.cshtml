@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -29,7 +29,7 @@
                     var avatarClaim = User.Claims.FirstOrDefault(c => c.Type == "AnhDaiDien")?.Value;
 
                     var avatarUrl = string.IsNullOrEmpty(avatarClaim)
-                        ? Url.Content("~/images/default-avatar.png")
+                        ? Url.Content("~/images/default-avatar.svg")
                         : Url.Content(avatarClaim.StartsWith("~") ? avatarClaim : "~/" + avatarClaim.TrimStart('/'));
 
                     <!-- AVATAR + NAME (CLICK → ADMIN) -->
@@ -47,9 +47,9 @@
                             </span>
                         </a>
                     }
-                    else
+                    else if (User.IsInRole("HocSinh"))
                     {
-                        <a asp-controller="Home" asp-action="Welcome"
+                        <a asp-controller="HocSinh" asp-action="Index"
                                class="d-flex align-items-center text-white text-decoration-none gap-2">
 
                             <img src="@avatarUrl"

@@ -1,4 +1,4 @@
-﻿@model LMS_THPT.Models.NguoiDung
+@model LMS_THPT.Models.NguoiDung
 @{
     ViewData["Title"] = "Cập nhật hồ sơ cá nhân";
 }
@@ -136,7 +136,7 @@
                 <div class="text-center">
                     <div class="avatar-wrapper">
                         <img id="avatarPreview"
-                             src="@Url.Content(string.IsNullOrEmpty(Model.AnhDaiDien) ? "/images/default-avatar.png" : Model.AnhDaiDien)"
+                             src="@Url.Content(string.IsNullOrEmpty(Model.AnhDaiDien) ? "/images/default-avatar.svg" : Model.AnhDaiDien)"
                              class="avatar-preview" alt="Avatar" />
                     </div>
                 </div>

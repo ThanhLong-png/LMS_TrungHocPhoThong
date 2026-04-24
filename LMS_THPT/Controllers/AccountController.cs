@@ -1,4 +1,4 @@
-﻿using LMS_THPT.Models;
+using LMS_THPT.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -53,8 +53,8 @@ namespace LMS_THPT.Controllers
                 if (roles.Contains("Admin"))
                     return RedirectToAction("Index", "Admin");
 
-                if (roles.Contains("GiangVien"))
-                    return RedirectToAction("Index", "GiangVien");
+                if (roles.Contains("GiaoVien"))
+                    return RedirectToAction("Index", "GiaoVien");
 
                 if (roles.Contains("HocSinh"))
                     return RedirectToAction("Index", "HocSinh");

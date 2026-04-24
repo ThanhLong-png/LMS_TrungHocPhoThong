@@ -1,0 +1,198 @@
+@model LMS_THPT.Models.BaiGiang
+@{
+    ViewData["Title"] = Model.TieuDe;
+    Layout = "~/Views/Shared/_LayoutHocSinh.cshtml";
+}
+
+<style>
+    .bg-back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: #475569;
+        text-decoration: none;
+        font-size: 0.88rem;
+        margin-bottom: 1.2rem;
+        transition: color 0.2s;
+    }
+    .bg-back-btn:hover { color: #1d4ed8; }
+
+    .detail-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .detail-banner {
+        background: linear-gradient(135deg, #1e3a5f 0%, #1a56a4 100%);
+        padding: 2rem 2.5rem;
+        color: #fff;
+    }
+
+    .detail-body { padding: 2rem 2.5rem; }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-item {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 1rem;
+    }
+
+    .info-label { font-size: 0.78rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; margin-bottom: 0.3rem; }
+    .info-value { font-size: 0.95rem; color: #1e293b; font-weight: 600; }
+
+    .content-section {
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        white-space: pre-wrap;
+        color: #334155;
+        line-height: 1.7;
+        font-size: 0.95rem;
+    }
+
+    .tl-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .tl-item:last-child { border-bottom: none; }
+
+    .tl-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+
+    .btn-download {
+        background: linear-gradient(135deg, #059669, #065f46);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: opacity 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .btn-download:hover { opacity: 0.85; color: #fff; }
+</style>
+
+<!-- BACK BUTTON -->
+<a href="@Url.Action("BaiGiang","HocSinh")" class="bg-back-btn">
+    ← Quay lại danh sách bài giảng
+</a>
+
+<div class="detail-card">
+    <!-- BANNER -->
+    <div class="detail-banner">
+        <div class="mb-2">
+            <span style="background:rgba(255,255,255,0.2); color:#fff; padding:3px 12px; border-radius:8px; font-size:0.8rem;">
+                📚 @(Model.MonHoc?.TenMonHoc ?? "Chung")
+            </span>
+        </div>
+        <h1 style="font-size:1.6rem; font-weight:700; margin-bottom:0.5rem;">@Model.TieuDe</h1>
+        @if (!string.IsNullOrEmpty(Model.MoTa))
+        {
+            <p class="opacity-75 mb-0" style="font-size:0.95rem;">@Model.MoTa</p>
+        }
+    </div>
+
+    <div class="detail-body">
+        <!-- INFO GRID -->
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Môn học</div>
+                <div class="info-value">@(Model.MonHoc?.TenMonHoc ?? "—")</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Giáo viên</div>
+                <div class="info-value">@(Model.NguoiDung?.HoTen ?? "—")</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Ngày tạo</div>
+                <div class="info-value">@Model.NgayTao.ToString("dd/MM/yyyy")</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Thứ tự bài</div>
+                <div class="info-value">Bài số @Model.ThuTu</div>
+            </div>
+        </div>
+
+        <!-- NỘI DUNG BÀI GIẢNG -->
+        @if (Model.TaiLieus != null && Model.TaiLieus.Any())
+        {
+            <h5 class="fw-bold mb-3" style="color:#1e293b;">📎 Tài liệu đính kèm</h5>
+
+            @foreach (var tl in Model.TaiLieus)
+            {
+                string icon = tl.LoaiTaiLieu switch
+                {
+                    LMS_THPT.Models.LoaiTaiLieu.PDF => "📄",
+                    LMS_THPT.Models.LoaiTaiLieu.Video => "🎬",
+                    LMS_THPT.Models.LoaiTaiLieu.Slide => "📊",
+                    _ => "📁"
+                };
+
+                string iconBg = tl.LoaiTaiLieu switch
+                {
+                    LMS_THPT.Models.LoaiTaiLieu.PDF => "#fef2f2",
+                    LMS_THPT.Models.LoaiTaiLieu.Video => "#faf5ff",
+                    LMS_THPT.Models.LoaiTaiLieu.Slide => "#eff6ff",
+                    _ => "#f8fafc"
+                };
+
+                double sizeMb = Math.Round(tl.KichThuocFile / 1024.0 / 1024.0, 2);
+
+                <div class="tl-item">
+                    <div class="tl-icon" style="background:@iconBg;">@icon</div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold" style="font-size:0.95rem;">@tl.TenTaiLieu</div>
+                        <div class="text-muted" style="font-size:0.8rem;">
+                            @(tl.LoaiTaiLieu switch {
+                                LMS_THPT.Models.LoaiTaiLieu.PDF   => "PDF",
+                                LMS_THPT.Models.LoaiTaiLieu.Video => "Video",
+                                LMS_THPT.Models.LoaiTaiLieu.Slide => "Slide",
+                                _ => "Tài liệu khác"
+                            }) &bull;
+                            @(tl.KichThuocFile > 0 ? $"{sizeMb} MB" : "—")
+                        </div>
+                    </div>
+                    <a href="@tl.DuongDanFile" class="btn-download" download>
+                        📥 Tải về
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center py-4 text-muted">
+                <div style="font-size:2rem;">📭</div>
+                <p class="mb-0 mt-2">Bài giảng này chưa có tài liệu đính kèm.</p>
+            </div>
+        }
+
+        <div class="mt-4">
+            <a href="@Url.Action("BaiGiang","HocSinh")" class="btn btn-outline-secondary" style="border-radius:10px;">
+                ← Quay lại
+            </a>
+        </div>
+    </div>
+</div>

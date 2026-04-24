@@ -1,0 +1,332 @@
+@model List<LMS_THPT.Models.BaiNop>
+@{
+    ViewData["Title"] = "Kết quả & Điểm số";
+    Layout = "~/Views/Shared/_LayoutHocSinh.cshtml";
+
+    double? diemTB = ViewBag.DiemTB;
+    double? diemCao = ViewBag.DiemCao;
+    double? diemThap = ViewBag.DiemThap;
+    int soDaCham = (int)ViewBag.SoDaCham;
+    int soChuaCham = (int)ViewBag.SoChuaCham;
+    var monHocs = (List<LMS_THPT.Models.MonHoc>)ViewBag.MonHocs;
+    int? selectedMon = ViewBag.SelectedMonHoc;
+}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #92400e 0%, #d97706 100%);
+        border-radius: 16px;
+        padding: 1.8rem 2rem;
+        color: #fff;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        background: #fff;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+        text-align: center;
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+    }
+    .stat-box:hover { transform: translateY(-3px); }
+
+    .score-big {
+        font-size: 2.2rem;
+        font-weight: 800;
+        line-height: 1.1;
+    }
+
+    .filter-bar {
+        background: #fff;
+        border-radius: 14px;
+        padding: 1.2rem 1.5rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-chip {
+        padding: 0.35rem 1rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-block;
+    }
+    .filter-chip.active { background: #d97706; color: #fff; }
+    .filter-chip:not(.active) { background: #f1f5f9; color: #475569; }
+    .filter-chip:not(.active):hover { background: #e2e8f0; }
+
+    .result-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+        border: 1px solid rgba(0,0,0,0.05);
+        margin-bottom: 1.2rem;
+        overflow: hidden;
+        transition: transform 0.2s;
+    }
+    .result-card:hover { transform: translateY(-2px); }
+
+    .result-header {
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .result-body {
+        padding: 1.2rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .score-display {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 90px;
+    }
+
+    .score-circle {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        font-weight: 800;
+        border: 4px solid;
+        margin-bottom: 0.3rem;
+    }
+
+    .score-excellent { border-color: #22c55e; color: #15803d; background: #f0fdf4; }
+    .score-good { border-color: #3b82f6; color: #1d4ed8; background: #eff6ff; }
+    .score-average { border-color: #f59e0b; color: #d97706; background: #fffbeb; }
+    .score-poor { border-color: #ef4444; color: #dc2626; background: #fef2f2; }
+    .score-pending-circle { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+
+    .nhan-xet-box {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 0.8rem 1rem;
+        font-size: 0.88rem;
+        color: #475569;
+        border-left: 3px solid #e2e8f0;
+        flex-grow: 1;
+        min-width: 200px;
+    }
+
+    .nhan-xet-box.has-xet {
+        background: #f0fdf4;
+        border-left-color: #22c55e;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 3px 12px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .sb-done { background: #dcfce7; color: #15803d; }
+    .sb-late { background: #fee2e2; color: #dc2626; }
+    .sb-graded { background: #dbeafe; color: #1d4ed8; }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 1rem;
+        color: #94a3b8;
+    }
+</style>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+        <div style="font-size:2.5rem;">📊</div>
+        <div>
+            <h1 class="fw-bold mb-0" style="font-size:1.6rem;">Kết quả &amp; Điểm số</h1>
+            <p class="mb-0 opacity-75" style="font-size:0.9rem;">
+                Theo dõi tiến độ học tập và kết quả bài nộp
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- STAT BOXES -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-box">
+            <div class="score-big" style="color:#d97706;">
+                @(diemTB.HasValue ? diemTB!.Value.ToString("F1") : "—")
+            </div>
+            <div class="text-muted mt-1" style="font-size:0.82rem;">Điểm trung bình</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-box">
+            <div class="score-big" style="color:#22c55e;">
+                @(diemCao.HasValue ? diemCao!.Value.ToString() : "—")
+            </div>
+            <div class="text-muted mt-1" style="font-size:0.82rem;">Điểm cao nhất</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-box">
+            <div class="score-big" style="color:#94a3b8;">@soDaCham</div>
+            <div class="text-muted mt-1" style="font-size:0.82rem;">Đã chấm điểm</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-box">
+            <div class="score-big" style="color:#f59e0b;">@soChuaCham</div>
+            <div class="text-muted mt-1" style="font-size:0.82rem;">Chờ chấm điểm</div>
+        </div>
+    </div>
+</div>
+
+<!-- FILTER -->
+@if (monHocs.Any())
+{
+    <div class="filter-bar">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <span class="text-muted" style="font-size:0.82rem;">Lọc theo môn:</span>
+            <a href="@Url.Action("Diem","HocSinh")"
+               class="filter-chip @(!selectedMon.HasValue ? "active" : "")">Tất cả</a>
+            @foreach (var mon in monHocs)
+            {
+                <a href="@Url.Action("Diem","HocSinh", new { monHocId = mon.Id })"
+                   class="filter-chip @(selectedMon == mon.Id ? "active" : "")">
+                    @mon.TenMonHoc
+                </a>
+            }
+        </div>
+    </div>
+}
+
+<!-- DANH SÁCH KẾT QUẢ -->
+@if (Model.Count == 0)
+{
+    <div class="empty-state">
+        <div style="font-size:3.5rem; margin-bottom:1rem;">📭</div>
+        <h5>Chưa có bài nộp nào</h5>
+        <p>Hãy hoàn thành các bài tập để xem kết quả ở đây.</p>
+        <a href="@Url.Action("BaiTap","HocSinh")" class="btn btn-warning" style="border-radius:10px;">
+            Xem danh sách bài tập →
+        </a>
+    </div>
+}
+else
+{
+    @foreach (var item in Model)
+    {
+        bool daCham = item.Diem.HasValue;
+        bool nopTre = item.TrangThai == LMS_THPT.Models.TrangThaiBaiNop.NopTre;
+        int diemToiDa = item.BaiTap?.DiemToiDa ?? 10;
+
+        string scoreClass = "score-pending-circle";
+        if (daCham)
+        {
+            double pct = item.Diem!.Value / diemToiDa * 100;
+            scoreClass = pct >= 80 ? "score-excellent"
+                : pct >= 65 ? "score-good"
+                : pct >= 50 ? "score-average"
+                : "score-poor";
+        }
+
+        <div class="result-card">
+            <div class="result-header">
+                <div>
+                    <div class="fw-bold" style="font-size:1rem; color:#1e293b;">
+                        @(item.BaiTap?.TieuDe ?? "Bài tập")
+                    </div>
+                    @if (item.BaiTap?.MonHoc != null)
+                    {
+                        <span style="background:#eff6ff; color:#1d4ed8; padding:2px 10px; border-radius:8px; font-size:0.78rem; font-weight:600; display:inline-block; margin-top:4px;">
+                            📚 @item.BaiTap.MonHoc.TenMonHoc
+                        </span>
+                    }
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    @if (daCham)
+                    {
+                        <span class="status-badge sb-graded">🎯 Đã chấm</span>
+                    }
+                    @if (nopTre)
+                    {
+                        <span class="status-badge sb-late">⚠ Nộp trễ</span>
+                    }
+                    else if (!daCham)
+                    {
+                        <span class="status-badge sb-done">✅ Đã nộp</span>
+                    }
+                </div>
+            </div>
+
+            <div class="result-body">
+                <!-- ĐIỂM -->
+                <div class="score-display">
+                    <div class="score-circle @scoreClass">
+                        @(daCham ? item.Diem!.Value.ToString() : "?")
+                    </div>
+                    <div style="font-size:0.78rem; color:#94a3b8;">/ @diemToiDa điểm</div>
+                </div>
+
+                <!-- NHẬN XÉT -->
+                <div class="nhan-xet-box @(!string.IsNullOrEmpty(item.NhanXet) ? "has-xet" : "")">
+                    @if (!string.IsNullOrEmpty(item.NhanXet))
+                    {
+                        <div style="font-size:0.78rem; color:#15803d; font-weight:600; margin-bottom:4px;">
+                            💬 Nhận xét từ giáo viên:
+                        </div>
+                        <div>@item.NhanXet</div>
+                    }
+                    else if (daCham)
+                    {
+                        <div class="text-muted" style="font-size:0.85rem;">Không có nhận xét</div>
+                    }
+                    else
+                    {
+                        <div class="text-muted" style="font-size:0.85rem;">⌛ Đang chờ giáo viên chấm điểm...</div>
+                    }
+                </div>
+
+                <!-- META INFO -->
+                <div class="text-end" style="min-width:130px;">
+                    <div style="font-size:0.8rem; color:#94a3b8;">Nộp lúc</div>
+                    <div class="fw-semibold" style="font-size:0.88rem; color:#374151;">
+                        @item.NgayNop.ToString("dd/MM/yyyy")
+                    </div>
+                    <div style="font-size:0.82rem; color:#94a3b8;">
+                        @item.NgayNop.ToString("HH:mm")
+                    </div>
+                    @if (item.NgayCham.HasValue)
+                    {
+                        <div class="mt-1" style="font-size:0.78rem; color:#6b7280;">
+                            Chấm: @item.NgayCham.Value.ToString("dd/MM/yyyy")
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(item.GhiChu))
+            {
+                <div style="padding: 0.7rem 1.5rem; background:#fffbeb; border-top:1px solid #fef3c7; font-size:0.82rem; color:#92400e;">
+                    💬 Ghi chú của bạn: @item.GhiChu
+                </div>
+            }
+        </div>
+    }
+}
