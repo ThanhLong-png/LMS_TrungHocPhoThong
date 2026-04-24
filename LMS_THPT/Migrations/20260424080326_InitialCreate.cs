@@ -172,6 +172,7 @@ namespace LMS_THPT.Migrations
                     NoiDung = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     HanNop = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DiemToiDa = table.Column<int>(type: "int", nullable: false),
+                    LoaiDiem = table.Column<int>(type: "int", nullable: false),
                     TrangThai = table.Column<int>(type: "int", nullable: false),
                     NgayTao = table.Column<DateTime>(type: "datetime2", nullable: false),
                     NgayCapNhat = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -240,6 +241,9 @@ namespace LMS_THPT.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Diem = table.Column<double>(type: "float", nullable: true),
+                    DiemMieng2 = table.Column<double>(type: "float", nullable: true),
+                    DiemMieng3 = table.Column<double>(type: "float", nullable: true),
+                    DiemMieng4 = table.Column<double>(type: "float", nullable: true),
                     LoaiDiem = table.Column<int>(type: "int", nullable: false),
                     NhanXet = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NgayNhap = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -261,7 +265,6 @@ namespace LMS_THPT.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TieuDe = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LopId = table.Column<int>(type: "int", nullable: false),
                     MonHocId = table.Column<int>(type: "int", nullable: false),
                     GiaoVienId = table.Column<string>(type: "nvarchar(450)", nullable: true),
@@ -310,6 +313,7 @@ namespace LMS_THPT.Migrations
                     DiaChi = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LopId = table.Column<int>(type: "int", nullable: true),
                     MaHocSinh = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    HanhKiem = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ChuyenMon = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ChucVu = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -408,11 +412,16 @@ namespace LMS_THPT.Migrations
                     MoTa = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TrangThai = table.Column<int>(type: "int", nullable: false),
                     GhiChu = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    GiaoVienId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    XuLyBoi = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    GiaoVienId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MaGiaoVien = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    XuLyBoi = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NguoiXuLyId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     LopId = table.Column<int>(type: "int", nullable: true),
                     NgayGui = table.Column<DateTime>(type: "datetime2", nullable: false),
                     NgayXuLy = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    NgayNghi = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    TuTiet = table.Column<int>(type: "int", nullable: true),
+                    DenTiet = table.Column<int>(type: "int", nullable: true),
                     DuongDanTaiLieu = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -424,14 +433,14 @@ namespace LMS_THPT.Migrations
                         principalTable: "Lop",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_YeuCauGiaoVien_NguoiDung_GiaoVienId",
-                        column: x => x.GiaoVienId,
+                        name: "FK_YeuCauGiaoVien_NguoiDung_MaGiaoVien",
+                        column: x => x.MaGiaoVien,
                         principalTable: "NguoiDung",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_YeuCauGiaoVien_NguoiDung_XuLyBoi",
-                        column: x => x.XuLyBoi,
+                        name: "FK_YeuCauGiaoVien_NguoiDung_NguoiXuLyId",
+                        column: x => x.NguoiXuLyId,
                         principalTable: "NguoiDung",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
@@ -735,19 +744,19 @@ namespace LMS_THPT.Migrations
                 column: "NguoiDangId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_YeuCauGiaoVien_GiaoVienId",
-                table: "YeuCauGiaoVien",
-                column: "GiaoVienId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_YeuCauGiaoVien_LopId",
                 table: "YeuCauGiaoVien",
                 column: "LopId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_YeuCauGiaoVien_XuLyBoi",
+                name: "IX_YeuCauGiaoVien_MaGiaoVien",
                 table: "YeuCauGiaoVien",
-                column: "XuLyBoi");
+                column: "MaGiaoVien");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_YeuCauGiaoVien_NguoiXuLyId",
+                table: "YeuCauGiaoVien",
+                column: "NguoiXuLyId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_AspNetUserClaims_NguoiDung_UserId",
@@ -794,8 +803,7 @@ namespace LMS_THPT.Migrations
                 table: "BaiGiang",
                 column: "NguoiDungId",
                 principalTable: "NguoiDung",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
+                principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_BaiNop_BaiTap_BaiTapId",

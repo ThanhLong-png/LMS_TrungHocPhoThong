@@ -7,7 +7,7 @@ using LMS_THPT.Data;
 using LMS_THPT.Models;
 namespace LMS_THPT.Controllers   // ← THÊM DÒNG NÀY
 {
-    [Authorize(Roles = "GiangVien")]
+    [Authorize(Roles = "GiaoVien")]
     public class GiaoVienYeuCauController : Controller
     {
         private readonly ApplicationDbContext _context;

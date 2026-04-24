@@ -90,7 +90,7 @@ namespace LMS_THPT.Controllers
         }
 
         // Tạo bài giảng - GET
-        [Authorize(Roles = "GiangVien,Admin")]
+        [Authorize(Roles = "GiaoVien,Admin")]
         [HttpGet]
         public IActionResult CreateBaiGiang(int? lopId, int? monHocId)
         {
@@ -106,7 +106,7 @@ namespace LMS_THPT.Controllers
         }
 
         // Tạo bài giảng - POST
-        [Authorize(Roles = "GiangVien,Admin")]
+        [Authorize(Roles = "GiaoVien,Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBaiGiang(string title, string content, int? lopId, int? monHocId, IFormFile[] attachments)
@@ -177,7 +177,7 @@ namespace LMS_THPT.Controllers
         }
 
         // Tạo bài tập - GET
-        [Authorize(Roles = "GiangVien,Admin")]
+        [Authorize(Roles = "GiaoVien,Admin")]
         [HttpGet]
         public IActionResult CreateBaiTap(int? lopId, int? monHocId)
         {
@@ -193,7 +193,7 @@ namespace LMS_THPT.Controllers
         }
 
         // Tạo bài tập - POST
-        [Authorize(Roles = "GiangVien,Admin")]
+        [Authorize(Roles = "GiaoVien,Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBaiTap(string title, string content, int? lopId, int? monHocId, string dueDate, string dueTime, IFormFile[] attachments)
@@ -265,7 +265,7 @@ namespace LMS_THPT.Controllers
         }
 
         // Xem danh sách nộp bài
-        [Authorize(Roles = "GiangVien,Admin")]
+        [Authorize(Roles = "GiaoVien,Admin")]
         [HttpGet]
         public async Task<IActionResult> Submissions(int baiTapId, int? lopId)
         {

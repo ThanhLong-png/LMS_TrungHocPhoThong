@@ -74,6 +74,11 @@ namespace LMS_THPT.Models
         public DateTime NgayGui { get; set; } = DateTime.Now;
         public DateTime? NgayXuLy { get; set; }
 
+        // Thông tin nghỉ phép (từ branch admin)
+        public DateTime? NgayNghi { get; set; }
+        public int? TuTiet { get; set; }
+        public int? DenTiet { get; set; }
+
         // Tài liệu đính kèm
         public string? DuongDanTaiLieu { get; set; }
     }
