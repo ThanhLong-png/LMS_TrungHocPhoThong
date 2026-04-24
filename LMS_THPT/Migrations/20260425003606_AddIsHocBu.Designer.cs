@@ -4,6 +4,7 @@ using LMS_THPT.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS_THPT.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260425003606_AddIsHocBu")]
+    partial class AddIsHocBu
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -689,9 +692,6 @@ namespace LMS_THPT.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("DanhSachTiet")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("DenTiet")
                         .HasColumnType("int");
 
@@ -718,9 +718,6 @@ namespace LMS_THPT.Migrations
                     b.Property<string>("MoTa")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("MonHocId")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("NgayGui")
                         .HasColumnType("datetime2");
@@ -756,8 +753,6 @@ namespace LMS_THPT.Migrations
                     b.HasIndex("LopId");
 
                     b.HasIndex("MaGiaoVien");
-
-                    b.HasIndex("MonHocId");
 
                     b.HasIndex("NguoiXuLyId");
 
@@ -1185,10 +1180,6 @@ namespace LMS_THPT.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("LMS_THPT.Models.MonHoc", "MonHoc")
-                        .WithMany()
-                        .HasForeignKey("MonHocId");
-
                     b.HasOne("LMS_THPT.Models.NguoiDung", "NguoiXuLy")
                         .WithMany()
                         .HasForeignKey("NguoiXuLyId")
@@ -1197,8 +1188,6 @@ namespace LMS_THPT.Migrations
                     b.Navigation("GiaoVien");
 
                     b.Navigation("Lop");
-
-                    b.Navigation("MonHoc");
 
                     b.Navigation("NguoiXuLy");
                 });

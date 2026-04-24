@@ -1,4 +1,4 @@
-﻿// Controllers/QuanLyYeuCauController.cs
+// Controllers/QuanLyYeuCauController.cs
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +27,14 @@ public class QuanLyYeuCauController : Controller
 
         if (trangThai.HasValue)
         {
-            query = query.Where(y => (int)y.TrangThai == trangThai.Value);
+            if (trangThai.Value == 0)
+            {
+                query = query.Where(y => y.TrangThai == TrangThaiYeuCau.ChoDuyet || y.TrangThai == TrangThaiYeuCau.ChoXuLy);
+            }
+            else
+            {
+                query = query.Where(y => (int)y.TrangThai == trangThai.Value);
+            }
             ViewBag.Filter = trangThai.Value.ToString();
         }
 
@@ -43,7 +50,7 @@ public class QuanLyYeuCauController : Controller
 
         // Thống kê cho dashboard
         ViewBag.TongSo = await _context.YeuCauGiaoVien.CountAsync();
-        ViewBag.ChoDuyet = await _context.YeuCauGiaoVien.CountAsync(y => y.TrangThai == TrangThaiYeuCau.ChoDuyet);
+        ViewBag.ChoDuyet = await _context.YeuCauGiaoVien.CountAsync(y => y.TrangThai == TrangThaiYeuCau.ChoDuyet || y.TrangThai == TrangThaiYeuCau.ChoXuLy);
         ViewBag.DaDuyet = await _context.YeuCauGiaoVien.CountAsync(y => y.TrangThai == TrangThaiYeuCau.DaDuyet);
         ViewBag.TuChoi = await _context.YeuCauGiaoVien.CountAsync(y => y.TrangThai == TrangThaiYeuCau.TuChoi);
 
@@ -55,6 +62,9 @@ public class QuanLyYeuCauController : Controller
     {
         var yeuCau = await _context.YeuCauGiaoVien
             .Include(y => y.GiaoVien)
+            .Include(y => y.Lop)
+            .Include(y => y.MonHoc)
+            .Include(y => y.NguoiXuLy)
             .FirstOrDefaultAsync(y => y.Id == id);
 
         if (yeuCau == null)
@@ -76,7 +86,7 @@ public class QuanLyYeuCauController : Controller
         if (yeuCau == null)
             return NotFound();
 
-        if (yeuCau.TrangThai != TrangThaiYeuCau.ChoDuyet)
+        if (yeuCau.TrangThai != TrangThaiYeuCau.ChoDuyet && yeuCau.TrangThai != TrangThaiYeuCau.ChoXuLy)
         {
             TempData["Error"] = "Yêu cầu này đã được xử lý trước đó.";
             return RedirectToAction(nameof(XuLy), new { id });
@@ -87,9 +97,47 @@ public class QuanLyYeuCauController : Controller
         yeuCau.NgayXuLy = DateTime.Now;
         yeuCau.NguoiXuLyId = user.Id;
 
+        // Auto insert make-up class
+        if (yeuCau.LoaiYeuCau == LoaiYeuCau.HocBu && yeuCau.LopId.HasValue && yeuCau.NgayNghi.HasValue && yeuCau.MonHocId.HasValue)
+        {
+            int thu = (int)yeuCau.NgayNghi.Value.DayOfWeek + 1;
+            if (thu == 1) thu = 8;
+            
+            // Lấy danh sách tiết từ chuỗi hoặc từ TuTiet (fallback)
+            var periods = new List<int>();
+            if (!string.IsNullOrEmpty(yeuCau.DanhSachTiet))
+            {
+                periods = yeuCau.DanhSachTiet.Split(',')
+                    .Select(s => int.TryParse(s, out int p) ? p : 0)
+                    .Where(p => p > 0)
+                    .ToList();
+            }
+            else if (yeuCau.TuTiet.HasValue)
+            {
+                periods.Add(yeuCau.TuTiet.Value);
+            }
+
+            foreach (var period in periods)
+            {
+                var lichHocBu = new LichHoc
+                {
+                    LopId = yeuCau.LopId.Value,
+                    MonHocId = yeuCau.MonHocId.Value,
+                    GiaoVienId = yeuCau.GiaoVienId,
+                    Thu = thu,
+                    TietHoc = period,
+                    IsHocBu = true,
+                    NgayHoc = yeuCau.NgayNghi.Value.Date, // Đảm bảo chỉ lấy phần ngày
+                    PhongHoc = "Phòng học bù"
+                };
+                _context.LichHocs.Add(lichHocBu);
+            }
+            yeuCau.GhiChu = (yeuCau.GhiChu ?? "") + " [Hệ thống: Đã tự động tạo " + periods.Count + " tiết học bù]";
+        }
+
         await _context.SaveChangesAsync();
 
-        TempData["Success"] = "Đã duyệt yêu cầu thành công.";
+        TempData["Success"] = "Đã duyệt yêu cầu và tạo lịch học bù thành công.";
         return RedirectToAction(nameof(Index));
     }
 
@@ -106,7 +154,7 @@ public class QuanLyYeuCauController : Controller
         if (yeuCau == null)
             return NotFound();
 
-        if (yeuCau.TrangThai != TrangThaiYeuCau.ChoDuyet)
+        if (yeuCau.TrangThai != TrangThaiYeuCau.ChoDuyet && yeuCau.TrangThai != TrangThaiYeuCau.ChoXuLy)
         {
             TempData["Error"] = "Yêu cầu này đã được xử lý trước đó.";
             return RedirectToAction(nameof(XuLy), new { id });

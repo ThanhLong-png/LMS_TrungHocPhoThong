@@ -1,4 +1,4 @@
-@model LMS_THPT.Models.YeuCauGiaoVien
+﻿@model LMS_THPT.Models.YeuCauGiaoVien
 
 @{
     ViewData["Title"] = "Tạo yêu cầu mới";
@@ -9,48 +9,283 @@
         <a href="@Url.Action("MyRequests")" style="text-decoration: none; color: #4b5563; margin-right: 15px; font-size: 20px;">
             <i class="fa-solid fa-arrow-left"></i>
         </a>
-        <h2 style="margin: 0;">📝 Tạo yêu cầu mới</h2>
+        <h2 style="margin: 0;">Tạo yêu cầu mới</h2>
     </div>
 
     <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <form asp-action="CreateRequest" method="post">
+        <form asp-action="CreateRequest" method="post" id="mainForm">
             <div style="margin-bottom: 20px;">
                 <label style="display: block; font-weight: 500; margin-bottom: 8px; color: #374151;">Loại yêu cầu <span style="color: red;">*</span></label>
-                <select asp-for="LoaiYeuCau" class="form-select" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" required>
+                <select asp-for="LoaiYeuCau" class="form-select" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" id="LoaiYeuCau" required>
                     <option value="">-- Chọn loại yêu cầu --</option>
-                    <option value="@LMS_THPT.Models.LoaiYeuCau.NghiPhep">🏖️ Nghỉ phép</option>
-                    <option value="@LMS_THPT.Models.LoaiYeuCau.DoiLich">📅 Đổi lịch</option>
-                    <option value="@LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen">📦 Yêu cầu tài nguyên</option>
-                    <option value="@LMS_THPT.Models.LoaiYeuCau.KhieuNai">⚠️ Khiếu nại</option>
-                    <option value="@LMS_THPT.Models.LoaiYeuCau.Khac">❓ Khác</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.NghiPhep">Nghỉ phép</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.DoiLich">Đổi lịch</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen">Yêu cầu tài nguyên</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.KhieuNai">Khiếu nại</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.HocBu">Học bù</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.Khac">Khác</option>
                 </select>
-                <span asp-validation-for="LoaiYeuCau" class="text-danger" style="color: #ef4444; font-size: 13px;"></span>
             </div>
 
             <div style="margin-bottom: 20px;">
                 <label style="display: block; font-weight: 500; margin-bottom: 8px; color: #374151;">Tiêu đề <span style="color: red;">*</span></label>
                 <input asp-for="TieuDe" type="text" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" placeholder="Nhập tiêu đề yêu cầu" required />
-                <span asp-validation-for="TieuDe" class="text-danger" style="color: #ef4444; font-size: 13px;"></span>
+            </div>
+
+            <!-- NGHỈ PHÉP SECTION -->
+            <div id="leaveSection" style="display: none; margin-bottom: 20px; background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <label style="display: block; font-weight: 600; margin-bottom: 15px; color: #1e293b; font-size: 16px;">Thông tin nghỉ phép</label>
+                
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-weight: 500; margin-bottom: 5px; color: #475569; font-size: 14px;">Từ ngày <span style="color: red;">*</span></label>
+                        <input asp-for="NgayNghi" type="date" class="form-control leave-input" id="NgayNghi" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;" />
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="display: block; font-weight: 500; margin-bottom: 5px; color: #475569; font-size: 14px;">Đến ngày <span style="color: red;">*</span></label>
+                        <input asp-for="NgayNghiKetThuc" type="date" class="form-control leave-input" id="NgayNghiKetThuc" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;" />
+                    </div>
+                </div>
+                <div id="dateError" style="color: #ef4444; font-size: 13px; margin-top: 10px; display: none;">Lỗi: Ngày kết thúc không hợp lệ.</div>
+            </div>
+
+            <!-- HỌC BÙ SECTION -->
+            <div id="hocBuSection" style="display: none; margin-bottom: 20px; background: #f0fdf4; padding: 20px; border-radius: 8px; border: 1px solid #bbf7d0;">
+                <label style="display: block; font-weight: 600; margin-bottom: 15px; color: #166534; font-size: 16px;">Đăng ký Học Bù</label>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-weight: 500; margin-bottom: 5px; color: #166534; font-size: 14px;">Chọn Lớp <span style="color: red;">*</span></label>
+                    <select asp-for="LopId" class="form-select hocbu-input" style="width: 100%; padding: 8px; border: 1px solid #86efac; border-radius: 4px;" id="HocBuLopId">
+                        <option value="">-- Chọn lớp học --</option>
+                        @if(ViewBag.MyClasses != null)
+                        {
+                            foreach(var lop in ViewBag.MyClasses)
+                            {
+                                <option value="@lop.Id">@lop.TenLop</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-weight: 500; margin-bottom: 5px; color: #166534; font-size: 14px;">Chọn Môn Học <span style="color: red;">*</span></label>
+                    <select asp-for="MonHocId" class="form-select hocbu-input" style="width: 100%; padding: 8px; border: 1px solid #86efac; border-radius: 4px;" id="HocBuMonHocId">
+                        <option value="">-- Chọn môn học --</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-weight: 500; margin-bottom: 5px; color: #166534; font-size: 14px;">Ngày học bù <span style="color: red;">*</span></label>
+                    <input asp-for="NgayNghi" type="date" class="form-control hocbu-input" id="HocBuNgay" style="width: 100%; padding: 8px; border: 1px solid #86efac; border-radius: 4px;" />
+                </div>
+
+                <input type="hidden" asp-for="DanhSachTiet" id="HocBuTietList" class="hocbu-input" />
+                <div id="hocBuError" style="color: #ef4444; font-size: 13px; margin-top: 8px; display: none;">Vui lòng chọn môn học và ít nhất một tiết trống từ bảng thời khóa biểu.</div>
+
+                <div id="miniScheduleContainer" style="display: none; margin-top: 15px;">
+                    <label style="display: block; font-weight: 500; margin-bottom: 10px; color: #166534; font-size: 14px;">Thời khoá biểu trong ngày (Có thể chọn nhiều tiết) <span id="tietLoading" style="display:none; color:#15803d; font-size:12px; margin-left: 10px;">(Đang tải...)</span></label>
+                    <div id="miniScheduleGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                        <!-- JS sẽ render lịch học ở đây -->
+                    </div>
+                </div>
             </div>
 
             <div style="margin-bottom: 20px;">
                 <label style="display: block; font-weight: 500; margin-bottom: 8px; color: #374151;">Nội dung chi tiết <span style="color: red;">*</span></label>
-                <textarea asp-for="MoTa" rows="6" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" placeholder="Mô tả chi tiết nội dung yêu cầu của bạn..." required></textarea>
-                <span asp-validation-for="MoTa" class="text-danger" style="color: #ef4444; font-size: 13px;"></span>
+                <textarea asp-for="MoTa" rows="5" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" placeholder="Mô tả chi tiết lý do và nội dung yêu cầu..." required></textarea>
             </div>
 
             <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 30px;">
-                <a href="@Url.Action("MyRequests")" style="background: #f3f4f6; color: #4b5563; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 500; border: 1px solid #d1d5db;">
-                    Hủy bỏ
-                </a>
-                <button type="submit" style="background: #3b82f6; color: white; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 500; cursor: pointer;">
-                    Gửi yêu cầu
-                </button>
+                <a href="@Url.Action("MyRequests")" style="background: #f3f4f6; color: #4b5563; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 500; border: 1px solid #d1d5db;">Hủy bỏ</a>
+                <button type="submit" style="background: #000000; color: white; padding: 10px 25px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Gửi yêu cầu</button>
             </div>
         </form>
     </div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var loaiYeuCauSelect = document.getElementById('LoaiYeuCau');
+            var leaveSection = document.getElementById('leaveSection');
+            var hocBuSection = document.getElementById('hocBuSection');
+            
+            var leaveInputs = document.querySelectorAll('.leave-input');
+            var hocBuInputs = document.querySelectorAll('.hocbu-input');
+            
+            var ngayNghiInput = document.getElementById('NgayNghi');
+            var ngayNghiKetThucInput = document.getElementById('NgayNghiKetThuc');
+            var dateError = document.getElementById('dateError');
+            
+            var hocBuLopId = document.getElementById('HocBuLopId');
+            var hocBuMonHocId = document.getElementById('HocBuMonHocId');
+            var hocBuNgay = document.getElementById('HocBuNgay');
+            var hocBuTietList = document.getElementById('HocBuTietList');
+            var tietLoading = document.getElementById('tietLoading');
+            var hocBuError = document.getElementById('hocBuError');
+            var miniScheduleContainer = document.getElementById('miniScheduleContainer');
+            var miniScheduleGrid = document.getElementById('miniScheduleGrid');
+            
+            var selectedPeriods = [];
+            var form = document.getElementById('mainForm');
+
+            function toggleFields() {
+                leaveSection.style.display = 'none';
+                hocBuSection.style.display = 'none';
+                
+                // Vô hiệu hóa inputs để không gửi dữ liệu thừa
+                leaveInputs.forEach(i => { i.disabled = true; i.removeAttribute('required'); });
+                hocBuInputs.forEach(i => { i.disabled = true; i.removeAttribute('required'); });
+
+                if (loaiYeuCauSelect.value === 'NghiPhep') {
+                    leaveSection.style.display = 'block';
+                    leaveInputs.forEach(i => { i.disabled = false; });
+                    ngayNghiInput.setAttribute('required', 'required');
+                    ngayNghiKetThucInput.setAttribute('required', 'required');
+                } else if (loaiYeuCauSelect.value === 'HocBu') {
+                    hocBuSection.style.display = 'block';
+                    hocBuInputs.forEach(i => { i.disabled = false; });
+                    hocBuLopId.setAttribute('required', 'required');
+                    hocBuMonHocId.setAttribute('required', 'required');
+                    hocBuNgay.setAttribute('required', 'required');
+                }
+            }
+
+            loaiYeuCauSelect.addEventListener('change', toggleFields);
+            toggleFields();
+
+            function loadSubjectsForClass() {
+                var lopId = hocBuLopId.value;
+                if (!lopId) {
+                    hocBuMonHocId.innerHTML = '<option value="">-- Chọn môn học --</option>';
+                    return;
+                }
+
+                fetch('@Url.Action("GetSubjectsForClass", "YeuCau", new { area = "GiaoVien" })?lopId=' + lopId)
+                    .then(res => res.json())
+                    .then(data => {
+                        hocBuMonHocId.innerHTML = '<option value="">-- Chọn môn học --</option>';
+                        data.forEach(item => {
+                            var opt = document.createElement('option');
+                            opt.value = item.id;
+                            opt.innerText = item.name;
+                            hocBuMonHocId.appendChild(opt);
+                        });
+                    });
+            }
+
+            function loadClassSchedule() {
+                if(!hocBuLopId || !hocBuNgay || !miniScheduleGrid) return;
+                var lopId = hocBuLopId.value;
+                var date = hocBuNgay.value;
+                
+                selectedPeriods = [];
+                hocBuTietList.value = ""; 
+                if (!lopId || !date) {
+                    miniScheduleContainer.style.display = 'none';
+                    return;
+                }
+
+                miniScheduleContainer.style.display = 'block';
+                tietLoading.style.display = 'inline-block';
+                miniScheduleGrid.innerHTML = '';
+
+                fetch('@Url.Action("GetClassScheduleForDate", "YeuCau", new { area = "GiaoVien" })?lopId=' + lopId + '&date=' + date)
+                    .then(res => res.json())
+                    .then(data => {
+                        data.forEach(item => {
+                            var div = document.createElement('div');
+                            div.style.padding = '10px';
+                            div.style.borderRadius = '6px';
+                            div.style.border = '1px solid #d1d5db';
+                            div.style.textAlign = 'center';
+                            div.style.fontSize = '13px';
+                            div.style.backgroundColor = item.isOccupied ? '#f3f4f6' : '#ffffff';
+                            div.style.color = item.isOccupied ? '#6b7280' : 'inherit';
+                            if(!item.isOccupied) {
+                                div.style.cursor = 'pointer';
+                                div.style.borderColor = '#86efac';
+                                div.className = 'empty-period';
+                                div.dataset.period = item.period;
+                            }
+
+                            var title = document.createElement('div');
+                            title.style.fontWeight = 'bold';
+                            title.innerText = 'Tiết ' + item.period;
+                            div.appendChild(title);
+
+                            if (item.isOccupied) {
+                                var info = document.createElement('div');
+                                info.style.marginTop = '4px';
+                                info.style.fontSize = '12px';
+                                info.innerText = item.subjectName;
+                                if(item.isHocBu) info.innerHTML += ' <span style="color:#16a34a; font-weight:600">(Học bù)</span>';
+                                div.appendChild(info);
+                                
+                                var gv = document.createElement('div');
+                                gv.style.fontSize = '11px';
+                                gv.innerText = item.teacherName;
+                                div.appendChild(gv);
+                            } else {
+                                var action = document.createElement('div');
+                                action.style.marginTop = '4px';
+                                action.style.color = '#16a34a';
+                                action.style.fontWeight = '600';
+                                action.innerText = '[ Chọn tiết ]';
+                                div.appendChild(action);
+
+                                div.addEventListener('click', function() {
+                                    var p = parseInt(this.dataset.period);
+                                    var index = selectedPeriods.indexOf(p);
+                                    if (index > -1) {
+                                        selectedPeriods.splice(index, 1);
+                                        this.style.backgroundColor = '#ffffff';
+                                        this.style.borderWidth = '1px';
+                                        this.children[1].style.color = '#16a34a';
+                                        this.children[1].innerText = '[ Chọn tiết ]';
+                                    } else {
+                                        selectedPeriods.push(p);
+                                        this.style.backgroundColor = '#dcfce3';
+                                        this.style.borderWidth = '2px';
+                                        this.children[1].style.color = '#166534';
+                                        this.children[1].innerText = '✅ Đã chọn';
+                                    }
+                                    hocBuTietList.value = selectedPeriods.sort((a, b) => a - b).join(',');
+                                    if(selectedPeriods.length > 0) hocBuError.style.display = 'none';
+                                });
+                            }
+                            miniScheduleGrid.appendChild(div);
+                        });
+                        tietLoading.style.display = 'none';
+                    })
+                    .catch(err => {
+                        console.error("Lỗi tải lịch học", err);
+                        tietLoading.style.display = 'none';
+                    });
+            }
+
+            hocBuLopId.addEventListener('change', function() {
+                loadSubjectsForClass();
+                loadClassSchedule();
+            });
+            hocBuNgay.addEventListener('change', loadClassSchedule);
+
+            form.addEventListener('submit', function(e) {
+                if (loaiYeuCauSelect.value === 'NghiPhep') {
+                    var start = new Date(ngayNghiInput.value);
+                    var end = new Date(ngayNghiKetThucInput.value);
+
+                    if (end < start) {
+                        e.preventDefault();
+                        dateError.style.display = 'block';
+                    }
+                } else if (loaiYeuCauSelect.value === 'HocBu') {
+                    if (!hocBuMonHocId.value || !hocBuTietList.value) {
+                        e.preventDefault();
+                        hocBuError.style.display = 'block';
+                    }
+                }
+            });
+        });
+    </script>
 }

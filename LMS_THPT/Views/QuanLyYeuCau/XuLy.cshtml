@@ -1,4 +1,4 @@
-﻿@model LMS_THPT.Models.YeuCauGiaoVien
+@model LMS_THPT.Models.YeuCauGiaoVien
 @{
     ViewData["Title"] = "Xử Lý Yêu Cầu";
     var daDuyet = Model.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.DaDuyet;
@@ -93,6 +93,7 @@
                         LMS_THPT.Models.LoaiYeuCau.DoiLich => "doilich",
                         LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen => "tailieu",
                         LMS_THPT.Models.LoaiYeuCau.KhieuNai => "khieunai",
+                        LMS_THPT.Models.LoaiYeuCau.HocBu => "doilich",
                         _ => "khac"
                     };
                     var loaiText = Model.LoaiYeuCau switch {
@@ -100,15 +101,23 @@
                         LMS_THPT.Models.LoaiYeuCau.DoiLich => "Đổi lịch",
                         LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen => "Yêu cầu tài nguyên",
                         LMS_THPT.Models.LoaiYeuCau.KhieuNai => "Khiếu nại",
+                        LMS_THPT.Models.LoaiYeuCau.HocBu => "Học bù",
+                        LMS_THPT.Models.LoaiYeuCau.DangKyLopChuNhiem => "ĐK Chủ nhiệm",
+                        LMS_THPT.Models.LoaiYeuCau.ThayDoiLopChuNhiem => "Đổi Chủ nhiệm",
+                        LMS_THPT.Models.LoaiYeuCau.HuyLopChuNhiem => "Hủy Chủ nhiệm",
+                        LMS_THPT.Models.LoaiYeuCau.TangCapCongChuc => "Tăng cấp CC",
+                        LMS_THPT.Models.LoaiYeuCau.DanhGiaHangNam => "Đánh giá HN",
                         _ => "Khác"
                     };
                     var ttClass = Model.TrangThai switch {
+                        LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy => "badge-cho",
                         LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet => "badge-cho",
                         LMS_THPT.Models.TrangThaiYeuCau.DaDuyet => "badge-duyet",
                         LMS_THPT.Models.TrangThaiYeuCau.TuChoi => "badge-tuchoi",
                         _ => ""
                     };
                     var ttText = Model.TrangThai switch {
+                        LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy => "Chờ duyệt",
                         LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet => "Chờ duyệt",
                         LMS_THPT.Models.TrangThaiYeuCau.DaDuyet => "Đã duyệt",
                         LMS_THPT.Models.TrangThaiYeuCau.TuChoi => "Từ chối",
@@ -132,6 +141,89 @@
                     <span class="info-label">Loại yêu cầu</span>
                     <span class="info-value"><span class="badge-loai @loaiClass">@loaiText</span></span>
                 </div>
+                @if (Model.LoaiYeuCau == LMS_THPT.Models.LoaiYeuCau.NghiPhep && Model.NgayNghi.HasValue)
+                {
+                    <div class="info-row">
+                        <span class="info-label">Thời gian</span>
+                        <span class="info-value" style="font-weight: 500; color: #1f2937;">
+                            Từ ngày @Model.NgayNghi.Value.ToString("dd/MM/yyyy") 
+                            @if (Model.NgayNghiKetThuc.HasValue && Model.NgayNghiKetThuc.Value.Date != Model.NgayNghi.Value.Date)
+                            {
+                                <span> đến ngày @Model.NgayNghiKetThuc.Value.ToString("dd/MM/yyyy")</span>
+                            }
+                        </span>
+                    </div>
+                }
+                else if (Model.LoaiYeuCau == LMS_THPT.Models.LoaiYeuCau.HocBu && Model.NgayNghi.HasValue)
+                {
+                    <div class="info-row">
+                        <span class="info-label">Lịch học bù</span>
+                        <span class="info-value" style="font-weight: 500; color: #1f2937;">
+                            @if (!string.IsNullOrEmpty(Model.DanhSachTiet))
+                            {
+                                <span>Tiết @Model.DanhSachTiet, </span>
+                            }
+                            else if (Model.TuTiet.HasValue)
+                            {
+                                <span>Tiết @Model.TuTiet.Value, </span>
+                            }
+                            Ngày @Model.NgayNghi.Value.ToString("dd/MM/yyyy")
+                        </span>
+                    </div>
+                }
+
+                @if (Model.Lop != null)
+                {
+                    <div class="info-row">
+                        <span class="info-label">Lớp liên quan</span>
+                        <span class="info-value">@Model.Lop.TenLop</span>
+                    </div>
+                }
+
+                @if (Model.MonHoc != null)
+                {
+                    <div class="info-row">
+                        <span class="info-label">Môn học</span>
+                        <span class="info-value">@Model.MonHoc.TenMonHoc</span>
+                    </div>
+                }
+
+                @if (Model.LoaiYeuCau != LMS_THPT.Models.LoaiYeuCau.HocBu && Model.LoaiYeuCau != LMS_THPT.Models.LoaiYeuCau.NghiPhep)
+                {
+                    if (!string.IsNullOrEmpty(Model.DanhSachTiet))
+                    {
+                        <div class="info-row">
+                            <span class="info-label">Các tiết</span>
+                            <span class="info-value">@Model.DanhSachTiet</span>
+                        </div>
+                    }
+                    else if (Model.TuTiet.HasValue)
+                    {
+                        <div class="info-row">
+                            <span class="info-label">Tiết học</span>
+                            <span class="info-value">
+                                Từ tiết @Model.TuTiet.Value
+                                @if (Model.DenTiet.HasValue)
+                                {
+                                    <span> đến tiết @Model.DenTiet.Value</span>
+                                }
+                            </span>
+                        </div>
+                    }
+                }
+
+                @if (!string.IsNullOrEmpty(Model.DuongDanTaiLieu))
+                {
+                    <div class="info-row">
+                        <span class="info-label">Tài liệu</span>
+                        <span class="info-value">
+                            <a href="@Model.DuongDanTaiLieu" target="_blank" style="color:#2563a8; text-decoration:underline; font-weight:500;">
+                                &#128206; Xem đính kèm
+                            </a>
+                        </span>
+                    </div>
+                }
+
                 <div class="info-row">
                     <span class="info-label">Trạng thái</span>
                     <span class="info-value"><span class="badge-tt-lg @ttClass">@ttText</span></span>

@@ -152,21 +152,35 @@ namespace LMS_THPT.Data
             if (!context.LopMonHocs.Any())
             {
                 var lopMonHocs = new List<LopMonHoc>();
+                var monHocGiaoViens = new List<MonHocGiaoVien>();
+                
                 for (int i = 0; i < 5; i++)
                 {
                     lopMonHocs.Add(new LopMonHoc { LopId = lop10A1.Id, MonHocId = monHocs[i].Id, GiaoVienId = monData[i].GvId });
                     lopMonHocs.Add(new LopMonHoc { LopId = lop10A2.Id, MonHocId = monHocs[i].Id, GiaoVienId = monData[i].GvId });
+                    
+                    monHocGiaoViens.Add(new MonHocGiaoVien { LopId = lop10A1.Id, MonHocId = monHocs[i].Id, NguoiDungId = monData[i].GvId });
+                    monHocGiaoViens.Add(new MonHocGiaoVien { LopId = lop10A2.Id, MonHocId = monHocs[i].Id, NguoiDungId = monData[i].GvId });
                 }
                 for (int i = 5; i < 10; i++)
                 {
                     lopMonHocs.Add(new LopMonHoc { LopId = lop11A1.Id, MonHocId = monHocs[i].Id, GiaoVienId = monData[i].GvId });
                     lopMonHocs.Add(new LopMonHoc { LopId = lop11A2.Id, MonHocId = monHocs[i].Id, GiaoVienId = monData[i].GvId });
+                    
+                    monHocGiaoViens.Add(new MonHocGiaoVien { LopId = lop11A1.Id, MonHocId = monHocs[i].Id, NguoiDungId = monData[i].GvId });
+                    monHocGiaoViens.Add(new MonHocGiaoVien { LopId = lop11A2.Id, MonHocId = monHocs[i].Id, NguoiDungId = monData[i].GvId });
                 }
                 for (int i = 10; i < 15; i++)
+                {
                     lopMonHocs.Add(new LopMonHoc { LopId = lop12A1.Id, MonHocId = monHocs[i].Id, GiaoVienId = monData[i].GvId });
+                    monHocGiaoViens.Add(new MonHocGiaoVien { LopId = lop12A1.Id, MonHocId = monHocs[i].Id, NguoiDungId = monData[i].GvId });
+                }
+                    
                 context.LopMonHocs.AddRange(lopMonHocs);
+                context.MonHocGiaoViens.AddRange(monHocGiaoViens);
                 await context.SaveChangesAsync();
             }
+
 
             // ===================== LỊCH HỌC =====================
             if (!context.LichHocs.Any())
@@ -174,10 +188,9 @@ namespace LMS_THPT.Data
                 var lichHocs = new List<LichHoc>();
                 void AddLich(int lopId, int[] monIds, string[] gvIds)
                 {
-                    for (int thu = 2; thu <= 6; thu++)
+                    for (int thu = 2; thu <= 7; thu++) // Tới Thứ 7
                     {
-                        int idx = thu - 2;
-                        if (idx >= monIds.Length) break;
+                        int idx = (thu - 2) % monIds.Length;
                         lichHocs.Add(new LichHoc
                         {
                             LopId = lopId, MonHocId = monIds[idx], GiaoVienId = gvIds[idx],

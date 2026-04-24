@@ -1,4 +1,4 @@
-﻿@model List<LMS_THPT.Models.LichHoc>
+@model List<LMS_THPT.Models.LichHoc>
 @{
     ViewData["Title"] = "Quản lý Lịch Học";
     var lops = ViewBag.Lops as List<LMS_THPT.Models.Lop>;
@@ -320,7 +320,7 @@
                         @for (int i = 1; i <= 10; i++)
                         {
                             var lesson = Model?.FirstOrDefault(l => l.TietHoc == i);
-                            var leave = lesson != null && leaves != null ? leaves.FirstOrDefault(y => y.MaGiaoVien == lesson.GiaoVienId && y.TuTiet <= i && y.DenTiet >= i) : null;
+                            var leave = lesson != null && leaves != null ? leaves.FirstOrDefault(y => y.MaGiaoVien == lesson.GiaoVienId && (!y.TuTiet.HasValue || y.TuTiet <= i) && (!y.DenTiet.HasValue || y.DenTiet >= i)) : null;
                             
                             <div class="period-item">
                                 <div class="period-num">TIẾT @i</div>
@@ -330,14 +330,17 @@
                                         <div class="lesson-card w-100">
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <div>
-                                                    <div class="lesson-title">@lesson.MonHoc?.TenMonHoc</div>
+                                                    <div class="lesson-title">
+                                                        @lesson.MonHoc?.TenMonHoc
+                                                        @if(lesson.IsHocBu) { <span class="badge bg-success ms-2" style="font-size: 11px;">HỌC BÙ</span> }
+                                                    </div>
                                                     <div class="lesson-info">
                                                         <span><b style="color: #000;">GV:</b> @lesson.GiaoVien?.HoTen</span> &nbsp;|&nbsp;
                                                         <span><b style="color: #000;">PHÒNG:</b> @lesson.PhongHoc</span>
                                                     </div>
-                                                    @if(leave != null)
+                                                    @if (leave != null)
                                                     {
-                                                        <div class="leave-badge"><i class="fa-solid fa-ban me-2"></i>GIÁO VIÊN ĐÃ ĐƯỢC DUYỆT NGHỈ PHÉP</div>
+                                                        <div class="leave-badge">giáo viên đã nghỉ phép</div>
                                                     }
                                                 </div>
                                                 <div class="d-flex gap-2">

@@ -177,11 +177,85 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
         /// Tạo yêu cầu chung - GET
         /// </summary>
         [HttpGet]
-        public IActionResult CreateRequest()
+        public async Task<IActionResult> CreateRequest()
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var myClasses = await _context.MonHocGiaoViens
+                    .Where(m => m.NguoiDungId == user.Id)
+                    .Include(m => m.Lop)
+                    .Select(m => m.Lop)
+                    .Distinct()
+                    .ToListAsync();
+                ViewBag.MyClasses = myClasses;
+            }
+
             ViewData["Title"] = "Tạo yêu cầu mới";
             ViewData["ActivePage"] = "YeuCau";
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSubjectsForClass(int lopId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var subjects = await _context.MonHocGiaoViens
+                .Include(m => m.MonHoc)
+                .Where(m => m.NguoiDungId == user.Id && m.LopId == lopId)
+                .Select(m => new { id = m.MonHocId, name = m.MonHoc.TenMonHoc })
+                .ToListAsync();
+
+            return Json(subjects);
+        }
+
+        public async Task<IActionResult> GetClassScheduleForDate(int lopId, string date)
+        {
+            if (!DateTime.TryParse(date, out DateTime selectedDate))
+                return BadRequest("Invalid date");
+
+            int thu = (int)selectedDate.DayOfWeek + 1;
+            if (thu == 1) thu = 8; // Chủ nhật là 8
+
+            // Lấy tất cả lịch học của lớp trong ngày đó (bao gồm lịch cố định và lịch bù đúng ngày)
+            var scheduleRecords = await _context.LichHocs
+                .Include(l => l.MonHoc)
+                .Include(l => l.GiaoVien)
+                .Where(l => l.LopId == lopId && l.Thu == thu && (!l.IsHocBu || l.NgayHoc.Date == selectedDate.Date))
+                .ToListAsync();
+
+            var result = new List<object>();
+
+            for (int period = 1; period <= 10; period++)
+            {
+                var lesson = scheduleRecords.FirstOrDefault(l => l.TietHoc == period);
+                if (lesson != null)
+                {
+                    result.Add(new
+                    {
+                        period = period,
+                        isOccupied = true,
+                        subjectName = lesson.MonHoc?.TenMonHoc ?? "Không rõ",
+                        teacherName = lesson.GiaoVien?.HoTen ?? "Không rõ",
+                        isHocBu = lesson.IsHocBu
+                    });
+                }
+                else
+                {
+                    result.Add(new
+                    {
+                        period = period,
+                        isOccupied = false,
+                        subjectName = (string)null,
+                        teacherName = (string)null,
+                        isHocBu = false
+                    });
+                }
+            }
+
+            return Json(result);
         }
 
         /// <summary>

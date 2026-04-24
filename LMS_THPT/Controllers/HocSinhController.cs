@@ -47,9 +47,18 @@ namespace LMS_THPT.Controllers
                     .ToListAsync();
             }
 
-            // Toàn bộ bài tập
+            // Lấy danh sách MonHocId theo lớp của học sinh
+            var monHocIdsOfLop = user.LopId.HasValue
+                ? await _context.LopMonHocs
+                    .Where(x => x.LopId == user.LopId.Value)
+                    .Select(x => x.MonHocId)
+                    .ToListAsync()
+                : new List<int>();
+
+            // Bài tập chỉ thuộc các môn của lớp HS
             var tatCaBaiTap = await _context.DanhSachBaiTap
                 .Include(x => x.MonHoc)
+                .Where(bt => monHocIdsOfLop.Contains(bt.MonHocId))
                 .ToListAsync();
 
             // Bài đã nộp của học sinh
@@ -58,7 +67,7 @@ namespace LMS_THPT.Controllers
                 .ToListAsync();
 
             int tong = tatCaBaiTap.Count;
-            int daNop = baiNop.Count;
+            int daNop = baiNop.Count(bn => tatCaBaiTap.Any(bt => bt.Id == bn.BaiTapId));
             double progress = tong == 0 ? 0 : Math.Round((double)daNop / tong * 100, 1);
 
             // Bài chưa nộp
@@ -95,10 +104,20 @@ namespace LMS_THPT.Controllers
         // ================= BÀI GIẢNG =================
         public async Task<IActionResult> BaiGiang(int? monHocId, string? q)
         {
+            var user = await _userManager.GetUserAsync(User);
+
+            // Lấy danh sách MonHocId thuộc lớp của học sinh
+            var monHocIdsOfLop = user?.LopId.HasValue == true
+                ? await _context.LopMonHocs
+                    .Where(x => x.LopId == user.LopId!.Value)
+                    .Select(x => x.MonHocId)
+                    .ToListAsync()
+                : new List<int>();
+
             var query = _context.DanhSachBaiGiang
                 .Include(x => x.MonHoc)
                 .Include(x => x.NguoiDung)
-                .Where(x => x.IsActive);
+                .Where(x => x.IsActive && monHocIdsOfLop.Contains(x.MonHocId)); // ✅ Lọc theo lớp
 
             if (monHocId.HasValue)
                 query = query.Where(x => x.MonHocId == monHocId.Value);
@@ -108,8 +127,9 @@ namespace LMS_THPT.Controllers
 
             var data = await query.OrderByDescending(x => x.Id).ToListAsync();
 
+            // Chỉ hiển thị môn học thuộc lớp HS trong bộ lọc
             var monHocs = await _context.DanhSachMonHoc
-                .Where(m => m.IsActive)
+                .Where(m => m.IsActive && monHocIdsOfLop.Contains(m.Id))
                 .OrderBy(m => m.TenMonHoc)
                 .ToListAsync();
 
@@ -171,9 +191,17 @@ namespace LMS_THPT.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
+            // Lấy danh sách MonHocId thuộc lớp của học sinh
+            var monHocIdsOfLop = user?.LopId.HasValue == true
+                ? await _context.LopMonHocs
+                    .Where(x => x.LopId == user.LopId!.Value)
+                    .Select(x => x.MonHocId)
+                    .ToListAsync()
+                : new List<int>();
+
             var query = _context.DanhSachBaiTap
                 .Include(x => x.MonHoc)
-                .AsQueryable();
+                .Where(x => monHocIdsOfLop.Contains(x.MonHocId)); // ✅ Lọc theo lớp
 
             if (monHocId.HasValue)
                 query = query.Where(x => x.MonHocId == monHocId.Value);
@@ -195,8 +223,9 @@ namespace LMS_THPT.Controllers
             else if (trangThai == "hetHan")
                 data = data.Where(bt => bt.HanNop <= now).ToList();
 
+            // Chỉ hiển thị môn học thuộc lớp HS trong bộ lọc
             var monHocs = await _context.DanhSachMonHoc
-                .Where(m => m.IsActive)
+                .Where(m => m.IsActive && monHocIdsOfLop.Contains(m.Id))
                 .OrderBy(m => m.TenMonHoc)
                 .ToListAsync();
 
@@ -217,6 +246,20 @@ namespace LMS_THPT.Controllers
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (baitap == null) return NotFound();
+
+            // ✅ Validate: bài tập phải thuộc lớp của học sinh
+            var monHocIdsOfLop = user?.LopId.HasValue == true
+                ? await _context.LopMonHocs
+                    .Where(x => x.LopId == user.LopId!.Value)
+                    .Select(x => x.MonHocId)
+                    .ToListAsync()
+                : new List<int>();
+
+            if (!monHocIdsOfLop.Contains(baitap.MonHocId))
+            {
+                TempData["error"] = "Bài tập này không thuộc lớp của bạn.";
+                return RedirectToAction("BaiTap");
+            }
 
             // Kiểm tra nếu bài đã đóng
             if (baitap.TrangThai == TrangThaiBaiTap.DaDong)
@@ -482,16 +525,23 @@ namespace LMS_THPT.Controllers
                     .Include(x => x.MonHoc)
                     .Include(x => x.GiaoVien)
                     .Include(x => x.Lop)
-                    .Where(x => x.LopId == user.LopId.Value)
+                    .Where(x => x.LopId == user.LopId.Value && !x.IsHocBu)
                     .OrderBy(x => x.Thu)
                     .ThenBy(x => x.TietHoc)
                     .ToListAsync();
             }
 
-            // Bài tập sắp hết hạn
+            // ✅ Bài tập sắp hết hạn - chỉ lấy theo lớp của học sinh
+            var monHocIdsForLich = user?.LopId.HasValue == true
+                ? await _context.LopMonHocs
+                    .Where(x => x.LopId == user!.LopId!.Value)
+                    .Select(x => x.MonHocId)
+                    .ToListAsync()
+                : new List<int>();
+
             var baiTapSapHan = await _context.DanhSachBaiTap
                 .Include(x => x.MonHoc)
-                .Where(x => x.HanNop > DateTime.Now)
+                .Where(x => x.HanNop > DateTime.Now && monHocIdsForLich.Contains(x.MonHocId))
                 .OrderBy(x => x.HanNop)
                 .Take(10)
                 .ToListAsync();

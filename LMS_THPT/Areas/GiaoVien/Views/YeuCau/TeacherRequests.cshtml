@@ -106,6 +106,7 @@
                     LMS_THPT.Models.LoaiYeuCau.KhieuNai => "⚠️ Khiếu nại",
                     LMS_THPT.Models.LoaiYeuCau.TangCapCongChuc => "📈 Tăng cấp công chức",
                     LMS_THPT.Models.LoaiYeuCau.DanhGiaHangNam => "⭐ Đánh giá hàng năm",
+                    LMS_THPT.Models.LoaiYeuCau.HocBu => "👨‍🏫 Học bù",
                     _ => "❓ Khác"
                 };
 
@@ -129,8 +130,25 @@
                         </p>
                     }
 
+                    @if (yeuCau.LoaiYeuCau == LMS_THPT.Models.LoaiYeuCau.NghiPhep && yeuCau.NgayNghi.HasValue)
+                    {
+                        <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0;">
+                            <strong>Thời gian:</strong> @yeuCau.NgayNghi.Value.ToString("dd/MM/yyyy") 
+                            @if (yeuCau.NgayNghiKetThuc.HasValue && yeuCau.NgayNghiKetThuc.Value.Date != yeuCau.NgayNghi.Value.Date)
+                            {
+                                <span> - @yeuCau.NgayNghiKetThuc.Value.ToString("dd/MM/yyyy")</span>
+                            }
+                        </p>
+                    }
+                    else if (yeuCau.LoaiYeuCau == LMS_THPT.Models.LoaiYeuCau.HocBu && yeuCau.NgayNghi.HasValue && yeuCau.TuTiet.HasValue)
+                    {
+                        <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0;">
+                            <strong>Thời gian dạy bù:</strong> Tiết @yeuCau.TuTiet.Value, Ngày @yeuCau.NgayNghi.Value.ToString("dd/MM/yyyy")
+                        </p>
+                    }
+
                     <p style="color: #6b7280; font-size: 13px; margin: 0 0 12px 0;">
-                        <strong>Gửi:</strong> @yeuCau.NgayGui.ToString("dd/MM/yyyy HH:mm")
+                        <strong>Gửi lúc:</strong> @yeuCau.NgayGui.ToString("dd/MM/yyyy HH:mm")
                     </p>
 
                     @if (!string.IsNullOrEmpty(yeuCau.GhiChu))

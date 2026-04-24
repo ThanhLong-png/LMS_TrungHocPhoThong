@@ -50,14 +50,17 @@ namespace LMS_THPT.Controllers
             }
 
             var data = await query
-                .Where(x => x.Thu == thu)
-                .OrderBy(x => x.TietHoc)
+                .Where(x => x.Thu == thu && (!x.IsHocBu || (x.NgayHoc >= selectedDate.Date && x.NgayHoc < selectedDate.Date.AddDays(1))))
+                .OrderByDescending(x => x.IsHocBu)
+                .ThenBy(x => x.TietHoc)
                 .ToListAsync();
 
             var leaves = await _context.YeuCauGiaoVien
                 .Where(y => y.TrangThai == TrangThaiYeuCau.DaDuyet && 
                             y.LoaiYeuCau == LoaiYeuCau.NghiPhep && 
-                            y.NgayNghi != null && y.NgayNghi.Value.Date == selectedDate.Date)
+                            y.NgayNghi != null && 
+                            selectedDate.Date >= y.NgayNghi.Value.Date && 
+                            (y.NgayNghiKetThuc == null ? selectedDate.Date == y.NgayNghi.Value.Date : selectedDate.Date <= y.NgayNghiKetThuc.Value.Date))
                 .ToListAsync();
             ViewBag.Leaves = leaves;
 

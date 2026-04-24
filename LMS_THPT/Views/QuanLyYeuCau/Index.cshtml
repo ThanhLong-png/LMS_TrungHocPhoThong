@@ -1,4 +1,4 @@
-﻿@model IEnumerable<LMS_THPT.Models.YeuCauGiaoVien>
+@model IEnumerable<LMS_THPT.Models.YeuCauGiaoVien>
 @{
     ViewData["Title"] = "Quản Lý Yêu Cầu Giáo Viên";
 }
@@ -69,9 +69,10 @@
     .alert-error { background:var(--pastel-red); border:1px solid #fca5a5; color:#991b1b; }
 </style>
 
-<div class="ql-header" style="display:flex; justify-content:space-between; align-items:center;">
-    <div>
-        <h2>📬 Quản Lý Yêu Cầu Giáo Viên</h2>
+<div class="ql-page">
+    <div class="ql-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <h2>📬 Quản Lý Yêu Cầu Giáo Viên</h2>
         <p>Xem xét và xử lý các yêu cầu từ giáo viên trong trường</p>
     </div>
     <a asp-controller="Admin" asp-action="Index" 
@@ -117,8 +118,8 @@
             <a href="@Url.Action("Index", new { trangThai = 0 })" class="filter-pill @(ViewBag.Filter == "0" ? "active" : "")">
                 ⏳ Chờ duyệt @if ((int)ViewBag.ChoDuyet > 0) { <span class="cho-badge-count">@ViewBag.ChoDuyet</span> }
             </a>
-            <a href="@Url.Action("Index", new { trangThai = 1 })" class="filter-pill @(ViewBag.Filter == "1" ? "active" : "")">✅ Đã duyệt</a>
-            <a href="@Url.Action("Index", new { trangThai = 2 })" class="filter-pill @(ViewBag.Filter == "2" ? "active" : "")">❌ Từ chối</a>
+            <a href="@Url.Action("Index", new { trangThai = 2 })" class="filter-pill @(ViewBag.Filter == "2" ? "active" : "")">✅ Đã duyệt</a>
+            <a href="@Url.Action("Index", new { trangThai = 3 })" class="filter-pill @(ViewBag.Filter == "3" ? "active" : "")">❌ Từ chối</a>
         </div>
         <div class="filter-group">
             <label>Loại:</label>
@@ -163,6 +164,7 @@
                             LMS_THPT.Models.LoaiYeuCau.DoiLich => "doilich",
                             LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen => "tailieu",
                             LMS_THPT.Models.LoaiYeuCau.KhieuNai => "khieunai",
+                            LMS_THPT.Models.LoaiYeuCau.HocBu => "doilich",
                             _ => "khac"
                         };
                         var loaiText = yc.LoaiYeuCau switch {
@@ -170,15 +172,23 @@
                             LMS_THPT.Models.LoaiYeuCau.DoiLich => "Đổi lịch",
                             LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen => "Tài nguyên",
                             LMS_THPT.Models.LoaiYeuCau.KhieuNai => "Khiếu nại",
+                            LMS_THPT.Models.LoaiYeuCau.HocBu => "Học bù",
+                            LMS_THPT.Models.LoaiYeuCau.DangKyLopChuNhiem => "ĐK Chủ nhiệm",
+                            LMS_THPT.Models.LoaiYeuCau.ThayDoiLopChuNhiem => "Đổi Chủ nhiệm",
+                            LMS_THPT.Models.LoaiYeuCau.HuyLopChuNhiem => "Hủy Chủ nhiệm",
+                            LMS_THPT.Models.LoaiYeuCau.TangCapCongChuc => "Tăng cấp CC",
+                            LMS_THPT.Models.LoaiYeuCau.DanhGiaHangNam => "Đánh giá HN",
                             _ => "Khác"
                         };
                         var ttClass = yc.TrangThai switch {
+                            LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy => "badge-cho",
                             LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet => "badge-cho",
                             LMS_THPT.Models.TrangThaiYeuCau.DaDuyet => "badge-duyet",
                             LMS_THPT.Models.TrangThaiYeuCau.TuChoi => "badge-tuchoi",
                             _ => ""
                         };
                         var ttText = yc.TrangThai switch {
+                            LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy => "Chờ duyệt",
                             LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet => "Chờ duyệt",
                             LMS_THPT.Models.TrangThaiYeuCau.DaDuyet => "Đã duyệt",
                             LMS_THPT.Models.TrangThaiYeuCau.TuChoi => "Từ chối",
@@ -200,7 +210,7 @@
                             <td><span class="badge-tt @ttClass">@ttText</span></td>
                             <td class="ngay-cell">@(yc.NgayXuLy.HasValue ? yc.NgayXuLy.Value.ToString("dd/MM/yyyy") : "—")</td>
                             <td style="text-align:center">
-                                @if (yc.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet)
+                                @if (yc.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet || yc.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy)
                                 {
                                     <a asp-action="XuLy" asp-route-id="@yc.Id" class="btn-xuly">⚡ Xử lý</a>
                                 }
