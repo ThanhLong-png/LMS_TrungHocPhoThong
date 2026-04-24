@@ -32,10 +32,24 @@
                         ? Url.Content("~/images/default-avatar.png")
                         : Url.Content(avatarClaim.StartsWith("~") ? avatarClaim : "~/" + avatarClaim.TrimStart('/'));
 
-                    <!-- AVATAR + NAME (CLICK → ADMIN) -->
+                    <!-- AVATAR + NAME (CLICK → DASHBOARD) -->
                     @if (User.IsInRole("Admin"))
                     {
                         <a asp-controller="Admin" asp-action="Index"
+                               class="d-flex align-items-center text-white text-decoration-none gap-2">
+
+                            <img src="@avatarUrl"
+                                 class="rounded-circle"
+                                 style="width:38px;height:38px;object-fit:cover;border:2px solid #fff;" />
+
+                            <span class="fw-semibold">
+                                @User.Identity.Name
+                            </span>
+                        </a>
+                    }
+                    else if (User.IsInRole("HieuTruong"))
+                    {
+                        <a asp-controller="HieuTruong" asp-action="Index"
                                class="d-flex align-items-center text-white text-decoration-none gap-2">
 
                             <img src="@avatarUrl"

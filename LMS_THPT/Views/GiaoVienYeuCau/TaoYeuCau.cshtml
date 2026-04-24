@@ -1,0 +1,46 @@
+@model LMS_THPT.Models.YeuCauGiaoVien
+
+@{
+    ViewData["Title"] = "Tạo Yêu Cầu Xin Nghỉ";
+}
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+    <hr />
+    <form asp-action="TaoYeuCau" method="post" class="mt-3">
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label asp-for="TieuDe" class="form-label fw-bold">Tiêu đề</label>
+            <input asp-for="TieuDe" class="form-control" placeholder="Nhập tiêu đề yêu cầu..." required />
+            <span asp-validation-for="TieuDe" class="text-danger"></span>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label asp-for="NgayNghi" class="form-label fw-bold">Ngày nghỉ</label>
+                <input asp-for="NgayNghi" type="date" class="form-control" required />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="TuTiet" class="form-label fw-bold">Từ tiết</label>
+                <input asp-for="TuTiet" type="number" min="1" max="10" class="form-control" required />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="DenTiet" class="form-label fw-bold">Đến tiết</label>
+                <input asp-for="DenTiet" type="number" min="1" max="10" class="form-control" required />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="NoiDung" class="form-label fw-bold">Lý do nghỉ (Nghỉ ốm x giáo án x ... )</label>
+            <textarea asp-for="NoiDung" class="form-control" rows="4" required></textarea>
+            <span asp-validation-for="NoiDung" class="text-danger"></span>
+        </div>
+        
+        <input type="hidden" asp-for="LoaiYeuCau" value="NghiPhep" />
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Gửi Yêu Cầu</button>
+            <a href="javascript:history.back()" class="btn btn-secondary ms-2">Hủy</a>
+        </div>
+    </form>
+</div>

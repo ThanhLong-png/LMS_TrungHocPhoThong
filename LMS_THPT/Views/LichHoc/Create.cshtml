@@ -198,6 +198,7 @@
 
         <form asp-action="Create" asp-controller="LichHoc" method="post">
             @Html.AntiForgeryToken()
+            <input type="hidden" name="date" value="@Context.Request.Query["date"]" />
 
             <div class="lh-card-body">
 
@@ -260,7 +261,7 @@
 
             <div class="lh-card-footer">
                 <button type="submit" class="lh-btn lh-btn-primary">Lưu lịch học</button>
-                <a href="/LichHoc/ThoiKhoaBieu?lopId=@Model.LopId" class="lh-btn lh-btn-ghost">Hủy bỏ</a>
+                <a href="/LichHoc/ThoiKhoaBieu?lopId=@Model.LopId&date=@Context.Request.Query["date"]" class="lh-btn lh-btn-ghost">Hủy bỏ</a>
             </div>
 
         </form>

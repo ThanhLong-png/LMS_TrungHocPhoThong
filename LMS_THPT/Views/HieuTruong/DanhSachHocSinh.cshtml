@@ -1,0 +1,395 @@
+@model IEnumerable<LMS_THPT.Models.NguoiDung>
+@{
+    ViewData["Title"] = "Danh Sách Học Sinh";
+    var danhSachLop = ViewBag.DanhSachLop as List<LMS_THPT.Models.Lop>;
+    var lopId = ViewBag.LopId as int?;
+    var search = ViewBag.Search as string;
+}
+
+<style>
+    /* MONOCHROME MINIMALIST STYLE */
+    .page-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+        border-bottom: 2px solid #000;
+        padding-bottom: 16px;
+    }
+
+    .page-header-icon {
+        font-size: 32px;
+        background: #fff;
+        color: #000;
+        border: 2px solid #000;
+        border-radius: 0;
+        width: 60px; height: 60px;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 4px 4px 0px rgba(0,0,0,1);
+    }
+
+    .page-header h1 {
+        font-size: 24px;
+        font-weight: 900;
+        color: #000;
+        margin: 0 0 3px 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .page-header p {
+        font-size: 13px;
+        font-weight: 600;
+        color: #555;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+        background: #fff;
+        padding: 16px 20px;
+        border-radius: 0;
+        box-shadow: 4px 4px 0px rgba(0,0,0,1);
+        border: 2px solid #000;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 200px;
+        position: relative;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 10px 14px 10px 38px;
+        border: 2px solid #000;
+        border-radius: 0;
+        font-size: 14px;
+        font-weight: 600;
+        background: #fff;
+        outline: none;
+        transition: all 0.2s;
+    }
+
+    .search-box input:focus { box-shadow: 2px 2px 0px #000; }
+
+    .search-box .search-icon {
+        position: absolute;
+        left: 12px; top: 50%;
+        transform: translateY(-50%);
+        color: #000;
+        font-weight: bold;
+    }
+
+    .select-lop {
+        padding: 10px 14px;
+        border: 2px solid #000;
+        border-radius: 0;
+        font-size: 14px;
+        font-weight: 600;
+        background: #fff;
+        outline: none;
+        cursor: pointer;
+        min-width: 160px;
+        transition: all 0.2s;
+    }
+
+    .select-lop:focus { box-shadow: 2px 2px 0px #000; }
+
+    .btn-search {
+        padding: 10px 24px;
+        background: #000;
+        color: #fff;
+        border: 2px solid #000;
+        border-radius: 0;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s;
+    }
+
+    .btn-search:hover { background: #fff; color: #000; box-shadow: 2px 2px 0px #000; }
+
+    .btn-clear {
+        padding: 10px 14px;
+        background: #fff;
+        color: #000;
+        border: 2px solid #000;
+        border-radius: 0;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: all 0.2s;
+    }
+
+    .btn-clear:hover { background: #000; color:#fff; box-shadow: 2px 2px 0px #000; text-decoration: none; }
+
+    .btn-back {
+        padding: 10px 20px;
+        background: #fff;
+        color: #000;
+        border: 2px solid #000;
+        border-radius: 0;
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: all 0.2s;
+    }
+
+    .btn-back:hover { background: #000; color:#fff; box-shadow: 2px 2px 0px #000; text-decoration: none; }
+
+    .badge-count {
+        background: #000;
+        color: #fff;
+        border-radius: 0;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 800;
+        white-space: nowrap;
+        border: 2px solid #000;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* TABLE */
+    .table-wrap {
+        background: #fff;
+        border-radius: 0;
+        box-shadow: 4px 4px 0px rgba(0,0,0,1);
+        overflow: hidden;
+        border: 2px solid #000;
+    }
+
+    .hs-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .hs-table thead tr {
+        background: #f5f5f5;
+        color: #000;
+    }
+
+    .hs-table thead th {
+        padding: 16px;
+        font-weight: 800;
+        font-size: 13px;
+        text-align: left;
+        white-space: nowrap;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border-bottom: 2px solid #000;
+    }
+
+    .hs-table tbody tr {
+        border-bottom: 1px solid #ccc;
+        transition: background 0.15s;
+    }
+
+    .hs-table tbody tr:last-child { border-bottom: none; }
+    .hs-table tbody tr:hover { background: #f5f5f5; }
+
+    .hs-table td {
+        padding: 15px 16px;
+        vertical-align: middle;
+        color: #000;
+        font-weight: 500;
+    }
+
+    .avatar-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .avatar-circle {
+        width: 40px; height: 40px;
+        border-radius: 0;
+        background: #000;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 900;
+        flex-shrink: 0;
+        border: 2px solid #000;
+    }
+
+    .hs-name { font-weight: 800; color: #000; text-transform: uppercase; }
+    .hs-sub  { font-size: 12px; color: #555; text-transform: uppercase; font-weight: 600; }
+
+    .badge-lop {
+        display: inline-block;
+        background: #000;
+        color: #fff;
+        border-radius: 0;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 800;
+        border: 1px solid #000;
+        text-transform: uppercase;
+    }
+
+    .badge-khoi {
+        display: inline-block;
+        background: #fff;
+        color: #000;
+        border-radius: 0;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: 800;
+        border: 1px solid #000;
+        margin-top: 4px;
+        text-transform: uppercase;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #000;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; display: block; }
+    .empty-state p { font-size: 15px; margin: 0; }
+</style>
+
+<div class="page-header">
+    <div class="page-header-icon">🎓</div>
+    <div>
+        <h1>Danh Sách Học Sinh</h1>
+        <p>Xem thông tin học sinh theo lớp toàn trường</p>
+    </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+    <form method="get" asp-action="DanhSachHocSinh" style="display:flex;gap:10px;flex-wrap:wrap;flex:1;">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" name="search" value="@search" placeholder="Tìm tên hoặc mã học sinh..." />
+        </div>
+
+        <select name="lopId" class="select-lop">
+            <option value="">-- Tất cả lớp --</option>
+            @if (danhSachLop != null)
+            {
+                foreach (var lop in danhSachLop)
+                {
+                    <option value="@lop.Id" selected="@(lopId == lop.Id)">
+                        @lop.TenLop @(lop.Khoi != null ? $"({lop.Khoi.TenKhoi})" : "")
+                    </option>
+                }
+            }
+        </select>
+
+        <button type="submit" class="btn-search">🔍 Lọc</button>
+
+        @if (!string.IsNullOrEmpty(search) || lopId.HasValue)
+        {
+            <a asp-action="DanhSachHocSinh" class="btn-clear">✕ Xóa lọc</a>
+        }
+    </form>
+
+    <span class="badge-count">🎓 @ViewBag.SoLuong học sinh</span>
+    <a asp-action="Index" class="btn-back">← Dashboard</a>
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap">
+    @if (Model != null && Model.Any())
+    {
+        <table class="hs-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Học Sinh</th>
+                    <th>Mã Học Sinh</th>
+                    <th>Giới Tính</th>
+                    <th>Ngày Sinh</th>
+                    <th>Lớp</th>
+                    <th>Địa Chỉ</th>
+                    <th>Trạng Thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ int stt = 1; }
+                @foreach (var hs in Model)
+                {
+                    var tenHienThi = string.IsNullOrEmpty(hs.HoTen) ? hs.UserName : hs.HoTen;
+                    var firstChar = tenHienThi?.Length > 0 ? tenHienThi[0].ToString().ToUpper() : "?";
+
+                    <tr>
+                        <td style="color:#a0aec0;font-size:13px;">@(stt++)</td>
+                        <td>
+                            <div class="avatar-cell">
+                                <div class="avatar-circle">@firstChar</div>
+                                <div>
+                                    <div class="hs-name">@tenHienThi</div>
+                                    <div class="hs-sub">@hs.Email</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><code style="font-size:13px;color:#276749;">@(hs.MaHocSinh ?? "—")</code></td>
+                        <td style="font-size:13px;">@(hs.GioiTinh ?? "—")</td>
+                        <td style="font-size:13px;">
+                            @(hs.NgaySinh.HasValue ? hs.NgaySinh.Value.ToString("dd/MM/yyyy") : "—")
+                        </td>
+                        <td>
+                            @if (hs.Lop != null)
+                            {
+                                <span class="badge-lop">@hs.Lop.TenLop</span>
+                                @if (hs.Lop.Khoi != null)
+                                {
+                                    <div><span class="badge-khoi">@hs.Lop.Khoi.TenKhoi</span></div>
+                                }
+                            }
+                            else
+                            {
+                                <span style="color:#a0aec0;font-size:12px;">Chưa xếp lớp</span>
+                            }
+                        </td>
+                        <td style="font-size:13px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                            @(hs.DiaChi ?? "—")
+                        </td>
+                        <td>
+                            @if (hs.IsActive)
+                            {
+                                <span style="display:inline-block; border:2px solid #000; padding:4px 8px; font-weight:800; font-size:11px; text-transform:uppercase;">HOẠT ĐỘNG</span>
+                            }
+                            else
+                            {
+                                <span style="display:inline-block; border:2px solid #000; background:#000; color:#fff; padding:4px 8px; font-weight:800; font-size:11px; text-transform:uppercase;">ĐÃ KHÓA</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">🎓</div>
+            <p>Không có học sinh nào@(!string.IsNullOrEmpty(search) || lopId.HasValue ? " phù hợp với bộ lọc" : "")</p>
+        </div>
+    }
+</div>

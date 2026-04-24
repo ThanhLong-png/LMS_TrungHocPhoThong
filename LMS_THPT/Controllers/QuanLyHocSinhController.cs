@@ -223,40 +223,98 @@ namespace LMS_THPT.Controllers
         // ─────────────────────────────────────────
         // THÊM HỌC SINH (thủ công)
         // ─────────────────────────────────────────
-        [HttpGet]
-        public IActionResult TaoHocSinh(int lopId)
+        // ─────────────────────────────────────────
+        // HELPER: tạo mã học sinh tự động
+        // Format: [2 số năm][phần chữ tên lớp][3 số STT]
+        // Ví dụ: lớp "10A1", năm 2026, STT 1 → "26A1001"
+        // ─────────────────────────────────────────
+        private async Task<string> GenerateMaHocSinhAsync(int lopId)
         {
+            var lop = await _context.Lops.FindAsync(lopId);
+            if (lop == null) return "";
+
+            string year = (DateTime.Now.Year % 100).ToString("D2"); // "26"
+
+            // Lấy phần chữ: bỏ các chữ số đứng đầu tên lớp (10A1 → A1)
+            string tenLop = lop.TenLop ?? "";
+            string lopCode = System.Text.RegularExpressions.Regex.Replace(tenLop, @"^\d+", "").ToUpper();
+
+            // Prefix để đối chiếu các mã đã có
+            string prefix = year + lopCode;
+
+            // Đếm số học sinh hiện tại trong lớp có mã bắt đầu bằng prefix
+            int currentCount = await _context.Users
+                .CountAsync(u => u.LopId == lopId && u.MaHocSinh != null && u.MaHocSinh.StartsWith(prefix));
+
+            int nextStt = currentCount + 1;
+            return prefix + nextStt.ToString("D3");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> TaoHocSinh(int lopId)
+        {
+            var lop = await _context.Lops.FindAsync(lopId);
+            if (lop == null) return NotFound();
+
             ViewBag.LopId = lopId;
+            ViewBag.TenLop = lop.TenLop;
+            ViewBag.MaHocSinhGoi = await GenerateMaHocSinhAsync(lopId);
             return View();
+        }
+
+        // AJAX: lấy mã học sinh tiếp theo (dùng khi cần refresh preview)
+        [HttpGet]
+        public async Task<IActionResult> GetNextMaHocSinh(int lopId)
+        {
+            var ma = await GenerateMaHocSinhAsync(lopId);
+            return Json(new { ma });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> TaoHocSinh(int lopId, string hoTen, string maHocSinh,
+        public async Task<IActionResult> TaoHocSinh(int lopId, string hoTen,
             DateTime? ngaySinh, string? gioiTinh, string matKhau)
         {
+            var lop = await _context.Lops.FindAsync(lopId);
             ViewBag.LopId = lopId;
+            ViewBag.TenLop = lop?.TenLop;
 
             if (string.IsNullOrWhiteSpace(hoTen) ||
-                string.IsNullOrWhiteSpace(maHocSinh) ||
                 string.IsNullOrWhiteSpace(matKhau))
             {
                 ModelState.AddModelError("", "Vui lòng nhập đầy đủ thông tin bắt buộc.");
+                ViewBag.MaHocSinhGoi = await GenerateMaHocSinhAsync(lopId);
                 return View();
             }
 
-            string ma = maHocSinh.Trim().ToUpper();
+            // Tự động tạo mã học sinh
+            string ma = await GenerateMaHocSinhAsync(lopId);
 
+            // Đảm bảo không trùng (race condition)
             if (await _context.Users.AnyAsync(u => u.MaHocSinh == ma))
             {
-                ModelState.AddModelError("", "Mã học sinh đã tồn tại, vui lòng nhập mã khác.");
-                return View();
+                // Nếu trùng thì tăng thêm 1
+                string year = (DateTime.Now.Year % 100).ToString("D2");
+                string tenLop = lop?.TenLop ?? "";
+                string lopCode = System.Text.RegularExpressions.Regex.Replace(tenLop, @"^\d+", "").ToUpper();
+                string prefix = year + lopCode;
+
+                var maxMa = await _context.Users
+                    .Where(u => u.LopId == lopId && u.MaHocSinh != null && u.MaHocSinh.StartsWith(prefix))
+                    .OrderByDescending(u => u.MaHocSinh)
+                    .Select(u => u.MaHocSinh)
+                    .FirstOrDefaultAsync();
+
+                int lastStt = 0;
+                if (maxMa != null && maxMa.Length > prefix.Length)
+                    int.TryParse(maxMa.Substring(prefix.Length), out lastStt);
+                ma = prefix + (lastStt + 1).ToString("D3");
             }
 
             var hocSinh = new NguoiDung
             {
                 UserName = ma,
-                NormalizedUserName = ma,
+                NormalizedUserName = ma.ToUpper(),
                 Email = ma + "@truong.edu.vn",
                 NormalizedEmail = (ma + "@truong.edu.vn").ToUpper(),
                 HoTen = hoTen.Trim().ToUpper(),
@@ -278,7 +336,7 @@ namespace LMS_THPT.Controllers
 
             await _userManager.AddToRoleAsync(hocSinh, "HocSinh");
 
-            TempData["Success"] = $"Thêm học sinh \"{hocSinh.HoTen}\" thành công.";
+            TempData["Success"] = $"Thêm học sinh \"{hocSinh.HoTen}\" thành công. Mã: {ma}";
             return RedirectToAction(nameof(HocSinhs), new { lopId });
         }
 
@@ -420,30 +478,29 @@ namespace LMS_THPT.Controllers
 
                 int rowCount = worksheet.Dimension?.Rows ?? 0;
 
+                // Tính prefix mã một lần cho cả batch
+                var lopInfo = await _context.Lops.FindAsync(lopId);
+                string year = (DateTime.Now.Year % 100).ToString("D2");
+                string tenLop = lopInfo?.TenLop ?? "";
+                string lopCode = System.Text.RegularExpressions.Regex.Replace(tenLop, @"^\d+", "").ToUpper();
+                string prefix = year + lopCode;
+
                 for (int row = 2; row <= rowCount; row++)
                 {
-                    var hoTen = worksheet.Cells[row, 1].Value?.ToString()?.Trim();
-                    var maHS = worksheet.Cells[row, 2].Value?.ToString()?.Trim()?.ToUpper();
-                    var gioiTinh = worksheet.Cells[row, 3].Value?.ToString()?.Trim();
-                    var diaChi = worksheet.Cells[row, 5].Value?.ToString()?.Trim();
+                    // Cột Excel: 1=Họ tên | 2=Giới tính | 3=Ngày sinh | 4=Địa chỉ
+                    var hoTen    = worksheet.Cells[row, 1].Value?.ToString()?.Trim();
+                    var gioiTinh = worksheet.Cells[row, 2].Value?.ToString()?.Trim();
+                    var diaChi   = worksheet.Cells[row, 4].Value?.ToString()?.Trim();
 
-                    if (string.IsNullOrWhiteSpace(maHS) || string.IsNullOrWhiteSpace(hoTen))
+                    if (string.IsNullOrWhiteSpace(hoTen))
                     {
                         skipCount++;
                         continue;
                     }
 
-                    var existing = await _userManager.FindByNameAsync(maHS);
-                    if (existing != null)
-                    {
-                        errors.Add($"Dòng {row} ({maHS}): Mã đã tồn tại - HoTen: {existing.HoTen}");
-                        skipCount++;
-                        continue;
-                    }
-
-                    // ── Phân tích ngày sinh ──
+                    // ── Phân tích ngày sinh (cột 3) ──
                     DateTime? ngaySinh = null;
-                    var cell = worksheet.Cells[row, 4];
+                    var cell = worksheet.Cells[row, 3];
 
                     if (cell.Value != null)
                     {
@@ -465,6 +522,11 @@ namespace LMS_THPT.Controllers
                                 ngaySinh = parsed;
                         }
                     }
+
+                    // ── Tự động sinh mã học sinh tuần tự ──
+                    int currentCount = await _context.Users
+                        .CountAsync(u => u.LopId == lopId && u.MaHocSinh != null && u.MaHocSinh.StartsWith(prefix));
+                    string maHS = prefix + (currentCount + 1).ToString("D3");
 
                     var user = new NguoiDung
                     {
@@ -492,7 +554,7 @@ namespace LMS_THPT.Controllers
                     }
                     else
                     {
-                        errors.Add($"Dòng {row} ({maHS}): " +
+                        errors.Add($"Dòng {row} ({hoTen}): " +
                                    string.Join(", ", result.Errors.Select(e => e.Description)));
                         skipCount++;
                     }

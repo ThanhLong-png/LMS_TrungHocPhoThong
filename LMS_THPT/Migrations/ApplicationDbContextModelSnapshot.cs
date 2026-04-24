@@ -123,9 +123,12 @@ namespace LMS_THPT.Migrations
                     b.Property<DateTime>("HanNop")
                         .HasColumnType("datetime2");
 
+<<<<<<< HEAD
                     b.Property<int>("LoaiDiem")
                         .HasColumnType("int");
 
+=======
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
                     b.Property<string>("MoTa")
                         .HasColumnType("nvarchar(max)");
 
@@ -242,6 +245,7 @@ namespace LMS_THPT.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+<<<<<<< HEAD
                     b.Property<double?>("Diem")
                         .HasColumnType("float");
 
@@ -261,6 +265,16 @@ namespace LMS_THPT.Migrations
                         .HasColumnType("float");
 
                     b.Property<string>("GiaoVienId")
+=======
+                    b.Property<double>("Diem")
+                        .HasColumnType("float");
+
+                    b.Property<string>("GiangVienId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("HocSinhId")
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
@@ -277,7 +291,10 @@ namespace LMS_THPT.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("NguoiDungId")
+<<<<<<< HEAD
                         .IsRequired()
+=======
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("NhanXet")
@@ -285,7 +302,13 @@ namespace LMS_THPT.Migrations
 
                     b.HasKey("Id");
 
+<<<<<<< HEAD
                     b.HasIndex("GiaoVienId");
+=======
+                    b.HasIndex("GiangVienId");
+
+                    b.HasIndex("HocSinhId");
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
 
                     b.HasIndex("MonHocId");
 
@@ -322,21 +345,27 @@ namespace LMS_THPT.Migrations
                     b.Property<string>("GiaoVienId")
                         .HasColumnType("nvarchar(450)");
 
+<<<<<<< HEAD
                     b.Property<TimeSpan>("GioBatDau")
                         .HasColumnType("time");
 
                     b.Property<TimeSpan>("GioKetThuc")
                         .HasColumnType("time");
 
+=======
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
                     b.Property<int>("LopId")
                         .HasColumnType("int");
 
                     b.Property<int>("MonHocId")
                         .HasColumnType("int");
 
+<<<<<<< HEAD
                     b.Property<DateTime>("NgayHoc")
                         .HasColumnType("datetime2");
 
+=======
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
                     b.Property<string>("PhongHoc")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -347,9 +376,12 @@ namespace LMS_THPT.Migrations
                     b.Property<int>("TietHoc")
                         .HasColumnType("int");
 
+<<<<<<< HEAD
                     b.Property<string>("TieuDe")
                         .HasColumnType("nvarchar(max)");
 
+=======
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
                     b.HasKey("Id");
 
                     b.HasIndex("GiaoVienId");
@@ -424,7 +456,11 @@ namespace LMS_THPT.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+<<<<<<< HEAD
                     b.Property<string>("GiaoVienId")
+=======
+                    b.Property<string>("GiangVienId")
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("HinhAnh")
@@ -457,7 +493,11 @@ namespace LMS_THPT.Migrations
 
                     b.HasKey("Id");
 
+<<<<<<< HEAD
                     b.HasIndex("GiaoVienId");
+=======
+                    b.HasIndex("GiangVienId");
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
 
                     b.HasIndex("KhoiId");
 
@@ -529,9 +569,12 @@ namespace LMS_THPT.Migrations
                     b.Property<string>("GioiTinh")
                         .HasColumnType("nvarchar(max)");
 
+<<<<<<< HEAD
                     b.Property<string>("HanhKiem")
                         .HasColumnType("nvarchar(max)");
 
+=======
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
                     b.Property<string>("HoTen")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -686,6 +729,7 @@ namespace LMS_THPT.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+<<<<<<< HEAD
                     b.Property<string>("DuongDanTaiLieu")
                         .HasColumnType("nvarchar(max)");
 
@@ -705,13 +749,43 @@ namespace LMS_THPT.Migrations
                     b.Property<string>("MoTa")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+=======
+                    b.Property<int?>("DenTiet")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GhiChuAdmin")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("LoaiYeuCau")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MaGiaoVien")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
 
                     b.Property<DateTime>("NgayGui")
+                        .HasColumnType("datetime2");
+
+<<<<<<< HEAD
+                    b.Property<DateTime?>("NgayXuLy")
+                        .HasColumnType("datetime2");
+
+=======
+                    b.Property<DateTime?>("NgayNghi")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("NgayXuLy")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("NguoiXuLyId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("NoiDung")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
                     b.Property<string>("TieuDe")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -720,6 +794,7 @@ namespace LMS_THPT.Migrations
                     b.Property<int>("TrangThai")
                         .HasColumnType("int");
 
+<<<<<<< HEAD
                     b.Property<string>("XuLyBoi")
                         .HasColumnType("nvarchar(450)");
 
@@ -730,6 +805,16 @@ namespace LMS_THPT.Migrations
                     b.HasIndex("LopId");
 
                     b.HasIndex("XuLyBoi");
+=======
+                    b.Property<int?>("TuTiet")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MaGiaoVien");
+
+                    b.HasIndex("NguoiXuLyId");
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
 
                     b.ToTable("YeuCauGiaoVien");
                 });
@@ -877,8 +962,12 @@ namespace LMS_THPT.Migrations
 
                     b.HasOne("LMS_THPT.Models.NguoiDung", "NguoiDung")
                         .WithMany()
+<<<<<<< HEAD
                         .HasForeignKey("NguoiDungId")
                         .OnDelete(DeleteBehavior.SetNull);
+=======
+                        .HasForeignKey("NguoiDungId");
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
 
                     b.Navigation("MonHoc");
 
@@ -971,9 +1060,21 @@ namespace LMS_THPT.Migrations
 
             modelBuilder.Entity("LMS_THPT.Models.DiemSo", b =>
                 {
+<<<<<<< HEAD
                     b.HasOne("LMS_THPT.Models.NguoiDung", "GiaoVien")
                         .WithMany()
                         .HasForeignKey("GiaoVienId")
+=======
+                    b.HasOne("LMS_THPT.Models.NguoiDung", "GiangVien")
+                        .WithMany()
+                        .HasForeignKey("GiangVienId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LMS_THPT.Models.NguoiDung", "HocSinh")
+                        .WithMany()
+                        .HasForeignKey("HocSinhId")
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -983,6 +1084,7 @@ namespace LMS_THPT.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+<<<<<<< HEAD
                     b.HasOne("LMS_THPT.Models.NguoiDung", "NguoiDung")
                         .WithMany("DiemSos")
                         .HasForeignKey("NguoiDungId")
@@ -994,6 +1096,17 @@ namespace LMS_THPT.Migrations
                     b.Navigation("MonHoc");
 
                     b.Navigation("NguoiDung");
+=======
+                    b.HasOne("LMS_THPT.Models.NguoiDung", null)
+                        .WithMany("DiemSos")
+                        .HasForeignKey("NguoiDungId");
+
+                    b.Navigation("GiangVien");
+
+                    b.Navigation("HocSinh");
+
+                    b.Navigation("MonHoc");
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
                 });
 
             modelBuilder.Entity("LMS_THPT.Models.LichHoc", b =>
@@ -1068,9 +1181,15 @@ namespace LMS_THPT.Migrations
 
             modelBuilder.Entity("LMS_THPT.Models.MonHoc", b =>
                 {
+<<<<<<< HEAD
                     b.HasOne("LMS_THPT.Models.NguoiDung", "GiaoVien")
                         .WithMany()
                         .HasForeignKey("GiaoVienId")
+=======
+                    b.HasOne("LMS_THPT.Models.NguoiDung", "GiangVien")
+                        .WithMany()
+                        .HasForeignKey("GiangVienId")
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("LMS_THPT.Models.Khoi", "Khoi")
@@ -1079,7 +1198,11 @@ namespace LMS_THPT.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+<<<<<<< HEAD
                     b.Navigation("GiaoVien");
+=======
+                    b.Navigation("GiangVien");
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
 
                     b.Navigation("Khoi");
                 });
@@ -1148,6 +1271,7 @@ namespace LMS_THPT.Migrations
                 {
                     b.HasOne("LMS_THPT.Models.NguoiDung", "GiaoVien")
                         .WithMany()
+<<<<<<< HEAD
                         .HasForeignKey("GiaoVienId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1159,12 +1283,24 @@ namespace LMS_THPT.Migrations
                     b.HasOne("LMS_THPT.Models.NguoiDung", "NguoiXuLy")
                         .WithMany()
                         .HasForeignKey("XuLyBoi")
+=======
+                        .HasForeignKey("MaGiaoVien")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LMS_THPT.Models.NguoiDung", "NguoiXuLy")
+                        .WithMany()
+                        .HasForeignKey("NguoiXuLyId")
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("GiaoVien");
 
+<<<<<<< HEAD
                     b.Navigation("Lop");
 
+=======
+>>>>>>> e2f22b4306546907c99299f02229fc39004b603f
                     b.Navigation("NguoiXuLy");
                 });
 

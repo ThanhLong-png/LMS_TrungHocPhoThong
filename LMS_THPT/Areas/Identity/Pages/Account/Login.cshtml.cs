@@ -52,8 +52,24 @@ namespace LMS_THPT.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnGetAsync(string returnUrl = null)
         {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return LocalRedirect("/Home/Welcome");
+            }
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ModelState.AddModelError(string.Empty, ErrorMessage);
+            }
+
+            returnUrl ??= Url.Content("~/");
+
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-            return LocalRedirect(string.IsNullOrEmpty(returnUrl) ? "~/" : $"~/?ReturnUrl={Uri.EscapeDataString(returnUrl)}");
+
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            ReturnUrl = returnUrl;
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -100,21 +116,9 @@ namespace LMS_THPT.Areas.Identity.Pages.Account
                 ));
 
                 // Redirect theo role
-                var roles = await _userManager.GetRolesAsync(user);
+              
 
-                if (roles.Contains("Admin"))
-                    return LocalRedirect("~/Admin/Index");
-
-                if (roles.Contains("GiaoVien"))
-                    return LocalRedirect("~/GiaoVien/Index");
-
-                if (roles.Contains("HocSinh"))
-                    return LocalRedirect("~/HocSinh/Index");
-
-                if (roles.Contains("HieuTruong"))
-                    return LocalRedirect("~/HieuTruong/Index");
-
-                return LocalRedirect("~/Home/Welcome");
+                return LocalRedirect("/Home/Welcome");
             }
 
             if (result.RequiresTwoFactor)

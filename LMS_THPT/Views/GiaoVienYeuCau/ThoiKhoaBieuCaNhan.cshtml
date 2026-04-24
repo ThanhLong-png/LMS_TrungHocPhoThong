@@ -1,0 +1,164 @@
+@model List<LMS_THPT.Models.LichHoc>
+@{
+    var dataLookup = Model
+        .GroupBy(x => new { x.Thu, x.TietHoc })
+        .ToDictionary(g => g.Key, g => g.First());
+        
+    int maxTiet = 10;
+    int maxThu = 7;
+}
+
+<style>
+    .page-header { margin-bottom: 25px; }
+    .page-header h1 { font-size: 24px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+    .tkb-table-wrap {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        border: 1px solid #f0f0f0;
+    }
+
+    .tkb-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .tkb-table th {
+        background: #1a202c;
+        color: #fff;
+        padding: 15px;
+        font-weight: 600;
+        font-size: 13px;
+        text-align: center;
+        text-transform: uppercase;
+        border: 1px solid #2d3748;
+    }
+
+    .tkb-table td {
+        padding: 12px;
+        border: 1px solid #edf2f7;
+        vertical-align: top;
+        min-width: 130px;
+        height: 100px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .tkb-table td:hover {
+        background-color: #f7fafc;
+    }
+
+    .tiet-label {
+        font-weight: 700;
+        color: #4a5568;
+        background: #f7fafc !important;
+        text-align: center;
+        width: 80px;
+        min-width: 80px !important;
+        cursor: default !important;
+    }
+
+    .lesson-box {
+        background: #ebf8ff;
+        border-left: 4px solid #3182ce;
+        padding: 8px;
+        border-radius: 6px;
+        font-size: 13px;
+        margin-bottom: 5px;
+        transition: transform 0.2s;
+    }
+
+    .tkb-table td:hover .lesson-box {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(49, 130, 206, 0.1);
+    }
+
+    .lesson-mon { font-weight: 700; color: #2c5282; margin-bottom: 2px; }
+    .lesson-lop { font-size: 11px; font-weight: 600; color: #2d3748; margin-top: 4px; border-top: 1px solid #bee3f8; padding-top: 2px; }
+    .empty-cell { color: #cbd5e0; font-size: 11px; text-align: center; padding-top: 30px; }
+    
+    .date-filter {
+        background: white;
+        padding: 15px 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 15px;
+    }
+</style>
+
+<div class="page-header">
+    <h1>🗓️ Lịch Dạy Cá Nhân (Giáo Viên)</h1>
+    <p class="text-muted">Nhấn vào bất kỳ tiết học nào để tạo yêu cầu xin nghỉ tự động</p>
+</div>
+
+<div class="date-filter">
+    <form method="get" class="m-0 d-flex align-items-center gap-3">
+        <label class="fw-bold m-0" style="font-size: 14px;">Xem tuần chứa ngày:</label>
+        <input type="date" name="date" class="form-control shadow-none" value="@ViewBag.SelectedDate" onchange="this.form.submit()" style="width: auto;" />
+    </form>
+</div>
+
+<div class="tkb-table-wrap">
+    <table class="tkb-table">
+        <thead>
+            <tr>
+                <th class="tiet-label">Tiết</th>
+                @for (int thu = 2; thu <= maxThu; thu++)
+                {
+                    DateTime loopDate = ((DateTime)ViewBag.StartOfWeek).AddDays(thu - 2);
+                    <th>Thứ @thu<br/><span style="font-size: 10px; font-weight: normal; opacity: 0.8;">@loopDate.ToString("dd/MM")</span></th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @for (int tiet = 1; tiet <= maxTiet; tiet++)
+            {
+                <tr>
+                    <td class="tiet-label">Tiết @tiet</td>
+                    @for (int thu = 2; thu <= maxThu; thu++)
+                    {
+                        var key = new { Thu = thu, TietHoc = tiet };
+                        DateTime loopDate = ((DateTime)ViewBag.StartOfWeek).AddDays(thu - 2);
+                        string strDate = loopDate.ToString("yyyy-MM-dd");
+
+                        if (dataLookup.ContainsKey(key))
+                        {
+                            var item = dataLookup[key];
+                            var leaves = ViewBag.Leaves as List<LMS_THPT.Models.YeuCauGiaoVien>;
+                            var leave = leaves?.FirstOrDefault(y => y.NgayNghi?.Date == loopDate.Date && y.TuTiet <= tiet && y.DenTiet >= tiet);
+                            
+                            <td onclick="xinNghi('@strDate', @tiet, '@item.MonHoc?.TenMonHoc', '@item.Lop?.TenLop')" title="Nhấn để xin nghỉ tiết này">
+                                <div class="lesson-box">
+                                    <div class="lesson-mon">@item.MonHoc?.TenMonHoc</div>
+                                    <div class="lesson-lop">Lớp: @item.Lop?.TenLop</div>
+                                    <div style="font-size: 10px; color: #718096; margin-top:2px;">Phòng: @item.PhongHoc</div>
+                                    @if(leave != null)
+                                    {
+                                        <div style="color: #e53e3e; font-size: 11px; font-weight: bold; margin-top: 4px; background: #fff5f5; padding: 2px 4px; border-radius: 4px; text-align: center; border: 1px solid #fed7d7;">ĐÃ DUYỆT NGHỈ</div>
+                                    }
+                                </div>
+                            </td>
+                        }
+                        else
+                        {
+                            <td><div class="empty-cell">Trống</div></td>
+                        }
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+function xinNghi(ngayNghi, tiet, monHoc, lop) {
+    if (confirm("Tạo yêu cầu xin nghỉ Tiết " + tiet + " (" + monHoc + " - Lớp " + lop + ") ngày " + ngayNghi + "?")) {
+        window.location.href = "@Url.Action("TaoYeuCau", "GiaoVienYeuCau")" + "?ngayNghi=" + ngayNghi + "&tuTiet=" + tiet + "&denTiet=" + tiet + "&monHoc=" + encodeURIComponent(monHoc + " Lớp " + lop);
+    }
+}
+</script>

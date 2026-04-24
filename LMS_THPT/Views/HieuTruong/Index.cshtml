@@ -1,5 +1,337 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
 @{
+    ViewData["Title"] = "Bảng Điều Khiển - Hiệu Trưởng";
+    var thongBaoMoi = ViewBag.ThongBaoMoiNhat as List<LMS_THPT.Models.ThongBao>;
 }
+
+<style>
+    /* ===== DASHBOARD LAYOUT (MONOCHROME MINIMALIST) ===== */
+    .ht-dashboard {
+        padding: 0 0 40px 0;
+        font-family: inherit;
+    }
+
+    .ht-header {
+        background: #ffffff;
+        color: #000000;
+        border: 2px solid #000000;
+        border-radius: 0px;
+        padding: 32px 36px;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        box-shadow: 6px 6px 0px rgba(0,0,0,1);
+        position: relative;
+    }
+
+    .ht-header-text h1 {
+        font-size: 26px;
+        font-weight: 900;
+        margin: 0 0 6px 0;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .ht-header-text p {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        color: #555555;
+        text-transform: uppercase;
+    }
+
+    /* ===== STAT CARDS ===== */
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 18px;
+        margin-bottom: 28px;
+    }
+
+    .stat-card {
+        background: #ffffff;
+        border-radius: 0px;
+        padding: 24px 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        box-shadow: 4px 4px 0px rgba(0,0,0,1);
+        border: 2px solid #000000;
+        transition: transform 0.2s, box-shadow 0.2s;
+        text-decoration: none;
+        color: #000000;
+    }
+
+    .stat-card:hover {
+        transform: translate(-4px, -4px);
+        box-shadow: 8px 8px 0px rgba(0,0,0,1);
+        color: #000000;
+        text-decoration: none;
+        background: #fdfdfd;
+    }
+
+    .stat-info .stat-num {
+        font-size: 32px;
+        font-weight: 900;
+        color: #000000;
+        line-height: 1;
+    }
+
+    .stat-info .stat-label {
+        font-size: 12px;
+        font-weight: 800;
+        color: #555555;
+        margin-top: 6px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    /* ===== BOTTOM ROW ===== */
+    .bottom-row {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 24px;
+    }
+
+    .panel {
+        background: #ffffff;
+        border-radius: 0px;
+        padding: 24px;
+        box-shadow: 4px 4px 0px rgba(0,0,0,1);
+        border: 2px solid #000000;
+    }
+
+    .panel-title {
+        font-size: 16px;
+        font-weight: 900;
+        color: #000000;
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #000000;
+        display: flex;
+        align-items: center;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* ===== QUICK LINKS ===== */
+    .quick-links {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .quick-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 0px;
+        background: #ffffff;
+        border: 1px solid #000000;
+        text-decoration: none;
+        color: #000000;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.2s;
+    }
+
+    .quick-link:-webkit-any-link { color: #000; }
+
+    .quick-link:hover {
+        background: #f5f5f5;
+        color: #000000;
+        text-decoration: none;
+        transform: translateX(4px);
+        box-shadow: 2px 2px 0px rgba(0,0,0,1);
+    }
+    
+    .quick-link:hover .ql-arrow { color: #000000; }
+
+    .quick-link .ql-arrow {
+        margin-left: auto;
+        font-weight: 900;
+        color: #000;
+    }
+    
+    .quick-link .ql-icon { display: none; }
+
+    /* ===== THONG BAO LIST ===== */
+    .tb-item {
+        padding: 14px 0;
+        border-bottom: 1px solid #dddddd;
+    }
+
+    .tb-item:last-child { border-bottom: none; }
+
+    .tb-title-text {
+        font-size: 14px;
+        font-weight: 800;
+        color: #000000;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-transform: uppercase;
+    }
+
+    .tb-time {
+        font-size: 11px;
+        color: #666666;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .badge-yeucau {
+        background: #ffffff;
+        color: #000000;
+        border-radius: 0px;
+        padding: 8px 16px;
+        font-size: 12px;
+        font-weight: 800;
+        border: 2px solid #000000;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.2s;
+    }
+    
+    .badge-yeucau:hover {
+        background: #000000;
+        color: #ffffff;
+        box-shadow: 2px 2px 0px rgba(255,255,255,0.5);
+    }
+
+    @@media(max-width: 768px) {
+        .bottom-row { grid-template-columns: 1fr; }
+        .stat-grid  { grid-template-columns: repeat(2, 1fr); }
+    }
+</style>
+
+<div class="ht-dashboard">
+
+    <!-- HEADER -->
+    <div class="ht-header">
+        <div class="ht-header-text">
+            <h1 style="text-transform: uppercase; letter-spacing: 1px; font-size: 20px; opacity: 0.9;">Xin chào, @(ViewBag.HieuTruong?.HoTen ?? User.Identity?.Name)</h1>
+            <p style="font-weight: 300; font-size: 15px;">Hệ thống quản lý trường học - Phân hệ Hiệu Trưởng</p>
+        </div>
+        @if ((int)(ViewBag.SoYeuCauChoXuLy ?? 0) > 0)
+        {
+            <div class="ms-auto">
+                <a asp-action="DanhSachYeuCau" class="badge-yeucau" style="text-decoration:none;">⚠️ @ViewBag.SoYeuCauChoXuLy yêu cầu đang chờ</a>
+            </div>
+        }
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stat-grid">
+        <a class="stat-card" asp-action="DanhSachHocSinh" title="Xem danh sách học sinh">
+            <div class="stat-info">
+                <div class="stat-label">TỔNG SỐ HỌC SINH</div>
+                <div class="stat-num">@ViewBag.SoHocSinh</div>
+            </div>
+        </a>
+        <a class="stat-card" asp-action="DanhSachGiaoVien" title="Xem danh sách giáo viên">
+            <div class="stat-info">
+                <div class="stat-label">ĐỘI NGŨ GIÁO VIÊN</div>
+                <div class="stat-num">@ViewBag.SoGiaoVien</div>
+            </div>
+        </a>
+        <div class="stat-card">
+            <div class="stat-info">
+                <div class="stat-label">QUY MÔ LỚP HỌC</div>
+                <div class="stat-num">@ViewBag.SoLop</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-info">
+                <div class="stat-label">DANH MỤC MÔN HỌC</div>
+                <div class="stat-num">@ViewBag.SoMonHoc</div>
+            </div>
+        </div>
+        <a class="stat-card" asp-action="DanhSachYeuCau" title="Xem yêu cầu từ giáo viên">
+            <div class="stat-info">
+                <div class="stat-label">YÊU CẦU ĐANG CHỜ</div>
+                <div class="stat-num">@ViewBag.SoYeuCauChoXuLy</div>
+            </div>
+        </a>
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div class="bottom-row">
+
+        <!-- QUICK LINKS -->
+        <div class="panel">
+            <div class="panel-title">⚡ Truy Cập Nhanh</div>
+            <div class="quick-links">
+                <a class="quick-link" asp-action="DanhSachGiaoVien">
+                    <span>Quản lý Giáo Viên</span>
+                    <span class="ql-arrow">→</span>
+                </a>
+                <a class="quick-link" asp-action="DanhSachHocSinh">
+                    <span>Quản lý Học Sinh</span>
+                    <span class="ql-arrow">→</span>
+                </a>
+                <a class="quick-link" asp-action="QuanLyThongBao">
+                    <span>Bảng Tin & Thông Báo</span>
+                    <span class="ql-arrow">→</span>
+                </a>
+                <a class="quick-link" asp-action="DanhSachYeuCau">
+                    <span>Phê Duyệt Yêu Cầu</span>
+                    <span class="ql-arrow">→</span>
+                </a>
+                <a class="quick-link" asp-action="ThongKeHocLuc">
+                    <span>Thống Kê Chất Lượng</span>
+                    <span class="ql-arrow">→</span>
+                </a>
+                <a class="quick-link" asp-action="ThoiKhoaBieuTongThe">
+                    <span>Thời Khóa Biểu Tổng Thể</span>
+                    <span class="ql-arrow">→</span>
+                </a>
+                <a class="quick-link" asp-controller="Profile" asp-action="Edit">
+                    <span class="ql-icon">👤</span>
+                    <span>Cập nhật Hồ Sơ</span>
+                    <span class="ql-arrow">›</span>
+                </a>
+                <a class="quick-link" asp-controller="DoiMatKhau" asp-action="Index">
+                    <span class="ql-icon">🔐</span>
+                    <span>Đổi mật khẩu</span>
+                    <span class="ql-arrow">›</span>
+                </a>
+                <a class="quick-link" asp-controller="Home" asp-action="Welcome">
+                    <span class="ql-icon">🏠</span>
+                    <span>Trang Chủ</span>
+                    <span class="ql-arrow">›</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- THONG BAO MOI NHAT -->
+        <div class="panel">
+            <div class="panel-title">
+                📢 Thông Báo Gần Đây
+                <a asp-action="QuanLyThongBao" class="ms-auto" style="font-size:12px;color:#0f3460;font-weight:500;">Xem tất cả →</a>
+            </div>
+
+            @if (thongBaoMoi != null && thongBaoMoi.Any())
+            {
+                foreach (var tb in thongBaoMoi)
+                {
+                    <div class="tb-item">
+                        <div class="tb-title-text">@tb.TieuDe</div>
+                        <div class="tb-time">@tb.NgayDang.ToString("dd/MM/yyyy HH:mm") • @(tb.HienThi ? "🟢 Hiển thị" : "🔴 Đã ẩn")</div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div style="color:#a0aec0;font-size:14px;text-align:center;padding:20px 0;">Chưa có thông báo nào</div>
+            }
+        </div>
+
+    </div>
+</div>

@@ -81,6 +81,29 @@ namespace LMS_THPT.Controllers
             return View(viewModel);
         }
 
+        // ✅ Helper: tự sinh mã giáo viên dạng GV0001, GV0002...
+        private async Task<string> SinhMaGiaoVien()
+        {
+            // Lấy tất cả username bắt đầu bằng "GV"
+            var existingMa = await _userManager.Users
+                .Where(u => u.UserName != null && u.UserName.StartsWith("GV"))
+                .Select(u => u.UserName!)
+                .ToListAsync();
+
+            int maxSo = 0;
+            foreach (var ma in existingMa)
+            {
+                // Lấy phần số sau "GV"
+                var phanSo = ma.Substring(2);
+                if (int.TryParse(phanSo, out int so))
+                {
+                    if (so > maxSo) maxSo = so;
+                }
+            }
+
+            return $"GV{(maxSo + 1):D4}"; // GV0001, GV0002, ...
+        }
+
         [HttpGet]
         public async Task<IActionResult> TaoGiaoVien()
         {
@@ -96,23 +119,21 @@ namespace LMS_THPT.Controllers
 
             ViewBag.TatCaMonHoc = tatCaMon;
 
+            // ✅ Preview mã sẽ được sinh
+            ViewBag.MaGVPreview = await SinhMaGiaoVien();
+
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> TaoGiaoVien(
-            string hoTen, string maGV, string gioiTinh,
+            string hoTen, string gioiTinh,
             string monDay, string chucVu, int? lopId,
             DateTime? ngaySinh, string diaChi, int[]? monHocIds)
         {
-            if (string.IsNullOrWhiteSpace(maGV))
-            {
-                TempData["Error"] = "Mã giáo viên không được để trống!";
-                return RedirectToAction("TaoGiaoVien");
-            }
-
-            var maNormalized = maGV.Trim().ToUpper();
+            // ✅ Tự sinh mã giáo viên
+            var maNormalized = await SinhMaGiaoVien();
 
             // ✅ Check trùng username
             var existingUser = await _userManager.FindByNameAsync(maNormalized);
@@ -189,6 +210,13 @@ namespace LMS_THPT.Controllers
             ViewBag.LopTrong = await _context.Lops
                 .Where(l => string.IsNullOrEmpty(l.GiaoVienChuNhiemId))
                 .ToListAsync();
+
+            ViewBag.TatCaMonHoc = await _context.DanhSachMonHoc
+                .Include(m => m.Khoi)
+                .Where(m => m.IsActive)
+                .ToListAsync();
+
+            ViewBag.MaGVPreview = maNormalized; // giữ lại mã đợ định sinh
 
             return View();
         }
@@ -319,17 +347,6 @@ namespace LMS_THPT.Controllers
                 maLop = lop?.Id ?? 0
             });
         }
-        [HttpGet]
-        public async Task<IActionResult> CheckMaGV(string maGV)
-        {
-            if (string.IsNullOrWhiteSpace(maGV))
-                return Json(new { exists = false });
-
-            var maNormalized = maGV.Trim().ToUpper();
-
-            var user = await _userManager.FindByNameAsync(maNormalized);
-
-            return Json(new { exists = user != null });
-        }
+        // CheckMaGV không còn cần thiết vì mã được sinh tự động
     }
 }

@@ -19,8 +19,22 @@ namespace LMS_THPT.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login(string? returnUrl = null)
+        public async Task<IActionResult> Login(string? returnUrl = null)
         {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user != null)
+                {
+                    var roles = await _userManager.GetRolesAsync(user);
+                    if (roles.Contains("Admin")) return RedirectToAction("Index", "Admin");
+                    if (roles.Contains("GiangVien")) return RedirectToAction("Index", "GiangVien");
+                    if (roles.Contains("HocSinh")) return RedirectToAction("Index", "HocSinh");
+                    if (roles.Contains("HieuTruong")) return RedirectToAction("Index", "HieuTruong");
+                }
+                return RedirectToAction("Welcome", "Home");
+            }
+
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
@@ -53,8 +67,8 @@ namespace LMS_THPT.Controllers
                 if (roles.Contains("Admin"))
                     return RedirectToAction("Index", "Admin");
 
-                if (roles.Contains("GiaoVien"))
-                    return RedirectToAction("Index", "GiaoVien", new { area = "GiaoVien" });
+                if (roles.Contains("GiangVien"))
+                    return RedirectToAction("Index", "GiangVien");
 
                 if (roles.Contains("HocSinh"))
                     return RedirectToAction("Index", "HocSinh");
@@ -73,7 +87,7 @@ namespace LMS_THPT.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return Redirect("/");
+            return RedirectToAction("Index", "Home");
         }
     }
 }

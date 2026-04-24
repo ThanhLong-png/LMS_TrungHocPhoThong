@@ -1,436 +1,388 @@
 ﻿@model List<LMS_THPT.Models.LichHoc>
-@if (TempData["Success"] != null)
-{
-    <div class="alert success">@TempData["Success"]</div>
-}
-
-@if (TempData["Warning"] != null)
-{
-    <div class="alert warning">@TempData["Warning"]</div>
-}
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert error">@TempData["Error"]</div>
-}
 @{
+    ViewData["Title"] = "Quản lý Lịch Học";
     var lops = ViewBag.Lops as List<LMS_THPT.Models.Lop>;
-    int maxTiet = 10;
-    int maxThu = 7;
     var selectedLopId = Context.Request.Query["lopId"].ToString();
-    var dataLookup = Model
-        .GroupBy(x => new { x.Thu, x.TietHoc })
-        .ToDictionary(g => g.Key, g => g.First());
-    var jsonData = Model.Select(x => new { id = x.Id, thu = x.Thu, tietHoc = x.TietHoc });
+    var leaves = ViewBag.Leaves as List<LMS_THPT.Models.YeuCauGiaoVien>;
+    
+    DateTime selectedDate = DateTime.Parse(ViewBag.SelectedDate);
+    string dayOfWeekStr = "";
+    switch (selectedDate.DayOfWeek)
+    {
+        case DayOfWeek.Monday: dayOfWeekStr = "Thứ Hai"; break;
+        case DayOfWeek.Tuesday: dayOfWeekStr = "Thứ Ba"; break;
+        case DayOfWeek.Wednesday: dayOfWeekStr = "Thứ Tư"; break;
+        case DayOfWeek.Thursday: dayOfWeekStr = "Thứ Năm"; break;
+        case DayOfWeek.Friday: dayOfWeekStr = "Thứ Sáu"; break;
+        case DayOfWeek.Saturday: dayOfWeekStr = "Thứ Bảy"; break;
+        case DayOfWeek.Sunday: dayOfWeekStr = "Chủ Nhật"; break;
+    }
 }
 
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
-    *, *::before, *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
+    /* 
+     * MONOCHROME MINIMALIST STYLE 
+     */
+    .bw-card {
+        background: #ffffff;
+        padding: 24px;
+        border: 1px solid #111111;
+        border-radius: 8px;
+        box-shadow: 4px 4px 0px rgba(0,0,0,1);
+        margin-bottom: 24px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .tkb-root {
-        font-family: 'DM Sans', sans-serif;
-        background: #f9f9f7;
-        min-height: 100vh;
-        padding: 2.5rem 2rem;
-    }
-
-    /* ── HEADER ── */
-    .tkb-header {
-        max-width: 1160px;
-        margin: 0 auto 2rem;
+    .period-item {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-bottom: 1px solid #1a1a1a;
-        padding-bottom: 1rem;
+        border-bottom: 1px solid #e0e0e0;
+        padding: 20px 0;
+        transition: background-color 0.2s ease;
+    }
+    
+    .period-item:hover {
+        background-color: #fafafa;
     }
 
-    .tkb-header-left h1 {
-        font-size: 15px;
-        font-weight: 500;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: #1a1a1a;
+    .period-item:last-child {
+        border-bottom: none;
     }
 
-    .tkb-header-left p {
-        font-size: 12px;
-        color: #888;
-        margin-top: 3px;
-        letter-spacing: 0.04em;
-    }
-
-    .tkb-header-right {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .tkb-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    /* STYLE CHUNG */
-    .tkb-btn {
-        height: 36px;
-        padding: 0 16px;
-        border: 1px solid #1a1a1a;
-        background: #fff;
-        color: #1a1a1a;
-        font-size: 12px;
-        font-family: 'DM Sans', sans-serif;
-        font-weight: 500;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        text-decoration: none;
-        transition: all 0.15s ease;
-    }
-
-        .tkb-btn:hover {
-            background: #1a1a1a;
-            color: #fff;
-        }
-
-    /* SELECT giữ style giống button */
-    .tkb-select {
-        height: 36px;
-        padding: 0 36px 0 14px; /* chừa chỗ cho icon */
-        border: 1px solid #1a1a1a;
-        background: #fff;
-        color: #1a1a1a;
-        font-size: 12px;
-        font-family: 'DM Sans', sans-serif;
-        letter-spacing: 0.04em;
-        cursor: pointer;
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        /* MŨI TÊN */
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%231a1a1a'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 12px center;
-        background-size: 10px;
-    }
-
-    /* ── TABLE WRAPPER ── */
-    .tkb-table-wrap {
-        max-width: 1160px;
-        margin: 0 auto;
-        overflow-x: auto;
-        border: 1px solid #1a1a1a;
-    }
-
-    /* ── GRID TABLE ── */
-    .tkb-grid {
-        width: 100%;
-        border-collapse: collapse;
-        font-family: 'DM Sans', sans-serif;
-        table-layout: fixed;
-    }
-
-        .tkb-grid th,
-        .tkb-grid td {
-            border: 1px solid #d8d8d4;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        /* Column header row */
-        .tkb-grid thead tr th {
-            background: #1a1a1a;
-            color: #fff;
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            padding: 12px 8px;
-        }
-
-    /* Row header (Tiết N) */
-    .tkb-tiet-header {
-        background: #1a1a1a !important;
-        color: #fff !important;
-        font-family: 'DM Mono', monospace !important;
-        font-size: 11px !important;
-        font-weight: 500 !important;
-        letter-spacing: 0.06em !important;
-        width: 80px;
-        padding: 0 8px !important;
-    }
-
-    /* ── DATA CELL ── */
-    .tkb-cell {
-        height: 80px;
-        padding: 10px 12px;
-        cursor: pointer;
-        background: #fff;
-        transition: background 0.12s;
-        position: relative;
-    }
-
-        .tkb-cell:hover {
-            background: #f5f5f2;
-        }
-
-            .tkb-cell:hover .tkb-add-icon {
-                opacity: 1;
-            }
-
-    /* Filled cell */
-    .tkb-cell-filled {
-        text-align: left;
-    }
-
-    .tkb-mon-name {
-        font-size: 12px;
-        font-weight: 500;
-        color: #1a1a1a;
-        margin-bottom: 4px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .tkb-gv-name {
-        font-size: 11px;
-        color: #555;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .tkb-phong-name {
-        font-family: 'DM Mono', monospace;
-        font-size: 10px;
-        color: #999;
-        margin-top: 4px;
-        letter-spacing: 0.04em;
-    }
-
-    /* Striped accent bar for filled cells */
-    .tkb-cell-filled-wrap {
-        border-left: 2px solid #1a1a1a;
-        padding-left: 8px;
-        height: 100%;
-    }
-
-    /* Empty cell */
-    .tkb-add-icon {
-        opacity: 0;
-        transition: opacity 0.12s;
-        width: 22px;
-        height: 22px;
-        border: 1px solid #bbb;
-        border-radius: 50%;
+    .period-num {
+        width: 85px;
+        font-weight: 800;
+        color: #ffffff;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: auto;
-        font-size: 14px;
-        color: #aaa;
-        line-height: 1;
-    }
-
-    .tkb-empty-cell {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-    }
-
-    /* ── EMPTY STATE ── */
-    .tkb-no-lop {
-        max-width: 1160px;
-        margin: 0 auto;
-        text-align: center;
-        padding: 5rem 2rem;
-        border: 1px dashed #ccc;
-        color: #aaa;
+        background: #000000;
+        border-radius: 0px;
+        margin-right: 25px;
         font-size: 13px;
-        letter-spacing: 0.04em;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        flex-shrink: 0;
+    }
+
+    .lesson-card {
+        background: #ffffff;
+        border-left: 4px solid #000000;
+        padding: 16px 20px;
+        border-radius: 0;
+        border-top: 1px solid #eeeeee;
+        border-right: 1px solid #eeeeee;
+        border-bottom: 1px solid #eeeeee;
+    }
+
+    .lesson-title {
+        font-weight: 900;
+        color: #000000;
+        font-size: 18px;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .lesson-info {
+        font-size: 13px;
+        color: #555555;
+        font-weight: 500;
+    }
+
+    .leave-badge {
+        display: inline-block;
+        background: #000000;
+        color: #ffffff;
+        padding: 6px 12px;
+        border-radius: 0;
+        font-size: 11px;
+        font-weight: 800;
+        margin-top: 12px;
+        letter-spacing: 1px;
+    }
+
+    .bw-btn {
+        background: #000000;
+        color: #ffffff;
+        border: 1px solid #000000;
+        border-radius: 0px;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 10px 16px;
+        font-size: 12px;
+        letter-spacing: 1px;
+        transition: all 0.2s ease;
+    }
+
+    .bw-btn:hover {
+        background: #ffffff;
+        color: #000000;
+        box-shadow: 2px 2px 0px #000000;
+    }
+
+    .bw-btn-outline {
+        background: transparent;
+        color: #000000;
+        border: 1px solid #000000;
+        border-radius: 0px;
+        box-shadow: 2px 2px 0px #000000;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+    
+    .bw-btn-outline:hover {
+        background: #000000;
+        color: #ffffff;
+        box-shadow: none;
+    }
+
+    /* CẢI THIỆN GIAO DIỆN LỊCH (FLATPICKR) */
+    .flatpickr-calendar {
+        width: 100% !important;
+        box-shadow: 4px 4px 0px rgba(0,0,0,1) !important;
+        border: 2px solid #000000 !important;
+        border-radius: 6px !important;
+        font-family: inherit;
+        padding: 10px;
+    }
+    
+    .flatpickr-month {
+        color: #000 !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+    
+    .flatpickr-current-month {
+        font-size: 110% !important;
+    }
+
+    .flatpickr-weekdays {
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+        border-bottom: 2px solid #000;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+        width: 100% !important;
+    }
+    
+    .flatpickr-weekdaycontainer {
+        display: contents !important;
+    }
+
+    span.flatpickr-weekday {
+        width: 100% !important;
+        max-width: 100% !important;
+        color: #000 !important;
+        font-weight: 900 !important;
+        font-size: 12px;
+    }
+    
+    .flatpickr-day {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 38px !important;
+        line-height: 38px !important;
+        margin: 0 !important;
+        color: #333 !important;
+        font-weight: 700 !important;
+        border-radius: 4px !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .flatpickr-day:hover {
+        background: #f5f5f5 !important;
+        border-color: #ddd !important;
+    }
+
+    .flatpickr-day.selected {
+        background: #000000 !important;
+        color: #ffffff !important;
+        border-color: #000000 !important;
+        box-shadow: 2px 2px 0px rgba(0,0,0,0.3) !important;
+        transform: scale(1.05);
+        border-radius: 6px !important;
+        z-index: 2;
+    }
+    
+    .flatpickr-day.today {
+        border: 2px dashed #000000 !important;
+    }
+
+    .flatpickr-innerContainer, .flatpickr-rContainer, .flatpickr-days {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        display: block !important;
+    }
+    
+    .dayContainer {
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        gap: 6px 0px;
+    }
+    
+    .empty-period {
+        color: #999999;
+        font-style: italic;
+        font-size: 14px;
+        font-weight: 500;
+    }
+    
+    .view-header {
+        font-size: 28px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: -0.5px;
+        border-bottom: 4px solid #000000;
+        padding-bottom: 12px;
+        margin-bottom: 24px;
     }
 </style>
 
-<div class="tkb-root">
+<div class="container-fluid py-4">
+    <!-- NÚT QUAY LẠI -->
+    <a href="@Url.Action("Index", "Admin")" class="bw-btn text-decoration-none mb-4 d-inline-flex align-items-center gap-2">
+        <i class="fa-solid fa-arrow-left"></i> TRỞ VỀ DASHBOARD
+    </a>
 
-    <div class="tkb-header">
-        <div class="tkb-header-left">
-            <h1>Thời Khóa Biểu</h1>
-            <p>Lịch học theo lớp — Học kỳ hiện tại</p>
-        </div>
-        <div class="tkb-actions">
-
-            <!-- CHỌN LỚP -->
-            <form method="get" style="margin:0;">
-                <select name="lopId" class="tkb-select" onchange="this.form.submit()">
-                    <option value="">Chọn lớp</option>
-                    @foreach (var lop in lops)
-                    {
-                        <option value="@lop.Id" selected="@(selectedLopId == lop.Id.ToString())">
-                            @lop.TenLop
-                        </option>
-                    }
-                </select>
-            </form>
-
-            <!-- IMPORT EXCEL -->
-            <button class="tkb-btn" data-bs-toggle="modal" data-bs-target="#modalImport">
-                Nhập Excel
-            </button>
-
-            <!-- QUAY LẠI -->
-            <a href="/Admin/Index" class="tkb-btn">
-                ← Quay lại
-            </a>
-
-        </div>
-    </div>
-
-    @if (string.IsNullOrEmpty(selectedLopId))
-    {
-        <div class="tkb-no-lop">
-            Chọn một lớp để xem thời khóa biểu
-        </div>
-    }
-    else
-    {
-        <div class="tkb-table-wrap">
-            <table class="tkb-grid">
-                <thead>
-                    <tr>
-                        <th class="tkb-tiet-header">Tiết / Thứ</th>
-                        @for (int thu = 2; thu <= maxThu; thu++)
-                        {
-                            <th>Thứ @thu</th>
-                        }
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (int tiet = 1; tiet <= maxTiet; tiet++)
-                    {
-                        <tr>
-                            <th class="tkb-tiet-header">@tiet</th>
-                            @for (int thu = 2; thu <= maxThu; thu++)
+    <div class="row">
+        <!-- BẢNG ĐIỀU KHIỂN & LỊCH -->
+        <div class="col-md-4 col-lg-4">
+            <h1 class="view-header">Bộ Lọc TKB</h1>
+            
+            <div class="bw-card mb-4">
+                <h5 class="fw-bold mb-4" style="text-transform: uppercase; font-size: 14px; letter-spacing: 1px;">1. Chọn lớp học</h5>
+                
+                <form method="get" id="filterForm">
+                    <div class="mb-4">
+                        <select name="lopId" class="form-select border-black rounded-0 shadow-none" style="border: 1px solid #000; padding: 12px;" onchange="document.getElementById('filterForm').submit()">
+                            <option value="">-- CHỌN LỚP --</option>
+                            @if (lops != null)
                             {
-                                <td class="tkb-cell" onclick="cellClick(@thu, @tiet)">
-                                    @{
-                                        var key = new { Thu = thu, TietHoc = tiet };
-                                        if (dataLookup.ContainsKey(key))
-                                        {
-                                            var item = dataLookup[key];
-                                            <div class="tkb-cell-filled">
-                                                <div class="tkb-cell-filled-wrap">
-                                                    <div class="tkb-mon-name">@item.MonHoc?.TenMonHoc</div>
-                                                    <div class="tkb-gv-name">@item.GiaoVien?.HoTen</div>
-                                                    <div class="tkb-phong-name">@item.PhongHoc</div>
+                                foreach (var lop in lops)
+                                {
+                                    <option value="@lop.Id" selected="@(selectedLopId == lop.Id.ToString())">LỚP @lop.TenLop</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <h5 class="fw-bold mb-3 mt-4" style="text-transform: uppercase; font-size: 14px; letter-spacing: 1px;">2. Chọn Ngày áp dụng</h5>
+                        <input type="hidden" name="date" id="selectedDate" value="@ViewBag.SelectedDate" />
+                        <div id="inlineCalendar"></div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="bw-card border-0 mb-4" style="background:#f9f9f9; border: 1px solid #ddd !important; box-shadow: none;">
+                <h6 class="fw-bold text-dark mb-3" style="text-transform: uppercase; font-size: 13px;"><i class="fa-solid fa-file-excel me-2"></i>Nhập thời khóa biểu từ Excel</h6>
+                <form asp-action="ImportExcel" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="lopId" value="@selectedLopId" />
+                    <input type="file" name="file" class="form-control rounded-0 mb-3" style="border: 1px dashed #999; font-size: 12px;" accept=".xlsx, .xls" required />
+                    <button type="submit" class="bw-btn w-100" @(string.IsNullOrEmpty(selectedLopId) ? "disabled" : "")>Tải Dữ Liệu Lên</button>
+                </form>
+                <a href="~/templates/Template_ThoiKhoaBieu.xlsx" class="d-block text-center mt-3 text-dark text-decoration-underline" style="font-size:12px; font-weight:600;">Tải Form Mẫu</a>
+            </div>
+        </div>
+        
+        <!-- CHI TIẾT LỊCH TRONG NGÀY -->
+        <div class="col-md-8 col-lg-8">
+            <h1 class="view-header text-end">Chi Tiết Ngày</h1>
+            
+            @if (string.IsNullOrEmpty(selectedLopId))
+            {
+                <div class="bw-card d-flex align-items-center p-5 text-center justify-content-center" style="min-height: 300px; border-style: dashed;">
+                    <div>
+                        <h4 class="fw-bold mb-2">BẠN CHƯA QUYẾT ĐỊNH LỚP HỌC</h4>
+                        <p class="m-0 text-muted">Vui lòng điều hướng bằng thẻ chọn lớp phía bên trái giao diện.</p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="bw-card timeline">
+                    <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-4 border-black">
+                        <div>
+                            <h3 class="fw-bold mb-1" style="text-transform:uppercase; font-size: 22px;">HIỂN THỊ LỊCH NGÀY @selectedDate.ToString("dd/MM/yyyy")</h3>
+                            <p class="text-muted m-0 fw-bold" style="letter-spacing:2px; text-transform:uppercase; font-size: 14px;">@dayOfWeekStr</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-body">
+                        @for (int i = 1; i <= 10; i++)
+                        {
+                            var lesson = Model?.FirstOrDefault(l => l.TietHoc == i);
+                            var leave = lesson != null && leaves != null ? leaves.FirstOrDefault(y => y.MaGiaoVien == lesson.GiaoVienId && y.TuTiet <= i && y.DenTiet >= i) : null;
+                            
+                            <div class="period-item">
+                                <div class="period-num">TIẾT @i</div>
+                                <div class="period-content w-100">
+                                    @if (lesson != null)
+                                    {
+                                        <div class="lesson-card w-100">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <div class="lesson-title">@lesson.MonHoc?.TenMonHoc</div>
+                                                    <div class="lesson-info">
+                                                        <span><b style="color: #000;">GV:</b> @lesson.GiaoVien?.HoTen</span> &nbsp;|&nbsp;
+                                                        <span><b style="color: #000;">PHÒNG:</b> @lesson.PhongHoc</span>
+                                                    </div>
+                                                    @if(leave != null)
+                                                    {
+                                                        <div class="leave-badge"><i class="fa-solid fa-ban me-2"></i>GIÁO VIÊN ĐÃ ĐƯỢC DUYỆT NGHỈ PHÉP</div>
+                                                    }
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <a asp-action="Edit" asp-route-id="@lesson.Id" asp-route-date="@selectedDate.ToString("yyyy-MM-dd")" class="bw-btn-outline px-3 py-2 text-decoration-none" style="font-size: 12px; display:inline-flex; align-items:center;" title="Ghi đè thông tin"><i class="fa-solid fa-pen"></i></a>
+                                                    <form asp-action="Delete" asp-route-id="@lesson.Id" asp-route-date="@selectedDate.ToString("yyyy-MM-dd")" method="post" style="display:inline;">
+                                                        <button class="bw-btn-outline px-3 py-2" style="font-size: 12px; display:inline-flex; align-items:center;" title="Hủy tiết định dạng" onclick="return confirm('Toàn quyền XÓA TIẾT HỌC này?');"><i class="fa-solid fa-trash"></i></button>
+                                                    </form>
                                                 </div>
                                             </div>
-                                        }
-                                        else
-                                        {
-                                            <div class="tkb-empty-cell">
-                                                <div class="tkb-add-icon">+</div>
-                                            </div>
-                                        }
+                                        </div>
                                     }
-                                </td>
-                            }
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
-</div>
-
-<script>
-    var data = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(jsonData));
-
-    function cellClick(thu, tiet) {
-        var item = data.find(x => x.thu === thu && x.tietHoc === tiet);
-        var lopId = "@selectedLopId";
-        if (!lopId) return;
-        if (item) {
-            window.location.href = "/LichHoc/Edit/" + item.id;
-        } else {
-            window.location.href = "/LichHoc/Create?thu=" + thu + "&tietHoc=" + tiet + "&lopId=" + lopId;
-        }
-    }
-</script>
-<div class="modal fade" id="modalImport" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content" style="border-radius:12px; border:none; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-
-            <form asp-action="ImportExcel" method="post" enctype="multipart/form-data">
-                @Html.AntiForgeryToken()
-
-                <input type="hidden" name="lopId" value="@selectedLopId" />
-
-                <!-- HEADER -->
-                <div class="modal-header" style="background:#1a1a2e; color:#fff; border-radius:12px 12px 0 0;">
-                    <h5 class="modal-title">
-                        <i class="fa-solid fa-file-import me-2"></i>Nhập thời khóa biểu
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-
-                <!-- BODY -->
-                <div class="modal-body" style="padding:25px;">
-
-                    <div class="mb-3">
-                        <label class="form-label" style="font-weight:600;">
-                            Chọn tệp Excel
-                        </label>
-
-                        <!-- 👉 INPUT GIỐNG STYLE -->
-                        <input type="file" name="file"
-                               class="form-control"
-                               accept=".xlsx, .xls"
-                               required />
+                                    else
+                                    {
+                                        <div class="empty-period d-flex justify-content-between align-items-center w-100" style="padding-left: 10px;">
+                                            <span>(Khoảng thời gian trống)</span>
+                                            <a asp-action="Create" asp-route-thu="@((int)selectedDate.DayOfWeek == 0 ? 8 : (int)selectedDate.DayOfWeek + 1)" asp-route-tietHoc="@i" asp-route-lopId="@selectedLopId" asp-route-date="@selectedDate.ToString("yyyy-MM-dd")" class="bw-btn text-decoration-none">THÊM MỚI</a>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
                     </div>
-
-                    <!-- HƯỚNG DẪN -->
-                    <div style="background:#fff8e1; padding:15px; border-radius:8px; border-left:4px solid #ffc107;">
-                        <h6 style="font-size:14px; font-weight:700; color:#856404;">
-                            Cấu trúc file:
-                        </h6>
-                        <ul style="font-size:13px; color:#856404; margin:0; padding-left:20px;">
-                            <li><b>Cột A:</b> Môn học</li>
-                            <li><b>Cột B:</b> Thứ</li>
-                            <li><b>Cột C:</b> Tiết</li>
-                            <li><b>Cột D:</b> Phòng học</li>
-                        </ul>
-                    </div>
-
                 </div>
-
-                <!-- FOOTER -->
-                <div class="modal-footer" style="border-top:1px solid #eee;">
-
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                        Hủy
-                    </button>
-
-                    <!-- 👉 NÚT GIỐNG btn-them-custom -->
-                    <button type="submit" class="btn-them-custom">
-                        Import Excel
-                    </button>
-
-                </div>
-
-            </form>
+            }
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var selectedDate = document.getElementById('selectedDate').value;
+            
+            flatpickr("#inlineCalendar", {
+                inline: true,
+                defaultDate: selectedDate,
+                locale: "vn",
+                dateFormat: "Y-m-d",
+                onChange: function(selectedDates, dateStr, instance) {
+                    document.getElementById('selectedDate').value = dateStr;
+                    document.getElementById('filterForm').submit();
+                }
+            });
+        });
+    </script>
+}
