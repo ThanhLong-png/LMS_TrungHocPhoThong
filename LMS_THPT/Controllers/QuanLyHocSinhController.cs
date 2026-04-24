@@ -1,4 +1,4 @@
-using LMS_THPT.Data;
+﻿using LMS_THPT.Data;
 using LMS_THPT.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

@@ -1,0 +1,195 @@
+@model LMS_THPT.Models.YeuCauGiaoVien
+
+@{
+    ViewData["Title"] = "Chi tiết yêu cầu";
+}
+
+<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2 style="margin: 0;">📋 Chi tiết yêu cầu #@Model.Id</h2>
+        <a href="@Url.Action("ManageRequests")" style="color: #3b82f6; text-decoration: none; font-weight: 500;">
+            ← Quay lại
+        </a>
+    </div>
+
+    <!-- Thông tin chung -->
+    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h3 style="margin-top: 0; color: #1f2937;">Thông tin yêu cầu</h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+                <p style="color: #6b7280; font-size: 13px; margin: 0 0 4px 0;">Loại yêu cầu</p>
+                <p style="color: #1f2937; font-weight: 600; margin: 0;">
+                    @(Model.LoaiYeuCau switch
+                    {
+                        LMS_THPT.Models.LoaiYeuCau.DangKyLopChuNhiem => "📚 Đăng ký lớp chủ nhiệm",
+                        LMS_THPT.Models.LoaiYeuCau.ThayDoiLopChuNhiem => "🔄 Thay đổi lớp chủ nhiệm",
+                        LMS_THPT.Models.LoaiYeuCau.HuyLopChuNhiem => "❌ Hủy lớp chủ nhiệm",
+                        _ => "❓ Khác"
+                    })
+                </p>
+            </div>
+            <div>
+                <p style="color: #6b7280; font-size: 13px; margin: 0 0 4px 0;">Trạng thái</p>
+                <p style="margin: 0;">
+                    @{
+                        var statusColor = Model.TrangThai switch
+                        {
+                            LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy => "#fbbf24",
+                            LMS_THPT.Models.TrangThaiYeuCau.DaDuyet => "#4ade80",
+                            LMS_THPT.Models.TrangThaiYeuCau.TuChoi => "#f87171",
+                            LMS_THPT.Models.TrangThaiYeuCau.HuyBo => "#9ca3af",
+                            _ => "#3b82f6"
+                        };
+
+                        var statusText = Model.TrangThai switch
+                        {
+                            LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy => "⏳ Chờ xử lý",
+                            LMS_THPT.Models.TrangThaiYeuCau.DaDuyet => "✅ Đã duyệt",
+                            LMS_THPT.Models.TrangThaiYeuCau.TuChoi => "❌ Từ chối",
+                            LMS_THPT.Models.TrangThaiYeuCau.HuyBo => "🚫 Hủy bỏ",
+                            _ => "❓ Không xác định"
+                        };
+                    }
+                    <span style="display: inline-block; background: @statusColor; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                        @statusText
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <div>
+            <p style="color: #6b7280; font-size: 13px; margin: 0 0 4px 0;">Tiêu đề</p>
+            <p style="color: #1f2937; font-weight: 600; margin: 0; font-size: 16px;">@Model.TieuDe</p>
+        </div>
+    </div>
+
+    <!-- Thông tin giáo viên -->
+    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h3 style="margin-top: 0; color: #1f2937;">👤 Thông tin giáo viên</h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+                <p style="color: #6b7280; font-size: 13px; margin: 0 0 4px 0;">Tên giáo viên</p>
+                <p style="color: #1f2937; font-weight: 600; margin: 0;">@Model.GiaoVien?.HoTen</p>
+            </div>
+            <div>
+                <p style="color: #6b7280; font-size: 13px; margin: 0 0 4px 0;">Email</p>
+                <p style="color: #1f2937; font-weight: 600; margin: 0;">@Model.GiaoVien?.Email</p>
+            </div>
+        </div>
+
+        <div>
+            <p style="color: #6b7280; font-size: 13px; margin: 0 0 4px 0;">Điện thoại</p>
+            <p style="color: #1f2937; font-weight: 600; margin: 0;">@(Model.GiaoVien?.PhoneNumber ?? "Chưa cập nhật")</p>
+        </div>
+    </div>
+
+    <!-- Thông tin lớp -->
+    @if (Model.Lop != null)
+    {
+        <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0; color: #1f2937;">📚 Thông tin lớp</h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <p style="color: #6b7280; font-size: 13px; margin: 0 0 4px 0;">Tên lớp</p>
+                    <p style="color: #1f2937; font-weight: 600; margin: 0;">@Model.Lop.TenLop</p>
+                </div>
+                <div>
+                    <p style="color: #6b7280; font-size: 13px; margin: 0 0 4px 0;">Khối</p>
+                    <p style="color: #1f2937; font-weight: 600; margin: 0;">@(Model.Lop.Khoi?.TenKhoi ?? "Chưa xác định")</p>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Nội dung yêu cầu -->
+    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h3 style="margin-top: 0; color: #1f2937;">📝 Nội dung</h3>
+        <p style="color: #1f2937; line-height: 1.6; margin: 0; white-space: pre-wrap;">@Model.MoTa</p>
+    </div>
+
+    <!-- Thời gian -->
+    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h3 style="margin-top: 0; color: #1f2937;">⏰ Thời gian</h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <p style="color: #6b7280; font-size: 13px; margin: 0 0 4px 0;">Ngày gửi</p>
+                <p style="color: #1f2937; font-weight: 600; margin: 0;">@Model.NgayGui.ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+            @if (Model.NgayXuLy.HasValue)
+            {
+                <div>
+                    <p style="color: #6b7280; font-size: 13px; margin: 0 0 4px 0;">Ngày xử lý</p>
+                    <p style="color: #1f2937; font-weight: 600; margin: 0;">@Model.NgayXuLy.Value.ToString("dd/MM/yyyy HH:mm")</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Ghi chú -->
+    @if (!string.IsNullOrEmpty(Model.GhiChu))
+    {
+        <div style="background: #fef3c7; border: 1px solid #fcd34d; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="margin-top: 0; color: #92400e;">📌 Ghi chú</h3>
+            <p style="color: #92400e; margin: 0; white-space: pre-wrap;">@Model.GhiChu</p>
+        </div>
+    }
+
+    <!-- Thao tác (nếu chờ xử lý) -->
+    @if (Model.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy)
+    {
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0; color: #1f2937;">⚡ Thao tác</h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <!-- Duyệt -->
+                <form method="post" action="@Url.Action("ApproveRequest")">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="ghiChu" id="approveNote" />
+                    <button type="button" onclick="approveRequest()" style="width: 100%; background: #4ade80; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px;">
+                        ✅ Duyệt
+                    </button>
+                </form>
+
+                <!-- Từ chối -->
+                <form method="post" action="@Url.Action("RejectRequest")">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="ghiChu" id="rejectNote" />
+                    <button type="button" onclick="rejectRequest()" style="width: 100%; background: #f87171; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px;">
+                        ❌ Từ chối
+                    </button>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    function approveRequest() {
+        const note = prompt("Nhập ghi chú (tùy chọn):", "");
+        if (note !== null) {
+            document.getElementById('approveNote').value = note || "";
+            event.target.closest('form').submit();
+        }
+    }
+
+    function rejectRequest() {
+        const note = prompt("Nhập lý do từ chối:", "");
+        if (note !== null && note !== "") {
+            document.getElementById('rejectNote').value = note;
+            event.target.closest('form').submit();
+        } else if (note === "") {
+            alert("Vui lòng nhập lý do từ chối");
+        }
+    }
+</script>
+
+<style>
+    body {
+        background: #f3f4f6;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+</style>

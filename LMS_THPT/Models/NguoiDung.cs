@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -20,6 +20,7 @@ namespace LMS_THPT.Models
 
         // Các thông tin khác
         public string? MaHocSinh { get; set; }     // dành cho học sinh
+        public string? HanhKiem { get; set; }      // điểm hạnh kiểm
         public string? ChuyenMon { get; set; }     // dành cho giảng viên
         public string? ChucVu { get; set; } // Ví dụ: Giáo viên, Tổ trưởng, Trưởng khoa...
         public bool IsActive { get; set; } = true;

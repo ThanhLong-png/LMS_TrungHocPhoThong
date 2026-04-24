@@ -50,7 +50,7 @@
             Quay lại
         </a>
 
-        @if (User.IsInRole("GiangVien") || User.IsInRole("Admin"))
+        @if (User.IsInRole("GiaoVien") || User.IsInRole("Admin"))
         {
             <a asp-action="Submissions"
                    asp-route-baiTapId="@Model.Id"

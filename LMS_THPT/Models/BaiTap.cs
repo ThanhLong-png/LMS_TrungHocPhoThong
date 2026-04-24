@@ -15,6 +15,7 @@
         public string? NoiDung { get; set; }
         public DateTime HanNop { get; set; }
         public int DiemToiDa { get; set; } = 10;
+        public LoaiDiem LoaiDiem { get; set; } = LoaiDiem.BaiTap;
         public TrangThaiBaiTap TrangThai { get; set; } = TrangThaiBaiTap.ChuaMo;
         public DateTime NgayTao { get; set; } = DateTime.Now;
         public DateTime? NgayCapNhat { get; set; }

@@ -1,4 +1,4 @@
-﻿using LMS_THPT.Models;
+using LMS_THPT.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +29,17 @@ namespace LMS_THPT.Data
         public DbSet<LopMonHoc> LopMonHocs { get; set; }
         public DbSet<MonHocGiaoVien> MonHocGiaoViens { get; set; }
         public DbSet<ThongBao> ThongBaos { get; set; }
+
+        // --- Alias DbSets (tương thích với branch admin) ---
+        public DbSet<YeuCauGiaoVien> DanhSachYeuCau => YeuCauGiaoVien;
+        public DbSet<DiemSo> DiemSos => DanhSachDiemSo;
+        public DbSet<BaiNop> BaiNops => DanhSachBaiNop;
+        public DbSet<BaiTap> BaiTaps => DanhSachBaiTap;
+        public DbSet<MonHoc> MonHocs => DanhSachMonHoc;
+        public DbSet<BaiGiang> BaiGiangs => DanhSachBaiGiang;
+        public DbSet<YeuCauGiaoVien> YeuCauGiaoViens => YeuCauGiaoVien;
+        public DbSet<TaiLieu> TaiLieus => DanhSachTaiLieu;
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -49,22 +60,22 @@ namespace LMS_THPT.Data
 
             // --- Quan hệ DiemSo ---
             builder.Entity<DiemSo>()
-                .HasOne(d => d.HocSinh)
-                .WithMany()
-                .HasForeignKey(d => d.HocSinhId)
+                .HasOne(d => d.NguoiDung)
+                .WithMany(u => u.DiemSos)
+                .HasForeignKey(d => d.NguoiDungId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<DiemSo>()
-                .HasOne(d => d.GiangVien)
+                .HasOne(d => d.GiaoVien)
                 .WithMany()
-                .HasForeignKey(d => d.GiangVienId)
+                .HasForeignKey(d => d.GiaoVienId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // --- Quan hệ MonHoc - GiangVien ---
+            // --- Quan hệ MonHoc - GiaoVien ---
             builder.Entity<MonHoc>()
-                .HasOne(m => m.GiangVien)
+                .HasOne(m => m.GiaoVien)
                 .WithMany()
-                .HasForeignKey(m => m.GiangVienId)
+                .HasForeignKey(m => m.GiaoVienId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             // --- Quan hệ Khối - Lớp ---

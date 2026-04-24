@@ -28,7 +28,7 @@ namespace LMS_THPT.Controllers
                 {
                     var roles = await _userManager.GetRolesAsync(user);
                     if (roles.Contains("Admin")) return RedirectToAction("Index", "Admin");
-                    if (roles.Contains("GiangVien")) return RedirectToAction("Index", "GiangVien");
+                    if (roles.Contains("GiaoVien")) return RedirectToAction("Index", "GiaoVien", new { area = "GiaoVien" });
                     if (roles.Contains("HocSinh")) return RedirectToAction("Index", "HocSinh");
                     if (roles.Contains("HieuTruong")) return RedirectToAction("Index", "HieuTruong");
                 }
@@ -67,8 +67,8 @@ namespace LMS_THPT.Controllers
                 if (roles.Contains("Admin"))
                     return RedirectToAction("Index", "Admin");
 
-                if (roles.Contains("GiangVien"))
-                    return RedirectToAction("Index", "GiangVien");
+                if (roles.Contains("GiaoVien"))
+                    return RedirectToAction("Index", "GiaoVien", new { area = "GiaoVien" });
 
                 if (roles.Contains("HocSinh"))
                     return RedirectToAction("Index", "HocSinh");

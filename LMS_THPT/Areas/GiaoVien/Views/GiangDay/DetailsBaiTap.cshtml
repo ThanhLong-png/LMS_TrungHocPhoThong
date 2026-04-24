@@ -1,0 +1,64 @@
+﻿@model LMS_THPT.Models.BaiTap
+@{
+    ViewData["Title"] = "Chi tiết bài tập";
+}
+
+<div class="card p-3">
+
+    <!-- HEADER GIỐNG INDEX -->
+    <div style="display:flex; align-items:center; gap:10px;">
+        <div>
+            @if (!string.IsNullOrEmpty(Model.NguoiDung?.AnhDaiDien))
+            {
+                <img src="@Model.NguoiDung.AnhDaiDien"
+                     style="width:42px; height:42px; border-radius:50%; object-fit:cover;" />
+            }
+            else
+            {
+                <div style="width:42px; height:42px; border-radius:50%; background:#111; color:#fff;
+                    display:flex; align-items:center; justify-content:center; font-weight:700;">
+                    @(Model.NguoiDung?.HoTen?.Substring(0, 1).ToUpper() ?? "?")
+                </div>
+            }
+        </div>
+
+        <div>
+            <div style="font-weight:600;">
+                @(Model.NguoiDung?.HoTen ?? "Ẩn danh")
+            </div>
+            <div class="text-muted" style="font-size:12px;">
+                @Model.NgayTao.ToString("g") · Môn: @Model.MonHoc?.TenMonHoc
+            </div>
+        </div>
+    </div>
+
+    <h3 style="margin-top:12px;">@Model.TieuDe</h3>
+
+    <hr />
+
+    <div>@Html.Raw(Model.MoTa ?? "")</div>
+
+    <div style="margin-top:12px;">
+        Hạn nộp: <strong>@Model.HanNop.ToString("g")</strong>
+    </div>
+
+    <div style="margin-top:16px;">
+        <a asp-action="Index"
+               asp-route-monHocId="@Model.MonHocId"
+               asp-route-lopId="@ViewBag.LopId"
+               class="btn-outline-soft">
+            Quay lại
+        </a>
+
+        @if (User.IsInRole("GiaoVien") || User.IsInRole("Admin"))
+        {
+            <a asp-action="Submissions"
+                   asp-route-baiTapId="@Model.Id"
+                   asp-route-lopId="@ViewBag.LopId"
+                   class="btn-primary-soft"
+                   style="margin-left:8px;">
+                Xem nộp bài
+            </a>
+        }
+    </div>
+</div>
