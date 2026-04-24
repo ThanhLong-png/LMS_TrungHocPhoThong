@@ -1,4 +1,4 @@
-// ViewModels/LopChuNhiemViewModels.cs
+// ViewModels/LopChuNhiemViewModel.cs
 namespace LMS_THPT.ViewModels
 {
     using LMS_THPT.Models;
@@ -12,6 +12,7 @@ namespace LMS_THPT.ViewModels
         public int SoNuSinh => DanhSachHocSinh.Count(x => x.GioiTinh == "Nữ");
         public List<LichHocItem> LichHomNay { get; set; } = new();
         public List<YeuCauGiaoVien> YeuCauGanDay { get; set; } = new();
+        public List<string> DanhSachMonHoc { get; set; } = new();
     }
 
     public class HocSinhLopItem
@@ -24,5 +25,8 @@ namespace LMS_THPT.ViewModels
         public string? DiaChi { get; set; }
         public string? AnhDaiDien { get; set; }
         public string Email { get; set; } = "";
+        public double? DiemTrungBinh { get; set; }
+        public Dictionary<string, double?> DiemTungMon { get; set; } = new();
+        public string? HanhKiem { get; set; }
     }
 }

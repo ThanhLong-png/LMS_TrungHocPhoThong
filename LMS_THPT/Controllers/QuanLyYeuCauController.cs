@@ -1,4 +1,4 @@
-﻿// Controllers/QuanLyYeuCauController.cs
+// Controllers/QuanLyYeuCauController.cs
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -76,7 +76,7 @@ public class QuanLyYeuCauController : Controller
         if (yeuCau == null)
             return NotFound();
 
-        if (yeuCau.TrangThai != TrangThaiYeuCau.ChoDuyet)
+        if (yeuCau.TrangThai != TrangThaiYeuCau.ChoDuyet && yeuCau.TrangThai != TrangThaiYeuCau.ChoXuLy)
         {
             TempData["Error"] = "Yêu cầu này đã được xử lý trước đó.";
             return RedirectToAction(nameof(XuLy), new { id });
@@ -106,7 +106,7 @@ public class QuanLyYeuCauController : Controller
         if (yeuCau == null)
             return NotFound();
 
-        if (yeuCau.TrangThai != TrangThaiYeuCau.ChoDuyet)
+        if (yeuCau.TrangThai != TrangThaiYeuCau.ChoDuyet && yeuCau.TrangThai != TrangThaiYeuCau.ChoXuLy)
         {
             TempData["Error"] = "Yêu cầu này đã được xử lý trước đó.";
             return RedirectToAction(nameof(XuLy), new { id });

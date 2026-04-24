@@ -5,12 +5,7 @@ using LMS_THPT.Models;
 using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
-ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-// Không gán ExcelPackage.License nữa
-// ExcelPackage.License = LicenseContext.NonCommercial; ❌ Xoá dòng này
 ExcelPackage.License.SetNonCommercialPersonal("Long");
-// Không gán ExcelPackage.License nữa
-// ExcelPackage.License = LicenseContext.NonCommercial; ❌ Xoá dòng này
 
 // --- Các service bình thường ---
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -32,7 +27,7 @@ builder.Services.AddIdentity<NguoiDung, IdentityRole>(options => {
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Identity/Account/Login";
+    options.LoginPath = "/";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.LogoutPath = "/Identity/Account/Logout";
     options.ExpireTimeSpan = TimeSpan.FromDays(30);
@@ -50,6 +45,10 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles();
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=GiaoVien}/{action=Index}/{id?}");
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

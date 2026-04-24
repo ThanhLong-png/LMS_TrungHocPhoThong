@@ -116,7 +116,21 @@ namespace LMS_THPT.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // 👉 CHUYỂN SANG WELCOME (QUAN TRỌNG)
+                // 👉 CHUYỂN SANG WELCOME HOẶC THEO ROLE
+                var roles = await _userManager.GetRolesAsync(user);
+
+                if (roles.Contains("Admin"))
+                    return RedirectToAction("Index", "Admin");
+
+                if (roles.Contains("GiaoVien"))
+                    return RedirectToAction("Index", "GiaoVien");
+
+                if (roles.Contains("HocSinh"))
+                    return RedirectToAction("Index", "HocSinh");
+
+                if (roles.Contains("HieuTruong"))
+                    return RedirectToAction("Index", "HieuTruong");
+
                 return RedirectToAction("Welcome");
             }
 

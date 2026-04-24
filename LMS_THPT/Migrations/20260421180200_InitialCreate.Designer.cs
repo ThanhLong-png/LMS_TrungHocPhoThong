@@ -4,6 +4,7 @@ using LMS_THPT.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS_THPT.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260421180200_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,9 +125,6 @@ namespace LMS_THPT.Migrations
 
                     b.Property<DateTime>("HanNop")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("LoaiDiem")
-                        .HasColumnType("int");
 
                     b.Property<string>("MoTa")
                         .HasColumnType("nvarchar(max)");
@@ -249,15 +249,6 @@ namespace LMS_THPT.Migrations
                         .HasColumnType("float");
 
                     b.Property<double?>("DiemGiuaKy")
-                        .HasColumnType("float");
-
-                    b.Property<double?>("DiemMieng2")
-                        .HasColumnType("float");
-
-                    b.Property<double?>("DiemMieng3")
-                        .HasColumnType("float");
-
-                    b.Property<double?>("DiemMieng4")
                         .HasColumnType("float");
 
                     b.Property<string>("GiaoVienId")
@@ -527,9 +518,6 @@ namespace LMS_THPT.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("GioiTinh")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HanhKiem")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("HoTen")

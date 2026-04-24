@@ -24,6 +24,15 @@ namespace LMS_THPT.ViewModels
 
         // Lịch hôm nay
         public List<LichHocItem> LichHomNay { get; set; } = new();
+
+        // Lịch các ngày tiếp theo trong tuần
+        public List<LichHocNgayItem> LichCacNgayTiepTheo { get; set; } = new();
+    }
+
+    public class LichHocNgayItem
+    {
+        public string Ngay { get; set; } = "";
+        public List<LichHocItem> CacTietHoc { get; set; } = new();
     }
 
     public class BaiNopGanDayItem
@@ -76,23 +85,16 @@ namespace LMS_THPT.ViewModels
     {
         public string HocSinhId { get; set; } = "";
         public string TenHocSinh { get; set; } = "";
+        public double? DiemMieng { get; set; }
+        public double? DiemMieng2 { get; set; }
+        public double? DiemMieng3 { get; set; }
+        public double? DiemMieng4 { get; set; }
         public double? DiemGiuaKy { get; set; }
         public double? DiemCuoiKy { get; set; }
         public int DiemSoId { get; set; }
 
-        public double? DiemTongKet => (DiemGiuaKy.HasValue && DiemCuoiKy.HasValue)
-            ? Math.Round(DiemGiuaKy.Value * 0.4 + DiemCuoiKy.Value * 0.6, 1)
-            : null;
-
-        public string XepLoai => DiemTongKet switch
-        {
-            >= 9.0 => "Xuất sắc",
-            >= 8.0 => "Giỏi",
-            >= 6.5 => "Khá",
-            >= 5.0 => "Trung bình",
-            not null => "Yếu",
-            _ => "Chưa đủ"
-        };
+        public double? DiemTongKet { get; set; }
+        public string XepLoai { get; set; } = "";
     }
 
     // ── Quản lý bài giảng (3.2) ──────────────────────────────────────────────
@@ -123,6 +125,7 @@ namespace LMS_THPT.ViewModels
     {
         public int BaiNopId { get; set; }
         public string TenHocSinh { get; set; } = "";
+        public string TenLop { get; set; } = "";
         public string TenVietTat { get; set; } = "";
         public string TenBaiTap { get; set; } = "";
         public string ThoiGianNop { get; set; } = "";
@@ -134,6 +137,7 @@ namespace LMS_THPT.ViewModels
     {
         public int BaiNopId { get; set; }
         public string TenHocSinh { get; set; } = "";
+        public string TenLop { get; set; } = "";
         public string TenBaiTap { get; set; } = "";
         public double? Diem { get; set; }
         public string NhanXet { get; set; } = "";
@@ -156,6 +160,7 @@ namespace LMS_THPT.ViewModels
     {
         public string TenHocSinh { get; set; } = "";
         public string TenVietTat { get; set; } = "";
+        public string TenLop { get; set; } = "";
         public double Diem { get; set; }
         public int PhanTram { get; set; }
 
@@ -188,6 +193,10 @@ namespace LMS_THPT.ViewModels
     {
         public string HocSinhId { get; set; } = "";
         public int MonHocId { get; set; }
+        public double? DiemMieng { get; set; }
+        public double? DiemMieng2 { get; set; }
+        public double? DiemMieng3 { get; set; }
+        public double? DiemMieng4 { get; set; }
         public double? DiemGiuaKy { get; set; }
         public double? DiemCuoiKy { get; set; }
     }
@@ -202,5 +211,11 @@ namespace LMS_THPT.ViewModels
     public class SapXepBaiGiangRequest
     {
         public List<int> ThuTuIds { get; set; } = new();
+    }
+
+    public class LuuHanhKiemRequest
+    {
+        public string HocSinhId { get; set; } = "";
+        public string HanhKiem { get; set; } = "";
     }
 }

@@ -1,8 +1,11 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 namespace LMS_THPT.Models
 {
     public enum TrangThaiYeuCau
     {
-        ChoXuLy,      // Chờ xử lý
+        ChoXuLy,      // Chờ xử lý (phiên bản 1)
+        ChoDuyet,     // Chờ duyệt (phiên bản 2 - alias)
         DaDuyet,      // Đã duyệt
         TuChoi,       // Từ chối
         HuyBo         // Hủy bỏ
@@ -10,15 +13,22 @@ namespace LMS_THPT.Models
 
     public enum LoaiYeuCau
     {
-        DangKyLopChuNhiem,    // Đăng ký lớp chủ nhiệm
-        ThayDoiLopChuNhiem,   // Thay đổi lớp chủ nhiệm
-        HuyLopChuNhiem,       // Hủy lớp chủ nhiệm
-        TangCapCongChuc,      // Tăng cấp công chức
-        DanhGiaHangNam        // Đánh giá hàng năm
+        // Phiên bản 1
+        DangKyLopChuNhiem,
+        ThayDoiLopChuNhiem,
+        HuyLopChuNhiem,
+        TangCapCongChuc,
+        DanhGiaHangNam,
+        // Phiên bản 2
+        NghiPhep,
+        DoiLich,
+        YeuCauTaiNguyen,
+        KhieuNai,
+        Khac
     }
 
     /// <summary>
-    /// Model cho yêu cầu từ giáo viên gửi lên admin
+    /// Model cho yêu cầu từ giáo viên gửi lên admin (merged từ 2 branch)
     /// </summary>
     public class YeuCauGiaoVien
     {
@@ -26,16 +36,35 @@ namespace LMS_THPT.Models
 
         // Loại yêu cầu
         public LoaiYeuCau LoaiYeuCau { get; set; }
+
+        [Required, MaxLength(100)]
         public string TieuDe { get; set; } = string.Empty;
+
+        // MoTa (phiên bản 1) / NoiDung (phiên bản 2)
         public string MoTa { get; set; } = string.Empty;
+        [NotMapped]
+        public string NoiDung { get => MoTa; set => MoTa = value; }
 
         // Trạng thái xử lý
         public TrangThaiYeuCau TrangThai { get; set; } = TrangThaiYeuCau.ChoXuLy;
+
+        // GhiChu (phiên bản 1) / GhiChuAdmin (phiên bản 2)
         public string? GhiChu { get; set; }
+        [NotMapped]
+        public string? GhiChuAdmin { get => GhiChu; set => GhiChu = value; }
 
         // Thông tin giáo viên gửi
+        // GiaoVienId (phiên bản 1) / MaGiaoVien (phiên bản 2)
         public string GiaoVienId { get; set; } = string.Empty;
+        [NotMapped]
+        public string MaGiaoVien { get => GiaoVienId; set => GiaoVienId = value; }
         public NguoiDung? GiaoVien { get; set; }
+
+        // Người xử lý (phiên bản 2)
+        public string? XuLyBoi { get; set; }
+        [NotMapped]
+        public string? NguoiXuLyId { get => XuLyBoi; set => XuLyBoi = value; }
+        public NguoiDung? NguoiXuLy { get; set; }
 
         // Thông tin lớp (nếu liên quan)
         public int? LopId { get; set; }
@@ -44,59 +73,8 @@ namespace LMS_THPT.Models
         // Thời gian
         public DateTime NgayGui { get; set; } = DateTime.Now;
         public DateTime? NgayXuLy { get; set; }
-        public string? XuLyBoi { get; set; }  // User ID của admin xử lý
 
         // Tài liệu đính kèm
         public string? DuongDanTaiLieu { get; set; }
-    }
-}
-namespace LMS_THPT.Models
-{
-    using System;
-    using System.ComponentModel.DataAnnotations;
-
-    public class YeuCauGiaoVien
-    {
-        public int Id { get; set; }
-
-        [Required]
-        public string MaGiaoVien { get; set; }
-
-        [Required, MaxLength(100)]
-        public string TieuDe { get; set; }
-
-        [Required]
-        public string NoiDung { get; set; }
-
-        public LoaiYeuCau LoaiYeuCau { get; set; }
-
-        public TrangThaiYeuCau TrangThai { get; set; } = TrangThaiYeuCau.ChoDuyet;
-
-        public DateTime NgayGui { get; set; } = DateTime.Now;
-
-        public DateTime? NgayXuLy { get; set; }
-
-        public string? GhiChuAdmin { get; set; }
-
-        public string? NguoiXuLyId { get; set; }
-
-        public NguoiDung GiaoVien { get; set; }
-        public NguoiDung? NguoiXuLy { get; set; }
-    }
-
-    public enum LoaiYeuCau
-    {
-        NghiPhep,
-        DoiLich,
-        YeuCauTaiNguyen,
-        KhieuNai,
-        Khac
-    }
-
-    public enum TrangThaiYeuCau
-    {
-        ChoDuyet,
-        DaDuyet,
-        TuChoi
     }
 }

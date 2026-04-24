@@ -1,0 +1,172 @@
+@model List<LMS_THPT.Models.YeuCauGiaoVien>
+
+@{
+    ViewData["Title"] = "Yêu cầu của tôi";
+}
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <h2 style="margin-bottom: 30px;">📋 Yêu cầu của tôi</h2>
+
+    <!-- Alert -->
+    @if (TempData["Success"] != null)
+    {
+        <div style="background: #d1fae5; border: 1px solid #6ee7b7; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #065f46;">
+            ✅ @TempData["Success"]
+        </div>
+    }
+
+    <!-- Thanh lọc & Tìm kiếm -->
+    <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <form method="get" action="@Url.Action("MyRequests")" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+            
+            <div style="flex: 1; min-width: 200px;">
+                <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Trạng thái</label>
+                <select name="trangThai" class="form-select" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px;">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    <option value="1" selected="@(ViewBag.Filter == "1")">⏳ Chờ duyệt / xử lý</option>
+                    <option value="2" selected="@(ViewBag.Filter == "2")">✅ Đã duyệt</option>
+                    <option value="3" selected="@(ViewBag.Filter == "3")">❌ Từ chối</option>
+                    <option value="4" selected="@(ViewBag.Filter == "4")">🚫 Hủy bỏ</option>
+                </select>
+            </div>
+
+            <div style="flex: 1; min-width: 200px;">
+                <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Loại yêu cầu</label>
+                <select name="loai" class="form-select" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px;">
+                    <option value="">-- Tất cả các loại --</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.NghiPhep" selected="@(ViewBag.LoaiFilter == LMS_THPT.Models.LoaiYeuCau.NghiPhep.ToString())">🏖️ Nghỉ phép</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.DoiLich" selected="@(ViewBag.LoaiFilter == LMS_THPT.Models.LoaiYeuCau.DoiLich.ToString())">📅 Đổi lịch</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen" selected="@(ViewBag.LoaiFilter == LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen.ToString())">📦 Yêu cầu tài nguyên</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.KhieuNai" selected="@(ViewBag.LoaiFilter == LMS_THPT.Models.LoaiYeuCau.KhieuNai.ToString())">⚠️ Khiếu nại</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.DangKyLopChuNhiem" selected="@(ViewBag.LoaiFilter == LMS_THPT.Models.LoaiYeuCau.DangKyLopChuNhiem.ToString())">📚 Đăng ký lớp chủ nhiệm</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.ThayDoiLopChuNhiem" selected="@(ViewBag.LoaiFilter == LMS_THPT.Models.LoaiYeuCau.ThayDoiLopChuNhiem.ToString())">🔄 Thay đổi lớp chủ nhiệm</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.HuyLopChuNhiem" selected="@(ViewBag.LoaiFilter == LMS_THPT.Models.LoaiYeuCau.HuyLopChuNhiem.ToString())">❌ Hủy lớp chủ nhiệm</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.TangCapCongChuc" selected="@(ViewBag.LoaiFilter == LMS_THPT.Models.LoaiYeuCau.TangCapCongChuc.ToString())">📈 Tăng cấp công chức</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.DanhGiaHangNam" selected="@(ViewBag.LoaiFilter == LMS_THPT.Models.LoaiYeuCau.DanhGiaHangNam.ToString())">⭐ Đánh giá hàng năm</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.Khac" selected="@(ViewBag.LoaiFilter == LMS_THPT.Models.LoaiYeuCau.Khac.ToString())">❓ Khác</option>
+                </select>
+            </div>
+
+            <div>
+                <button type="submit" style="background: #4b5563; color: white; padding: 8px 20px; border: none; border-radius: 6px; font-weight: 500; cursor: pointer;">
+                    🔍 Lọc
+                </button>
+                @if (ViewBag.Filter != null || ViewBag.LoaiFilter != null)
+                {
+                    <a href="@Url.Action("MyRequests")" style="display: inline-block; padding: 8px 15px; color: #4b5563; text-decoration: none; font-size: 14px;">Xóa lọc</a>
+                }
+            </div>
+        </form>
+    </div>
+
+    <!-- Nút tạo yêu cầu -->
+    <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+        <a href="@Url.Action("RegisterClass")" style="display: inline-block; background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 500;">
+            📚 Đăng ký lớp chủ nhiệm
+        </a>
+        <a href="@Url.Action("CreateRequest")" style="display: inline-block; background: #3b82f6; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 500;">
+            ➕ Tạo yêu cầu mới
+        </a>
+    </div>
+
+    <!-- Danh sách yêu cầu -->
+    @if (Model.Count > 0)
+    {
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+            @foreach (var yeuCau in Model)
+            {
+                var statusColor = yeuCau.TrangThai switch
+                {
+                    LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy => "#fbbf24",
+                    LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet => "#fbbf24",
+                    LMS_THPT.Models.TrangThaiYeuCau.DaDuyet => "#4ade80",
+                    LMS_THPT.Models.TrangThaiYeuCau.TuChoi => "#f87171",
+                    LMS_THPT.Models.TrangThaiYeuCau.HuyBo => "#9ca3af",
+                    _ => "#3b82f6"
+                };
+
+                var statusText = yeuCau.TrangThai switch
+                {
+                    LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy => "⏳ Chờ xử lý",
+                    LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet => "⏳ Chờ duyệt",
+                    LMS_THPT.Models.TrangThaiYeuCau.DaDuyet => "✅ Đã duyệt",
+                    LMS_THPT.Models.TrangThaiYeuCau.TuChoi => "❌ Từ chối",
+                    LMS_THPT.Models.TrangThaiYeuCau.HuyBo => "🚫 Hủy bỏ",
+                    _ => "❓ Không xác định"
+                };
+
+                var requestTypeText = yeuCau.LoaiYeuCau switch
+                {
+                    LMS_THPT.Models.LoaiYeuCau.DangKyLopChuNhiem => "📚 Đăng ký lớp chủ nhiệm",
+                    LMS_THPT.Models.LoaiYeuCau.ThayDoiLopChuNhiem => "🔄 Thay đổi lớp",
+                    LMS_THPT.Models.LoaiYeuCau.HuyLopChuNhiem => "❌ Hủy lớp",
+                    LMS_THPT.Models.LoaiYeuCau.NghiPhep => "🏖️ Nghỉ phép",
+                    LMS_THPT.Models.LoaiYeuCau.DoiLich => "📅 Đổi lịch",
+                    LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen => "📦 Yêu cầu tài nguyên",
+                    LMS_THPT.Models.LoaiYeuCau.KhieuNai => "⚠️ Khiếu nại",
+                    LMS_THPT.Models.LoaiYeuCau.TangCapCongChuc => "📈 Tăng cấp công chức",
+                    LMS_THPT.Models.LoaiYeuCau.DanhGiaHangNam => "⭐ Đánh giá hàng năm",
+                    _ => "❓ Khác"
+                };
+
+                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="margin-bottom: 12px;">
+                        <span style="display: inline-block; background: @statusColor; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                            @statusText
+                        </span>
+                    </div>
+
+                    <h4 style="margin: 0 0 8px 0; color: #1f2937;">@yeuCau.TieuDe</h4>
+
+                    <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0;">
+                        <strong>Loại:</strong> @requestTypeText
+                    </p>
+
+                    @if (yeuCau.Lop != null)
+                    {
+                        <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0;">
+                            <strong>Lớp:</strong> @yeuCau.Lop.TenLop
+                        </p>
+                    }
+
+                    <p style="color: #6b7280; font-size: 13px; margin: 0 0 12px 0;">
+                        <strong>Gửi:</strong> @yeuCau.NgayGui.ToString("dd/MM/yyyy HH:mm")
+                    </p>
+
+                    @if (!string.IsNullOrEmpty(yeuCau.GhiChu))
+                    {
+                        <p style="background: #f3f4f6; padding: 10px; border-radius: 4px; margin: 8px 0; font-size: 13px; color: #4b5563;">
+                            <strong>Ghi chú:</strong> @yeuCau.GhiChu
+                        </p>
+                    }
+
+                    <div style="margin-top: 12px; display: flex; gap: 8px;">
+                        @if (yeuCau.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy || yeuCau.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet)
+                        {
+                            <form method="post" action="@Url.Action("CancelRequest")" style="display: inline;">
+                                <input type="hidden" name="id" value="@yeuCau.Id" />
+                                <button type="submit" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; cursor: pointer;">
+                                    Hủy
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div style="text-align: center; padding: 40px; background: #f9fafb; border-radius: 8px; color: #6b7280;">
+            <p style="font-size: 16px; margin-bottom: 10px;">📭 Chưa có yêu cầu nào</p>
+            <p style="font-size: 14px;">Hãy tạo yêu cầu để bắt đầu</p>
+        </div>
+    }
+</div>
+
+<style>
+    body {
+        background: #f3f4f6;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+</style>

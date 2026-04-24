@@ -1,4 +1,4 @@
-﻿using LMS_THPT.Models;
+using LMS_THPT.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -50,20 +50,10 @@ namespace LMS_THPT.Areas.Identity.Pages.Account
             public bool RememberMe { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task<IActionResult> OnGetAsync(string returnUrl = null)
         {
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ModelState.AddModelError(string.Empty, ErrorMessage);
-            }
-
-            returnUrl ??= Url.Content("~/");
-
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
-            ReturnUrl = returnUrl;
+            return LocalRedirect(string.IsNullOrEmpty(returnUrl) ? "~/" : $"~/?ReturnUrl={Uri.EscapeDataString(returnUrl)}");
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -110,9 +100,21 @@ namespace LMS_THPT.Areas.Identity.Pages.Account
                 ));
 
                 // Redirect theo role
-              
+                var roles = await _userManager.GetRolesAsync(user);
 
-                return LocalRedirect("/Home/Welcome");
+                if (roles.Contains("Admin"))
+                    return LocalRedirect("~/Admin/Index");
+
+                if (roles.Contains("GiaoVien"))
+                    return LocalRedirect("~/GiaoVien/Index");
+
+                if (roles.Contains("HocSinh"))
+                    return LocalRedirect("~/HocSinh/Index");
+
+                if (roles.Contains("HieuTruong"))
+                    return LocalRedirect("~/HieuTruong/Index");
+
+                return LocalRedirect("~/Home/Welcome");
             }
 
             if (result.RequiresTwoFactor)

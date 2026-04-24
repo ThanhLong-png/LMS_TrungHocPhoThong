@@ -1,0 +1,56 @@
+@model LMS_THPT.Models.YeuCauGiaoVien
+
+@{
+    ViewData["Title"] = "Tạo yêu cầu mới";
+}
+
+<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    <div style="display: flex; align-items: center; margin-bottom: 30px;">
+        <a href="@Url.Action("MyRequests")" style="text-decoration: none; color: #4b5563; margin-right: 15px; font-size: 20px;">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <h2 style="margin: 0;">📝 Tạo yêu cầu mới</h2>
+    </div>
+
+    <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <form asp-action="CreateRequest" method="post">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 500; margin-bottom: 8px; color: #374151;">Loại yêu cầu <span style="color: red;">*</span></label>
+                <select asp-for="LoaiYeuCau" class="form-select" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" required>
+                    <option value="">-- Chọn loại yêu cầu --</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.NghiPhep">🏖️ Nghỉ phép</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.DoiLich">📅 Đổi lịch</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen">📦 Yêu cầu tài nguyên</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.KhieuNai">⚠️ Khiếu nại</option>
+                    <option value="@LMS_THPT.Models.LoaiYeuCau.Khac">❓ Khác</option>
+                </select>
+                <span asp-validation-for="LoaiYeuCau" class="text-danger" style="color: #ef4444; font-size: 13px;"></span>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 500; margin-bottom: 8px; color: #374151;">Tiêu đề <span style="color: red;">*</span></label>
+                <input asp-for="TieuDe" type="text" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" placeholder="Nhập tiêu đề yêu cầu" required />
+                <span asp-validation-for="TieuDe" class="text-danger" style="color: #ef4444; font-size: 13px;"></span>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 500; margin-bottom: 8px; color: #374151;">Nội dung chi tiết <span style="color: red;">*</span></label>
+                <textarea asp-for="MoTa" rows="6" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" placeholder="Mô tả chi tiết nội dung yêu cầu của bạn..." required></textarea>
+                <span asp-validation-for="MoTa" class="text-danger" style="color: #ef4444; font-size: 13px;"></span>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 30px;">
+                <a href="@Url.Action("MyRequests")" style="background: #f3f4f6; color: #4b5563; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 500; border: 1px solid #d1d5db;">
+                    Hủy bỏ
+                </a>
+                <button type="submit" style="background: #3b82f6; color: white; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 500; cursor: pointer;">
+                    Gửi yêu cầu
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
