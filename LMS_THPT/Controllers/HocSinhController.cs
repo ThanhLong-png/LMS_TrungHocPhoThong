@@ -525,7 +525,7 @@ namespace LMS_THPT.Controllers
                     .Include(x => x.MonHoc)
                     .Include(x => x.GiaoVien)
                     .Include(x => x.Lop)
-                    .Where(x => x.LopId == user.LopId.Value)
+                    .Where(x => x.LopId == user.LopId.Value && !x.IsHocBu)
                     .OrderBy(x => x.Thu)
                     .ThenBy(x => x.TietHoc)
                     .ToListAsync();

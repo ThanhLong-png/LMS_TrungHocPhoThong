@@ -1,4 +1,4 @@
-﻿using LMS_THPT.Data;
+using LMS_THPT.Data;
 using LMS_THPT.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -261,6 +261,42 @@ namespace LMS_THPT.Controllers
             yc.NgayXuLy = DateTime.Now;
             yc.NguoiXuLyId = ht?.Id;
 
+            if (trangThai == TrangThaiYeuCau.DaDuyet && yc.LoaiYeuCau == LoaiYeuCau.HocBu && yc.LopId.HasValue && yc.NgayNghi.HasValue && yc.MonHocId.HasValue)
+            {
+                int thu = (int)yc.NgayNghi.Value.DayOfWeek + 1;
+                if (thu == 1) thu = 8;
+                
+                var periods = new List<int>();
+                if (!string.IsNullOrEmpty(yc.DanhSachTiet))
+                {
+                    periods = yc.DanhSachTiet.Split(',')
+                        .Select(s => int.TryParse(s, out int p) ? p : 0)
+                        .Where(p => p > 0)
+                        .ToList();
+                }
+                else if (yc.TuTiet.HasValue)
+                {
+                    periods.Add(yc.TuTiet.Value);
+                }
+
+                foreach (var period in periods)
+                {
+                    var lichHocBu = new LichHoc
+                    {
+                        LopId = yc.LopId.Value,
+                        MonHocId = yc.MonHocId.Value,
+                        GiaoVienId = yc.GiaoVienId,
+                        Thu = thu,
+                        TietHoc = period,
+                        IsHocBu = true,
+                        NgayHoc = yc.NgayNghi.Value.Date,
+                        PhongHoc = "Phòng học bù"
+                    };
+                    _context.LichHocs.Add(lichHocBu);
+                }
+                yc.GhiChu = (yc.GhiChu ?? "") + " [Hệ thống: Đã tự động tạo " + periods.Count + " tiết học bù]";
+            }
+
             await _context.SaveChangesAsync();
             TempData["Success"] = $"Đã {(trangThai == TrangThaiYeuCau.DaDuyet ? "duyệt" : "từ chối")} yêu cầu.";
             return RedirectToAction("DanhSachYeuCau");
@@ -314,8 +350,9 @@ namespace LMS_THPT.Controllers
                 query = query.Where(l => l.LopId == lopId.Value);
 
             var lichs = await query
-                .Where(x => x.Thu == thu)
-                .OrderBy(x => x.TietHoc)
+                .Where(x => x.Thu == thu && (!x.IsHocBu || (x.NgayHoc >= selectedDate.Date && x.NgayHoc < selectedDate.Date.AddDays(1))))
+                .OrderByDescending(x => x.IsHocBu)
+                .ThenBy(x => x.TietHoc)
                 .ToListAsync();
 
             var leaves = await _context.YeuCauGiaoVien

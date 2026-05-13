@@ -103,6 +103,43 @@ namespace LMS_THPT.Controllers
                     _context.Lops.Update(yeuCau.Lop);
                 }
 
+                // Auto insert make-up class
+                if (yeuCau.LoaiYeuCau == LoaiYeuCau.HocBu && yeuCau.LopId.HasValue && yeuCau.NgayNghi.HasValue && yeuCau.MonHocId.HasValue)
+                {
+                    int thu = (int)yeuCau.NgayNghi.Value.DayOfWeek + 1;
+                    if (thu == 1) thu = 8;
+                    
+                    var periods = new List<int>();
+                    if (!string.IsNullOrEmpty(yeuCau.DanhSachTiet))
+                    {
+                        periods = yeuCau.DanhSachTiet.Split(',')
+                            .Select(s => int.TryParse(s, out int p) ? p : 0)
+                            .Where(p => p > 0)
+                            .ToList();
+                    }
+                    else if (yeuCau.TuTiet.HasValue)
+                    {
+                        periods.Add(yeuCau.TuTiet.Value);
+                    }
+
+                    foreach (var period in periods)
+                    {
+                        var lichHocBu = new LichHoc
+                        {
+                            LopId = yeuCau.LopId.Value,
+                            MonHocId = yeuCau.MonHocId.Value,
+                            GiaoVienId = yeuCau.GiaoVienId,
+                            Thu = thu,
+                            TietHoc = period,
+                            IsHocBu = true,
+                            NgayHoc = yeuCau.NgayNghi.Value.Date,
+                            PhongHoc = "Phòng học bù"
+                        };
+                        _context.LichHocs.Add(lichHocBu);
+                    }
+                    yeuCau.GhiChu = (yeuCau.GhiChu ?? "") + " [Hệ thống: Đã tự động tạo " + periods.Count + " tiết học bù]";
+                }
+
                 _context.DanhSachYeuCau.Update(yeuCau);
                 await _context.SaveChangesAsync();
 

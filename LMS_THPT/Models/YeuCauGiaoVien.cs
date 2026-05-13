@@ -24,7 +24,8 @@ namespace LMS_THPT.Models
         DoiLich,
         YeuCauTaiNguyen,
         KhieuNai,
-        Khac
+        Khac,
+        HocBu
     }
 
     /// <summary>
@@ -76,8 +77,16 @@ namespace LMS_THPT.Models
 
         // Thông tin nghỉ phép (từ branch admin)
         public DateTime? NgayNghi { get; set; }
+        public DateTime? NgayNghiKetThuc { get; set; }
         public int? TuTiet { get; set; }
         public int? DenTiet { get; set; }
+        
+        // Thông tin môn học (nếu liên quan đến học bù)
+        public int? MonHocId { get; set; }
+        public MonHoc? MonHoc { get; set; }
+        
+        // Danh sách các tiết học (cho phép chọn nhiều tiết)
+        public string? DanhSachTiet { get; set; }
 
         // Tài liệu đính kèm
         public string? DuongDanTaiLieu { get; set; }

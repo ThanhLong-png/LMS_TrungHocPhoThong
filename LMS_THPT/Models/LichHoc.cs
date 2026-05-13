@@ -16,6 +16,7 @@ namespace LMS_THPT.Models
         public DateTime NgayHoc { get; set; } = DateTime.Now;
         public TimeSpan GioBatDau { get; set; }
         public TimeSpan GioKetThuc { get; set; }
+        public bool IsHocBu { get; set; } = false;
 
         // ✅ FIX QUAN TRỌNG
         public Lop? Lop { get; set; }
