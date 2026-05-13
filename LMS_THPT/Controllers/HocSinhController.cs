@@ -117,7 +117,7 @@ namespace LMS_THPT.Controllers
             var query = _context.DanhSachBaiGiang
                 .Include(x => x.MonHoc)
                 .Include(x => x.NguoiDung)
-                .Where(x => x.IsActive && monHocIdsOfLop.Contains(x.MonHocId)); // ✅ Lọc theo lớp
+                .Where(x => x.IsActive && monHocIdsOfLop.Contains(x.MonHocId) && (x.LopId == null || x.LopId == user.LopId)); // ✅ Lọc theo lớp
 
             if (monHocId.HasValue)
                 query = query.Where(x => x.MonHocId == monHocId.Value);
@@ -201,7 +201,7 @@ namespace LMS_THPT.Controllers
 
             var query = _context.DanhSachBaiTap
                 .Include(x => x.MonHoc)
-                .Where(x => monHocIdsOfLop.Contains(x.MonHocId)); // ✅ Lọc theo lớp
+                .Where(x => monHocIdsOfLop.Contains(x.MonHocId) && (x.LopId == null || x.LopId == user.LopId)); // ✅ Lọc theo lớp
 
             if (monHocId.HasValue)
                 query = query.Where(x => x.MonHocId == monHocId.Value);

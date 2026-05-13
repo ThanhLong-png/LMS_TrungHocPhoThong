@@ -47,12 +47,12 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
 
             ViewBag.AssignedClasses = assignedClasses;
 
-            if (!monHocId.HasValue && assignedClasses.Any())
-            {
-                var first = assignedClasses.First();
-                lopId = first.LopId;
-                monHocId = first.MonHocId;
-            }
+            // if (!monHocId.HasValue && assignedClasses.Any())
+            // {
+            //     var first = assignedClasses.First();
+            //     lopId = first.LopId;
+            //     monHocId = first.MonHocId;
+            // }
 
             ViewBag.LopId = lopId;
             ViewBag.MonHocId = monHocId;
@@ -75,18 +75,38 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
                 .Include(b => b.TaiLieus)
                 .Include(b => b.MonHoc)
                 .Include(b => b.NguoiDung)
-                .Where(b => b.MonHocId == monHocId && b.IsActive)
+                .Where(b => b.MonHocId == monHocId && (b.LopId == null || b.LopId == lopId) && b.IsActive)
                 .OrderByDescending(b => b.NgayTao)
                 .ToListAsync();
 
             // ✅ BÀI TẬP
             var taps = await _context.DanhSachBaiTap
-                .Where(t => t.MonHocId == monHocId)
+                .Where(t => t.MonHocId == monHocId && (t.LopId == null || t.LopId == lopId))
                 .OrderByDescending(t => t.NgayTao)
                 .Include(x => x.NguoiDung)
                 .ToListAsync();
 
             ViewBag.BaiTaps = taps;
+
+            // ✅ TÀI LIỆU
+            var taiLieus = await _context.TaiLieus
+                .Where(t => t.MonHocId == monHocId)
+                .OrderByDescending(t => t.NgayTao)
+                .ToListAsync();
+            ViewBag.TaiLieus = taiLieus;
+
+            // ✅ BÀI NỘP CỦA HỌC SINH TRONG LỚP (để thống kê)
+            var tapIds = taps.Select(t => t.Id).ToList();
+            var hocSinhLop = await _context.NguoiDungs
+                .Where(u => u.LopId == lopId)
+                .Select(u => u.Id)
+                .ToListAsync();
+                
+            var baiNops = await _context.BaiNops
+                .Where(b => tapIds.Contains(b.BaiTapId) && hocSinhLop.Contains(b.HocSinhId))
+                .ToListAsync();
+            ViewBag.BaiNops = baiNops;
+            ViewBag.HocSinhCount = hocSinhLop.Count;
 
             // ✅ COMMENT BÀI GIẢNG
             var baiGiangIds = posts.Select(p => p.Id).ToList();
@@ -152,7 +172,7 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
         [Authorize(Roles = "GiaoVien,Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateBaiGiang(string title, string content, int? lopId, int? monHocId, IFormFile[] attachments)
+        public async Task<IActionResult> CreateBaiGiang(string title, string content, int? lopId, int? monHocId, IFormFile[] attachments, bool tinhTienDo, string linkTracNghiem)
         {
             if (!monHocId.HasValue)
             {
@@ -167,9 +187,12 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
                 TieuDe = string.IsNullOrWhiteSpace(title) ? "(Không có tiêu đề)" : title.Trim(),
                 MoTa = content,
                 MonHocId = monHocId.Value,
+                LopId = lopId,
                 IsActive = true,
                 NgayTao = DateTime.Now,
-                NguoiDungId = user.Id
+                NguoiDungId = user.Id,
+                TinhTienDo = tinhTienDo,
+                LinkTracNghiem = tinhTienDo ? linkTracNghiem : null
             };
 
             _context.DanhSachBaiGiang.Add(bai);
@@ -212,6 +235,25 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
                     _context.DanhSachTaiLieu.Add(tl);
                 }
 
+                await _context.SaveChangesAsync();
+            }
+
+            if (tinhTienDo)
+            {
+                var baitap = new BaiTap
+                {
+                    TieuDe = "Trắc nghiệm: " + bai.TieuDe,
+                    MoTa = $"Vui lòng hoàn thành bài trắc nghiệm tại link sau: <a href='{linkTracNghiem}' target='_blank'>Nhấn vào đây</a><br/><br/>Sau khi hoàn thành, hãy tải lên ảnh chụp màn hình điểm số hoặc nhập 'Đã hoàn thành' vào nội dung bài nộp.",
+                    MonHocId = monHocId.Value,
+                    LopId = lopId,
+                    HanNop = DateTime.Now.AddDays(7),
+                    DiemToiDa = 10,
+                    LoaiDiem = LoaiDiem.BaiTap,
+                    TrangThai = TrangThaiBaiTap.DangMo,
+                    NgayTao = DateTime.Now,
+                    NguoiDungId = user.Id
+                };
+                _context.DanhSachBaiTap.Add(baitap);
                 await _context.SaveChangesAsync();
             }
 
@@ -261,6 +303,7 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
                 TieuDe = string.IsNullOrWhiteSpace(title) ? "(Không có tiêu đề)" : title.Trim(),
                 MoTa = content,
                 MonHocId = monHocId.Value,
+                LopId = lopId,
                 HanNop = hanNop,
                 DiemToiDa = 10,
                 LoaiDiem = loaiDiem,
@@ -306,7 +349,61 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
             ViewBag.LopId = lopId;
             return View(bt);
         }
+        // Sửa bài tập - GET
+        [Authorize(Roles = "GiaoVien,Admin")]
+        [HttpGet]
+        public async Task<IActionResult> EditBaiTap(int id, int? lopId)
+        {
+            var baitap = await _context.DanhSachBaiTap.Include(x => x.MonHoc).FirstOrDefaultAsync(x => x.Id == id);
+            if (baitap == null) return NotFound();
+            ViewBag.LopId = lopId ?? baitap.LopId;
+            return View(baitap);
+        }
 
+        // Sửa bài tập - POST
+        [Authorize(Roles = "GiaoVien,Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditBaiTap(int id, string title, string content, int? lopId, string dueDate, string dueTime, LoaiDiem loaiDiem)
+        {
+            var baitap = await _context.DanhSachBaiTap.FirstOrDefaultAsync(x => x.Id == id);
+            if (baitap == null) return NotFound();
+
+            DateTime hanNop = baitap.HanNop;
+            if (!string.IsNullOrWhiteSpace(dueDate) && DateTime.TryParse(dueDate, out var d))
+                hanNop = d.Date;
+
+            if (!string.IsNullOrWhiteSpace(dueTime) && TimeSpan.TryParse(dueTime, out var t))
+                hanNop = hanNop.Date + t;
+
+            baitap.TieuDe = string.IsNullOrWhiteSpace(title) ? "(Không có tiêu đề)" : title.Trim();
+            baitap.MoTa = content;
+            baitap.HanNop = hanNop;
+            baitap.LoaiDiem = loaiDiem;
+
+            _context.Update(baitap);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Cập nhật bài tập thành công.";
+            return RedirectToAction("Index", new { lopId, monHocId = baitap.MonHocId });
+        }
+
+        // Xóa bài tập - POST
+        [Authorize(Roles = "GiaoVien,Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteBaiTap(int id, int? lopId)
+        {
+            var baitap = await _context.DanhSachBaiTap.FirstOrDefaultAsync(x => x.Id == id);
+            if (baitap == null) return NotFound();
+
+            var monHocId = baitap.MonHocId;
+            _context.DanhSachBaiTap.Remove(baitap);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Đã xóa bài tập.";
+            return RedirectToAction("Index", new { lopId, monHocId });
+        }
         // Xem danh sách nộp bài
         [Authorize(Roles = "GiaoVien,Admin")]
         [HttpGet]
@@ -379,7 +476,7 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
         public class ChamDiemRequest
         {
             public int BaiNopId { get; set; }
-            public double Diem { get; set; }
+            public double? Diem { get; set; }
         }
 
         // Thêm bình luận bài giảng

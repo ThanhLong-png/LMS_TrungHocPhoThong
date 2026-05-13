@@ -1,4 +1,4 @@
-﻿namespace LMS_THPT.Models
+namespace LMS_THPT.Models
 {
     public class BaiGiang
     {
@@ -13,7 +13,11 @@
         // Khóa ngoại
         public int MonHocId { get; set; }
         public MonHoc? MonHoc { get; set; }
+        public int? LopId { get; set; }
+        public Lop? Lop { get; set; }
         public string? NguoiDungId { get; set; }
+        public string? LinkTracNghiem { get; set; }
+        public bool TinhTienDo { get; set; } = false;
 
         public NguoiDung? NguoiDung { get; set; }
 

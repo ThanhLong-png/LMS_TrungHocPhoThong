@@ -9,8 +9,7 @@
 .btn-outline-soft:hover { background:#111; color:#fff; }
 </style>
 
-<div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-   <a asp-action="DetailsBaiTap" asp-route-id="@baiTap?.Id" asp-route-lopId="@ViewBag.LopId" class="btn-outline-soft">← Quay lại</a>
+<div style="margin-bottom:16px;">
     <h3 style="margin:0;">Danh sách nộp bài - @baiTap?.TieuDe</h3>
 </div>
 
@@ -21,7 +20,7 @@
         <tr>
             <th>Học sinh</th>
             <th>Ngày nộp</th>
-            <th>File / Nội dung</th>
+            <th>Bài nộp của học sinh</th>
             <th>Trạng thái</th>
             <th>Điểm</th>
         </tr>
@@ -32,21 +31,26 @@
             <tr>
                 <td>@(s.HocSinh?.HoTen ?? s.HocSinhId)</td>
                 <td>@s.NgayNop.ToString("g")</td>
-                <td>
+                <td style="max-width: 300px; word-break: break-word;">
+                    @if (!string.IsNullOrEmpty(s.NoiDung))
+                    {
+                        <div style="margin-bottom: 6px;">@s.NoiDung</div>
+                    }
                     @if (!string.IsNullOrEmpty(s.DuongDanFile))
                     {
-                        <a href="@s.DuongDanFile" target="_blank">Tệp nộp</a>
+                        <a href="@s.DuongDanFile" target="_blank" style="display:inline-flex; align-items:center; gap:4px; font-size:13px; color:#0d6efd; text-decoration:none; background:#eef5ff; padding:4px 10px; border-radius:6px;">
+                            <i class="fa fa-paperclip"></i> Xem tệp đính kèm
+                        </a>
                     }
-                    else
+                    @if (string.IsNullOrEmpty(s.NoiDung) && string.IsNullOrEmpty(s.DuongDanFile))
                     {
-                        @s.NoiDung
+                        <span style="color:#888; font-style:italic;">Không có nội dung</span>
                     }
                 </td>
                 <td>@s.TrangThai</td>
                 <td>
                     <div style="display:flex; gap:8px;">
-                        <input type="number" class="form-control form-control-sm" style="width:70px" id="diem-@s.Id" value="@s.Diem?.ToString("0.#")" step="0.1" min="0" max="10" placeholder="--" />
-                        <button class="btn btn-sm btn-primary" onclick="chamDiem(@s.Id)">Lưu</button>
+                        <input type="number" class="form-control form-control-sm" style="width:70px" id="diem-@s.Id" value="@s.Diem?.ToString("0.#")" step="0.1" min="0" max="10" placeholder="--" onchange="chamDiem(@s.Id)" />
                     </div>
                 </td>
             </tr>
@@ -60,11 +64,12 @@
     }
 
     function chamDiem(baiNopId) {
-        var diem = document.getElementById('diem-' + baiNopId).value;
-        if(diem === "") {
-            alert("Vui lòng nhập điểm!");
-            return;
-        }
+        var inputEl = document.getElementById('diem-' + baiNopId);
+        var diemStr = inputEl.value;
+        var diem = diemStr === "" ? null : parseFloat(diemStr);
+
+        // Hiệu ứng đang lưu
+        inputEl.style.opacity = '0.5';
 
         fetch('@Url.Action("ChamDiemBaiTap", "GiangDay", new { area = "GiaoVien" })', {
             method: 'POST',
@@ -72,15 +77,21 @@
                 'Content-Type': 'application/json',
                 'RequestVerificationToken': getToken()
             },
-            body: JSON.stringify({ baiNopId: baiNopId, diem: parseFloat(diem) })
+            body: JSON.stringify({ baiNopId: baiNopId, diem: diem })
         }).then(r => r.json()).then(d => {
+            inputEl.style.opacity = '1';
             if(d.success) {
-                alert("Lưu điểm thành công!");
-                // Cập nhật lại UI nếu cần
+                // Nháy xanh báo thành công
+                var oldBg = inputEl.style.backgroundColor;
+                inputEl.style.backgroundColor = '#dcfce7'; // xanh lục nhạt
+                setTimeout(() => {
+                    inputEl.style.backgroundColor = oldBg;
+                }, 1000);
             } else {
                 alert("Lỗi: " + d.message);
             }
         }).catch(e => {
+            inputEl.style.opacity = '1';
             alert("Đã xảy ra lỗi mạng!");
         });
     }

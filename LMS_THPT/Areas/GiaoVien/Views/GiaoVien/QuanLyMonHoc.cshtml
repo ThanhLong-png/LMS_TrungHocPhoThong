@@ -14,11 +14,6 @@
     var lopMonHocs = ViewBag.LopMonHocs as List<LMS_THPT.Models.LopMonHoc> ?? new();
 }
 
-@section TopbarAction {
-    <button type="button" class="btn btn-primary" onclick="luuTatCaDiem()">
-        <i class="fa fa-save"></i> Lưu tất cả điểm
-    </button>
-}
 
 @if (teacherMonHocs.Any())
 {
@@ -33,6 +28,16 @@
     </div>
 }
 
+@* ── Page Hero ── *@
+<div style="background:linear-gradient(135deg,#1a1f36 0%,#1d4ed8 100%);border-radius:16px;padding:1.5rem 2rem;color:#fff;margin-bottom:1.5rem;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-30%;right:-5%;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06);"></div>
+    <div style="position:relative;z-index:1;">
+        <div style="font-size:0.78rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;opacity:.7;margin-bottom:.4rem;">Quản lý môn học</div>
+        <h1 style="font-size:1.65rem;font-weight:800;letter-spacing:-0.02em;margin:0;">@(Model.MonHoc?.TenMonHoc ?? "Chưa chọn môn học")</h1>
+        <p style="margin:.4rem 0 0;font-size:.9rem;opacity:.8;font-weight:500;">Quản lý bài tập, điểm số và cập nhật nội dung theo từng lớp</p>
+    </div>
+</div>
+
 @if (TempData["Success"] != null)
 {
     <div class="alert alert-success" style="padding:12px 16px; background:#dcfce7; color:#166534; border-radius:8px; margin-bottom:16px;">
@@ -42,7 +47,7 @@
 
 <div class="card mb-16">
     <div class="card-header">
-        <span class="card-title">Thông tin môn học: @Model.MonHoc?.TenMonHoc</span>
+        <span class="card-title" style="font-size:0.95rem;font-weight:700;color:#1e293b;">Thông tin môn học</span>
     </div>
     <div class="card-body">
         <form asp-action="CapNhatMonHoc" method="post">
@@ -59,8 +64,8 @@
                 <textarea name="MucTieu" class="form-control" rows="3" placeholder="Nhập mục tiêu khóa học..." style="width:100%;">@Model.MonHoc?.MucTieu</textarea>
             </div>
             <div>
-                <button type="submit" class="btn btn-primary" style="padding:8px 16px; border:none; border-radius:6px; background:var(--primary); color:#fff; cursor:pointer;">
-                    <i class="fa fa-save"></i> Lưu nội dung môn học
+                <button type="submit" class="btn btn-primary" style="padding:9px 20px;border:none;border-radius:8px;background:#1d4ed8;color:#fff;cursor:pointer;font-weight:600;font-size:0.9rem;letter-spacing:-0.01em;">
+                    Lưu nội dung môn học
                 </button>
             </div>
         </form>
@@ -70,28 +75,24 @@
 <div class="two-col mb-16">
     <div class="card">
         <div class="card-header">
-            <span class="card-title">Cập nhật môn học theo lớp</span>
+            <span class="card-title" style="font-size:0.95rem;font-weight:700;color:#1e293b;">Lớp đang dạy môn này</span>
+            <span style="font-size:12px;color:#64748b;">Điều hướng nhanh theo lớp</span>
         </div>
         <div class="card-body">
-            <div class="mb-12">
-                <strong style="font-size: 14px;">Chọn lớp đang dạy</strong>
-                <div class="small text-muted">Click vào lớp bên dưới để cập nhật nội dung môn học cho lớp đó.</div>
-            </div>
-
             <div class="class-list-container">
                 @if (lopMonHocs.Any())
                 {
                     @foreach (var lmh in lopMonHocs)
                     {
-                        <div class="class-card-item" onclick="openUpdateClassModal(@lmh.LopId, @lmh.MonHocId, '@lmh.Lop?.TenLop')">
-                            <div class="class-card-icon">
-                                <i class="fa fa-chalkboard-teacher"></i>
+                        <div class="class-card-item">
+                            <div class="class-card-badge">Lớp @lmh.Lop?.TenLop</div>
+                            <div class="class-card-sub">Môn @Model.MonHoc?.TenMonHoc</div>
+                            <div class="class-card-actions">
+                                <a href="@Url.Action("QuanLyBaiTap", "GiaoVien", new { area = "GiaoVien", lopId = lmh.LopId, monHocId = lmh.MonHocId })"
+                                   class="class-action-btn btn-baitap">Bài tập</a>
+                                <a href="@Url.Action("QuanLyDiemSo", "GiaoVien", new { area = "GiaoVien", lopId = lmh.LopId, monHocId = lmh.MonHocId })"
+                                   class="class-action-btn btn-diemsoo">Điểm số</a>
                             </div>
-                            <div class="class-card-info">
-                                <div class="name">Lớp @lmh.Lop?.TenLop</div>
-                                <div class="sub">Môn @Model.MonHoc?.TenMonHoc</div>
-                            </div>
-                            <i class="fa fa-chevron-right arrow"></i>
                         </div>
                     }
                 }
@@ -153,7 +154,6 @@
                     <th width="160">Điểm cuối kỳ (60%)</th>
                     <th width="140">Tổng kết</th>
                     <th>Xếp loại</th>
-                    <th width="80"></th>
                 </tr>
             </thead>
             <tbody>
@@ -190,9 +190,6 @@
                             <span class="badge td-xeploai @(g.DiemTongKet >= 5 ? "badge-green" : g.DiemTongKet != null ? "badge-red" : "badge-amber")">
                                 @g.XepLoai
                             </span>
-                        </td>
-                        <td>
-                            <button class="btn-link" onclick="luuDiem(this)">Lưu</button>
                         </td>
                     </tr>
                 }
@@ -324,64 +321,85 @@
     .class-list-container {
         display: flex;
         flex-direction: column;
-        gap: 8px;
-        margin-top: 10px;
+        gap: 10px;
+        margin-top: 8px;
     }
 
     .class-card-item {
         display: flex;
         align-items: center;
-        padding: 12px 16px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: all 0.2s ease;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 18px;
+        background: #fff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        transition: all 0.18s ease;
+        flex-wrap: wrap;
     }
 
-        .class-card-item:hover {
-            background: #ffffff;
-            border-color: #2563eb;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
-            transform: translateX(5px);
-        }
+    .class-card-item:hover {
+        border-color: #1d4ed8;
+        box-shadow: 0 4px 16px rgba(29, 78, 216, 0.1);
+        background: #f8fbff;
+    }
 
-    .class-card-icon {
-        width: 38px;
-        height: 38px;
-        background: #eff6ff;
-        color: #2563eb;
-        border-radius: 8px;
+    .class-card-badge {
+        font-size: 0.96rem;
+        font-weight: 700;
+        color: #1e293b;
+        letter-spacing: -0.01em;
+    }
+
+    .class-card-sub {
+        font-size: 0.78rem;
+        color: #64748b;
+        margin-top: 2px;
+        font-weight: 500;
+    }
+
+    .class-card-actions {
         display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .class-action-btn {
+        display: inline-flex;
         align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        margin-right: 14px;
+        padding: 7px 18px;
+        border-radius: 8px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        text-decoration: none;
+        letter-spacing: -0.01em;
+        transition: all 0.15s;
+        border: 1.5px solid transparent;
     }
 
-    .class-card-info {
-        flex: 1;
+    .btn-baitap {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-color: #bfdbfe;
+    }
+    .btn-baitap:hover {
+        background: #1d4ed8;
+        color: #fff;
+        border-color: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(29,78,216,0.25);
     }
 
-        .class-card-info .name {
-            font-weight: 600;
-            font-size: 14px;
-            color: #1e293b;
-        }
-
-        .class-card-info .sub {
-            font-size: 11px;
-            color: #64748b;
-            margin-top: 2px;
-        }
-
-    .class-card-item .arrow {
-        font-size: 12px;
-        color: #cbd5e1;
-        transition: color 0.2s;
+    .btn-diemsoo {
+        background: #faf5ff;
+        color: #7e22ce;
+        border-color: #e9d5ff;
     }
-
-    .class-card-item:hover .arrow {
-        color: #2563eb;
+    .btn-diemsoo:hover {
+        background: #7e22ce;
+        color: #fff;
+        border-color: #7e22ce;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(126,34,206,0.25);
     }
 </style>

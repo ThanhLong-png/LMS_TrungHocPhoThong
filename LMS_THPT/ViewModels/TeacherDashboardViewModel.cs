@@ -1,4 +1,4 @@
-// ViewModels/TeacherDashboardViewModel.cs
+﻿// ViewModels/TeacherDashboardViewModel.cs
 // Thay thế / bổ sung file hiện có trong ViewModels/
 
 using LMS_THPT.Models;
@@ -139,6 +139,8 @@ namespace LMS_THPT.ViewModels
         public string TenHocSinh { get; set; } = "";
         public string TenLop { get; set; } = "";
         public string TenBaiTap { get; set; } = "";
+        public string? NoiDung { get; set; }
+        public string? DuongDanFile { get; set; }
         public double? Diem { get; set; }
         public string NhanXet { get; set; } = "";
         public string TrangThai { get; set; } = "pending";
@@ -154,6 +156,16 @@ namespace LMS_THPT.ViewModels
         public List<TienDoHocSinhItem> TienDoHocSinh { get; set; } = new();
         public List<ThongKeXepLoaiItem> ThongKeXepLoai { get; set; } = new();
         public List<string> DanhSachLop { get; set; } = new();
+    }
+    public class ThongKeLopItem
+    {
+        public string TenLop { get; set; } = "";
+        public string TenKhoi { get; set; } = "";
+        public int SoHocSinh { get; set; }
+        public double DiemTB { get; set; }
+        public int TiLeHoanThanh { get; set; }
+        public int SoXuatSac { get; set; }
+        public int SoYeu { get; set; }
     }
 
     public class TienDoHocSinhItem

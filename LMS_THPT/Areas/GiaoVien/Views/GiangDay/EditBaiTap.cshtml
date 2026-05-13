@@ -1,5 +1,6 @@
+@model LMS_THPT.Models.BaiTap
 @{
-    ViewData["Title"] = "Tạo bài tập";
+    ViewData["Title"] = "Cập nhật bài tập";
 }
 
 <script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
@@ -70,59 +71,82 @@
     <div class="d-flex align-items-center gap-3">
         <div style="font-size:2.5rem;">📝</div>
         <div>
-            <h1 class="fw-bold mb-0" style="font-size:1.6rem;">Tạo bài tập mới</h1>
-            <p class="mb-0 opacity-75" style="font-size:0.9rem;">Thêm bài tập và kiểm tra cho lớp học</p>
+            <h1 class="fw-bold mb-0" style="font-size:1.6rem;">Cập nhật bài tập</h1>
+            <p class="mb-0 opacity-75" style="font-size:0.9rem;">Chỉnh sửa thông tin bài tập đã tạo</p>
         </div>
     </div>
 </div>
 
 <div class="form-card">
-    <form asp-action="CreateBaiTap" method="post" enctype="multipart/form-data">
+    <form asp-action="EditBaiTap" method="post">
         @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
         <input type="hidden" name="lopId" value="@ViewBag.LopId" />
-        <input type="hidden" name="monHocId" value="@ViewBag.MonHocId" />
+        <input type="hidden" name="monHocId" value="@Model.MonHocId" />
         
         <div class="mb-4">
             <label class="form-label">Tiêu đề bài tập <span class="text-danger">*</span></label>
-            <input name="title" class="form-control" required placeholder="Nhập tiêu đề bài tập..." />
+            <input name="title" class="form-control" required value="@Model.TieuDe" placeholder="Nhập tiêu đề bài tập..." />
         </div>
         
         <div class="mb-4">
             <label class="form-label">Nội dung / Yêu cầu chi tiết</label>
-            <textarea name="content" id="editor" rows="8" class="form-control"></textarea>
+            <textarea name="content" id="editor" rows="8" class="form-control">@Model.MoTa</textarea>
         </div>
         
         <div class="row mb-4">
             <div class="col-md-4 mb-3 mb-md-0">
                 <label class="form-label">Hạn nộp - Ngày</label>
-                <input type="date" name="dueDate" class="form-control" />
+                <input type="date" name="dueDate" class="form-control" value="@Model.HanNop.ToString("yyyy-MM-dd")" />
             </div>
             <div class="col-md-4 mb-3 mb-md-0">
                 <label class="form-label">Hạn nộp - Giờ</label>
-                <input type="time" name="dueTime" class="form-control" />
+                <input type="time" name="dueTime" class="form-control" value="@Model.HanNop.ToString("HH:mm")" />
             </div>
             <div class="col-md-4">
                 <label class="form-label">Loại điểm (Ghi sổ)</label>
                 <select name="loaiDiem" class="form-select form-control">
-                    <option value="BaiTap">Khác (Không ghi sổ)</option>
-                    <option value="MiengKiemTra">Điểm miệng / 15 phút</option>
-                    <option value="GiuaKy">Điểm giữa kỳ (40%)</option>
-                    <option value="CuoiKy">Điểm cuối kỳ (60%)</option>
+                    @if (Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.BaiTap)
+                    {
+                        <option value="BaiTap" selected>Khác (Không ghi sổ)</option>
+                    }
+                    else
+                    {
+                        <option value="BaiTap">Khác (Không ghi sổ)</option>
+                    }
+                    @if (Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.MiengKiemTra)
+                    {
+                        <option value="MiengKiemTra" selected>Điểm miệng / 15 phút</option>
+                    }
+                    else
+                    {
+                        <option value="MiengKiemTra">Điểm miệng / 15 phút</option>
+                    }
+                    @if (Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.GiuaKy)
+                    {
+                        <option value="GiuaKy" selected>Điểm giữa kỳ (40%)</option>
+                    }
+                    else
+                    {
+                        <option value="GiuaKy">Điểm giữa kỳ (40%)</option>
+                    }
+                    @if (Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.CuoiKy)
+                    {
+                        <option value="CuoiKy" selected>Điểm cuối kỳ (60%)</option>
+                    }
+                    else
+                    {
+                        <option value="CuoiKy">Điểm cuối kỳ (60%)</option>
+                    }
                 </select>
             </div>
         </div>
         
-        <div class="mb-4">
-            <label class="form-label">Tệp đính kèm (Tùy chọn)</label>
-            <input type="file" name="attachments" multiple class="form-control" />
-            <div class="form-text text-muted mt-1" style="font-size:0.85rem;">Bạn có thể tải lên nhiều tệp (PDF, Word, Ảnh...).</div>
-        </div>
-        
         <div class="d-flex gap-3 pt-2">
             <button type="submit" class="btn-submit">
-                <i class="fa fa-save me-1"></i> Tạo bài tập
+                <i class="fa fa-save me-1"></i> Lưu thay đổi
             </button>
-            <a asp-action="Index" asp-route-lopId="@ViewBag.LopId" asp-route-monHocId="@ViewBag.MonHocId" class="btn-cancel">
+            <a asp-action="Index" asp-route-lopId="@ViewBag.LopId" asp-route-monHocId="@Model.MonHocId" class="btn-cancel">
                 Hủy bỏ
             </a>
         </div>

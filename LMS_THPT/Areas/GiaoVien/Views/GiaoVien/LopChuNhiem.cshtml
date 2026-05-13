@@ -1,4 +1,3 @@
-Views/GiaoVien/LopChuNhiem.cshtml
 @model LMS_THPT.ViewModels.LopChuNhiemViewModel
 @{
     ViewData["Title"] = Model.LopChuNhiem != null ? $"Lớp {Model.LopChuNhiem.TenLop}" : "Lớp chủ nhiệm";
@@ -6,10 +5,23 @@ Views/GiaoVien/LopChuNhiem.cshtml
     ViewData["PageTitle"] = "Lớp chủ nhiệm";
 }
 
+<div style="background:linear-gradient(135deg,#1a1f36 0%,#0f766e 100%);border-radius:16px;padding:1.6rem 2rem;color:#fff;margin-bottom:1.5rem;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-30%;right:-5%;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06);"></div>
+    <div class="d-flex align-items-center gap-3" style="position:relative;z-index:1;">
+        <div>
+            <h1 class="fw-bold mb-0" style="font-size:1.65rem; letter-spacing:-0.02em; font-weight:800;">Lớp chủ nhiệm</h1>
+            <p class="mb-0" style="font-size:.9rem; opacity:.8; font-weight:500; margin-top:.3rem;">
+                @if (Model.LopChuNhiem != null) { <text>Lớp <strong>@Model.LopChuNhiem.TenLop</strong> &mdash; Quản lý và theo dõi học sinh</text> }
+                else { <text>Chưa được phân công lớp chủ nhiệm</text> }
+            </p>
+        </div>
+    </div>
+</div>
+
 @if (Model.LopChuNhiem == null)
 {
     <div class="card" style="text-align:center; padding: 48px 24px;">
-        <i class="fa fa-users-slash" style="font-size:40px; color:var(--text3); margin-bottom:16px;"></i>
+        
         <div style="font-size:16px; font-weight:500; color:var(--text2);">Bạn chưa được phân công làm chủ nhiệm lớp nào.</div>
         <div style="font-size:13px; color:var(--text3); margin-top:8px;">Vui lòng liên hệ Ban giám hiệu để được phân công.</div>
     </div>
@@ -19,24 +31,24 @@ else
     <!-- Stats -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-label">Sĩ số</div>
-            <div class="stat-value">@Model.SiSo</div>
-            <div class="stat-sub">Học sinh</div>
+            <div class="stat-icon" style="background:#eff6ff; color:#1d4ed8; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">SS</div>
+            <div class="fw-bold" style="font-size:1.65rem; color:#1d4ed8; letter-spacing:-0.02em;">@Model.SiSo</div>
+            <div class="text-muted" style="font-size:0.85rem; font-weight:500;">Sĩ số học sinh</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Nam sinh</div>
-            <div class="stat-value">@Model.SoNamSinh</div>
-            <div class="stat-sub">Học sinh nam</div>
+            <div class="stat-icon" style="background:#f0fdf4; color:#15803d; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">Nam</div>
+            <div class="fw-bold" style="font-size:1.65rem; color:#15803d; letter-spacing:-0.02em;">@Model.SoNamSinh</div>
+            <div class="text-muted" style="font-size:0.85rem; font-weight:500;">Nam sinh</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Nữ sinh</div>
-            <div class="stat-value">@Model.SoNuSinh</div>
-            <div class="stat-sub">Học sinh nữ</div>
+            <div class="stat-icon" style="background:#faf5ff; color:#7e22ce; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">Nữ</div>
+            <div class="fw-bold" style="font-size:1.65rem; color:#7e22ce; letter-spacing:-0.02em;">@Model.SoNuSinh</div>
+            <div class="text-muted" style="font-size:0.85rem; font-weight:500;">Nữ sinh</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Lịch hôm nay</div>
-            <div class="stat-value">@Model.LichHomNay.Count</div>
-            <div class="stat-sub">Tiết học</div>
+            <div class="stat-icon" style="background:#fff7ed; color:#c2410c; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">LD</div>
+            <div class="fw-bold" style="font-size:1.65rem; color:#c2410c; letter-spacing:-0.02em;">@Model.LichHomNay.Count</div>
+            <div class="text-muted" style="font-size:0.85rem; font-weight:500;">Lịch dạy hôm nay</div>
         </div>
     </div>
 
@@ -230,10 +242,7 @@ else
             })
             .then(res => res.json())
             .then(data => {
-                if(data.success) {
-                    if (typeof showToast !== 'undefined') showToast('Đã lưu hạnh kiểm', 'success');
-                    else alert('Đã lưu hạnh kiểm');
-                } else {
+                if(!data.success) {
                     if (typeof showToast !== 'undefined') showToast(data.message || 'Lỗi lưu hạnh kiểm', 'error');
                     else alert(data.message || 'Lỗi lưu hạnh kiểm');
                 }

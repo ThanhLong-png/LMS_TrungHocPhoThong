@@ -306,7 +306,8 @@ namespace LMS_THPT.Data
                             baiNops.Add(new BaiNop
                             {
                                 BaiTapId = bt.Id, HocSinhId = hs.Id,
-                                NoiDung = "Em xin nộp bài làm của em ạ.",
+                                NoiDung = "Em chào thầy/cô, em nộp bài tập ạ. Trong file em có ghi chú thêm ở câu 3 vì em không chắc chắn cách giải. Mong thầy/cô xem qua giúp em.",
+                                DuongDanFile = "/uploads/bainop/bai_tap_ve_nha.pdf",
                                 NgayNop = bt.HanNop.AddDays(-Random2(1, 3)),
                                 TrangThai = TrangThaiBaiNop.ChamXong, Diem = diem,
                                 NhanXet = diem >= 8 ? "Bài làm tốt, trình bày rõ ràng." : "Cần xem lại phần lý thuyết.",

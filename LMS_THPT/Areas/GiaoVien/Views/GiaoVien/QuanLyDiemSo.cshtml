@@ -1,28 +1,141 @@
-@model List<LMS_THPT.ViewModels.NhapDiemItem>
+﻿@model List<LMS_THPT.ViewModels.NhapDiemItem>
 @{
     ViewData["Title"] = "Quản lý điểm số";
     ViewData["PageTitle"] = "Điểm số theo lớp";
+    ViewData["ActivePage"] = "DiemSo";
     
     var lopMonHocs = ViewBag.LopMonHocs as List<LMS_THPT.Models.LopMonHoc> ?? new List<LMS_THPT.Models.LopMonHoc>();
+    var allLopMonHocs = ViewBag.AllLopMonHocs as List<LMS_THPT.Models.LopMonHoc> ?? lopMonHocs;
+    var danhSachKhoi = ViewBag.DanhSachKhoi as List<LMS_THPT.Models.Khoi> ?? new List<LMS_THPT.Models.Khoi>();
+    var khoiId = (int)(ViewBag.KhoiHienTai ?? 0);
     var lopId = (int)(ViewBag.LopHienTai ?? 0);
     var monHocId = (int)(ViewBag.MonHocHienTai ?? 0);
 }
 
-@section TopbarAction {
-    <button type="button" class="btn btn-primary" onclick="luuTatCaDiem()">
-        <i class="fa fa-save"></i> Lưu tất cả điểm
-    </button>
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #1a1f36 0%, #3730a3 100%);
+        border-radius: 16px; padding: 1.6rem 2rem;
+        color: #fff; margin-bottom: 1.5rem;
+        position: relative; overflow: hidden;
+    }
+    .page-header::after {
+        content: ''; position: absolute;
+        top: -30%; right: -5%; width: 200px; height: 200px;
+        border-radius: 50%; background: rgba(255,255,255,.06);
+    }
+    /* ── Khối tabs ── */
+    .khoi-tab-bar {
+        display: flex; gap: 8px; flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+    .khoi-tab {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 8px 20px; border-radius: 999px;
+        font-size: 0.88rem; font-weight: 600;
+        text-decoration: none; transition: all .18s;
+        border: 2px solid #e2e8f0; color: #475569; background: #fff;
+    }
+    .khoi-tab:hover { border-color: #6366f1; color: #6366f1; background: #eef2ff; }
+    .khoi-tab.active {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: #fff; border-color: transparent;
+        box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+    }
+    /* ── Lớp tabs ── */
+    .lop-khoi-bar {
+        display: flex; gap: 6px; flex-wrap: wrap;
+        padding: 12px 16px;
+        background: #f8fafc;
+        border-radius: 12px;
+        margin-bottom: 1.2rem;
+    }
+    .lop-khoi-tab {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 6px 16px; border-radius: 8px;
+        font-size: 0.85rem; font-weight: 500;
+        text-decoration: none; transition: all .15s;
+        color: #475569; border: 1.5px solid #e2e8f0; background: #fff;
+    }
+    .lop-khoi-tab:hover { border-color: #6366f1; color: #6366f1; }
+    .lop-khoi-tab.active { background: #6366f1; color: #fff; border-color: #6366f1; font-weight: 600; }
+</style>
+
+<div class="page-header">
+    <div class="d-flex align-items-center gap-3" style="position:relative;z-index:1;">
+        <div style="font-size:2.2rem;"></div>
+        <div>
+            <h1 class="fw-bold mb-0" style="font-size:1.5rem;">Quản lý điểm số</h1>
+            <p class="mb-0 opacity-75" style="font-size:.88rem;">
+                @if (!string.IsNullOrEmpty(ViewBag.TenLopHienTai as string))
+                { <text>Lớp <strong>@ViewBag.TenLopHienTai</strong> &middot; Môn <strong>@ViewBag.TenMonHienTai</strong></text> }
+                else { <text>Chọn lớp và môn học để xem bảng điểm</text> }
+            </p>
+        </div>
+    </div>
+</div>
+
+@* ── Bộ lọc Khối ── *@
+@if (danhSachKhoi.Any())
+{
+    <div class="khoi-tab-bar">
+        @foreach (var khoi in danhSachKhoi)
+        {
+            <a asp-action="QuanLyDiemSo" asp-route-khoiId="@khoi.Id"
+               class="khoi-tab @(khoi.Id == khoiId ? "active" : "")">
+                 @khoi.TenKhoi
+            </a>
+        }
+    </div>
 }
 
-@if (lopMonHocs.Any())
+@* ── Bộ lọc Lớp trong khối ── *@
+@{
+    var lopsOfKhoi = lopMonHocs
+        .Where(x => x.Lop != null)
+        .Select(x => x.Lop!)
+        .DistinctBy(l => l.Id)
+        .OrderBy(l => l.TenLop)
+        .ToList();
+}
+@if (lopsOfKhoi.Any())
 {
-    <div class="tab-bar mb-16">
-        @foreach (var lmh in lopMonHocs)
+    <div class="lop-khoi-bar">
+        <span style="font-size:0.82rem;font-weight:600;color:#64748b;align-self:center;"> Lớp:</span>
+        @foreach (var lop in lopsOfKhoi)
         {
-            var isActive = (lmh.LopId == lopId && lmh.MonHocId == monHocId);
-            <a asp-action="QuanLyDiemSo" asp-route-lopId="@lmh.LopId" asp-route-monHocId="@lmh.MonHocId"
-               class="tab-item @(isActive ? "active" : "")">
-                Lớp @lmh.Lop?.TenLop - @lmh.MonHoc?.TenMonHoc
+            var firstMon = lopMonHocs.FirstOrDefault(x => x.LopId == lop.Id);
+            <a asp-action="QuanLyDiemSo"
+               asp-route-khoiId="@khoiId"
+               asp-route-lopId="@lop.Id"
+               asp-route-monHocId="@(lop.Id == lopId ? monHocId : firstMon?.MonHocId ?? 0)"
+               class="lop-khoi-tab @(lop.Id == lopId ? "active" : "")">
+                @lop.TenLop
+            </a>
+        }
+    </div>
+}
+
+@* ── Tab chọn môn (theo lớp đang chọn) ── *@
+@{
+    var monsOfLopDs = lopMonHocs
+        .Where(x => x.LopId == lopId && x.MonHoc != null)
+        .Select(x => x.MonHoc!)
+        .ToList();
+}
+@if (monsOfLopDs.Count > 1)
+{
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.2rem;padding:10px 14px;background:#eff6ff;border-radius:12px;">
+        <span style="font-size:0.82rem;font-weight:600;color:#1d4ed8;align-self:center;"> Môn:</span>
+        @foreach (var mon in monsOfLopDs)
+        {
+            <a asp-action="QuanLyDiemSo"
+               asp-route-khoiId="@khoiId"
+               asp-route-lopId="@lopId"
+               asp-route-monHocId="@mon.Id"
+               style="display:inline-flex;align-items:center;padding:5px 14px;border-radius:8px;font-size:0.85rem;font-weight:500;text-decoration:none;transition:all .15s;border:1.5px solid @(mon.Id == monHocId ? "transparent" : "#bfdbfe");background:@(mon.Id == monHocId ? "#1d4ed8" : "#fff");color:@(mon.Id == monHocId ? "#fff" : "#1d4ed8");">
+                @mon.TenMonHoc
             </a>
         }
     </div>
@@ -46,7 +159,6 @@
                     <th width="120">Cuối kỳ(60%)</th>
                     <th width="120">Tổng kết</th>
                     <th>Xếp loại</th>
-                    <th width="80"></th>
                 </tr>
             </thead>
             <tbody>
@@ -55,26 +167,26 @@
                     <tr data-hs-id="@g.HocSinhId" data-mon-hoc-id="@monHocId">
                         <td class="fw-medium">@g.TenHocSinh</td>
                         <td>
-                            <input type="number" class="input-inline dm1-input" value="@g.DiemMieng" min="0" max="10" step="0.1" placeholder="--" onchange="tinhTongKet(this)"/>
+                            <input type="number" class="input-inline dm1-input" value="@g.DiemMieng" min="0" max="10" step="0.1" placeholder="--" onchange="tinhTongKet(this)" onblur="autoLuuDiem(this)"/>
                         </td>
                         <td>
-                            <input type="number" class="input-inline dm2-input" value="@g.DiemMieng2" min="0" max="10" step="0.1" placeholder="--" onchange="tinhTongKet(this)"/>
+                            <input type="number" class="input-inline dm2-input" value="@g.DiemMieng2" min="0" max="10" step="0.1" placeholder="--" onchange="tinhTongKet(this)" onblur="autoLuuDiem(this)"/>
                         </td>
                         <td>
-                            <input type="number" class="input-inline dm3-input" value="@g.DiemMieng3" min="0" max="10" step="0.1" placeholder="--" onchange="tinhTongKet(this)"/>
+                            <input type="number" class="input-inline dm3-input" value="@g.DiemMieng3" min="0" max="10" step="0.1" placeholder="--" onchange="tinhTongKet(this)" onblur="autoLuuDiem(this)"/>
                         </td>
                         <td>
-                            <input type="number" class="input-inline dm4-input" value="@g.DiemMieng4" min="0" max="10" step="0.1" placeholder="--" onchange="tinhTongKet(this)"/>
+                            <input type="number" class="input-inline dm4-input" value="@g.DiemMieng4" min="0" max="10" step="0.1" placeholder="--" onchange="tinhTongKet(this)" onblur="autoLuuDiem(this)"/>
                         </td>
                         <td>
                             <input type="number" class="input-inline gk-input"
                                    value="@g.DiemGiuaKy" min="0" max="10" step="0.1"
-                                   placeholder="--" onchange="tinhTongKet(this)" />
+                                   placeholder="--" onchange="tinhTongKet(this)" onblur="autoLuuDiem(this)" />
                         </td>
                         <td>
                             <input type="number" class="input-inline ck-input"
                                    value="@g.DiemCuoiKy" min="0" max="10" step="0.1"
-                                   placeholder="--" onchange="tinhTongKet(this)" />
+                                   placeholder="--" onchange="tinhTongKet(this)" onblur="autoLuuDiem(this)" />
                         </td>
                         <td class="td-tongket fw-bold" style="color:var(--blue)">
                             @(g.DiemTongKet?.ToString("0.#") ?? "--")
@@ -84,14 +196,11 @@
                                 @g.XepLoai
                             </span>
                         </td>
-                        <td>
-                            <button class="btn-link" onclick="luuDiem(this)">Lưu</button>
-                        </td>
                     </tr>
                 }
                 @if (!Model.Any())
                 {
-                    <tr><td colspan="7" class="text-center">Chưa có dữ liệu học sinh trong lớp này.</td></tr>
+                    <tr><td colspan="9" class="text-center">Chưa có dữ liệu học sinh trong lớp này.</td></tr>
                 }
             </tbody>
         </table>
@@ -143,9 +252,8 @@
             }
         }
 
-        function luuDiem(btn) {
-            const row = btn.closest('tr');
-            const payload = {
+        function buildPayload(row) {
+            return {
                 HocSinhId : row.dataset.hsId,
                 MonHocId  : parseInt(row.dataset.monHocId),
                 DiemMieng : parseFloat(row.querySelector('.dm1-input').value) || null,
@@ -155,45 +263,22 @@
                 DiemGiuaKy: parseFloat(row.querySelector('.gk-input').value) || null,
                 DiemCuoiKy: parseFloat(row.querySelector('.ck-input').value) || null
             };
+        }
+
+        function autoLuuDiem(input) {
+            const row = input.closest('tr');
+            if (!input.value) return;
+            const payload = buildPayload(row);
             fetch('@Url.Action("LuuDiem", "GiaoVien", new { area = "GiaoVien" })',{
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() },
                 body: JSON.stringify(payload)
-            }).then(r => r.json()).then(d => showToast(d.message, d.success ? 'success' : 'error'));
-        }
-
-        function luuTatCaDiem() {
-            const rows = document.querySelectorAll('tbody tr');
-            let promises = [];
-            rows.forEach(row => {
-                const dm1 = row.querySelector('.dm1-input')?.value;
-                const dm2 = row.querySelector('.dm2-input')?.value;
-                const dm3 = row.querySelector('.dm3-input')?.value;
-                const dm4 = row.querySelector('.dm4-input')?.value;
-                const gk = row.querySelector('.gk-input')?.value;
-                const ck = row.querySelector('.ck-input')?.value;
-                if (dm1 || dm2 || dm3 || dm4 || gk || ck) {
-                    promises.push(
-                        fetch('@Url.Action("LuuDiem", "GiaoVien", new { area = "GiaoVien" })',{
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() },
-                            body: JSON.stringify({
-                                HocSinhId : row.dataset.hsId,
-                                MonHocId  : parseInt(row.dataset.monHocId),
-                                DiemMieng : parseFloat(dm1) || null,
-                                DiemMieng2: parseFloat(dm2) || null,
-                                DiemMieng3: parseFloat(dm3) || null,
-                                DiemMieng4: parseFloat(dm4) || null,
-                                DiemGiuaKy: parseFloat(gk) || null,
-                                DiemCuoiKy: parseFloat(ck) || null
-                            })
-                        })
-                    );
+            }).then(r => r.json()).then(d => {
+                if (d.success) {
+                    input.style.borderColor = '#22c55e';
+                    setTimeout(() => { input.style.borderColor = ''; }, 1200);
                 }
-            });
-            Promise.all(promises).then(() => {
-                showToast('Đã lưu tất cả điểm!', 'success');
-            });
+            }).catch(() => {});
         }
     </script>
 }

@@ -8,37 +8,62 @@
     var monHocIds = ViewBag.MonHocIds as List<int> ?? new List<int>();
     var allLopMonHocs = ViewBag.AllLopMonHocs as List<LMS_THPT.Models.LopMonHoc> ?? new List<LMS_THPT.Models.LopMonHoc>();
 
-    // Danh sách môn học của giáo viên (distinct)
-    var danhSachMon = allLopMonHocs
-        .Select(x => x.MonHoc)
-        .Where(x => x != null)
-        .DistinctBy(x => x!.Id)
-        .OrderBy(x => x!.TenMonHoc)
-        .ToList();
+    // Danh sách môn học của giáo viên
+    var danhSachMon = ViewBag.DanhSachMon as List<LMS_THPT.Models.MonHoc> ?? new List<LMS_THPT.Models.MonHoc>();
 }
 
-@section TopbarAction {
-    <a asp-action="TienDo" asp-route-monHocId="@monHocHienTai"
-       class="btn btn-primary">Làm mới</a>
-}
+
+@* ── Gradient Page Header ── *@
+<div style="background:linear-gradient(135deg,#1a1f36 0%,#7c3aed 100%);border-radius:16px;padding:1.6rem 2rem;color:#fff;margin-bottom:1.5rem;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-30%;right:-5%;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06);"></div>
+    <div class="d-flex align-items-center gap-3" style="position:relative;z-index:1;">
+        <div>
+            <h1 class="fw-bold mb-0" style="font-size:1.65rem;letter-spacing:-0.02em;font-weight:800;">Theo dõi tiến độ học tập</h1>
+            <p class="mb-0" style="font-size:.9rem;opacity:.8;font-weight:500;margin-top:.3rem;">Thống kê và phân tích kết quả học tập của học sinh</p>
+        </div>
+    </div>
+</div>
 
 @* ── Môn học tabs ── *@
 @if (danhSachMon.Any())
 {
-    <div class="tab-bar mb-16" style="gap:8px;">
+    <style>
+        .mon-tab {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 10px 20px; font-size: 14px; font-weight: 500;
+            border-radius: 50px; text-decoration: none; transition: all 0.25s ease;
+            cursor: pointer; gap: 6px; border: 1px solid transparent;
+        }
+        .mon-tab-active {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            border: 1px solid transparent;
+        }
+        .mon-tab-inactive {
+            background: #ffffff; color: #4b5563 !important;
+            border: 1px solid #e5e7eb;
+        }
+        .mon-tab-inactive:hover {
+            background: #f9fafb; color: #111827 !important;
+            border-color: #d1d5db; transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+    </style>
+    <div class="tab-bar mb-16" style="gap:12px; display: flex; flex-wrap: wrap; margin-bottom: 24px;">
         @foreach (var mon in danhSachMon)
         {
             var isActive = mon!.Id == monHocHienTai;
             <a asp-action="TienDo" asp-route-monHocId="@mon.Id"
-               class="badge @(isActive ? "badge-primary" : "badge-secondary") text-decoration-none"
-               style="padding:8px 16px;font-size:14px;cursor:pointer;">
-                <i class="fa-solid fa-book-open" style="font-size:10px;margin-right:4px;opacity:.8"></i>
-                @mon.TenMonHoc
+               class="mon-tab @(isActive ? "mon-tab-active" : "mon-tab-inactive")">
+                
+                <span>@mon.TenMonHoc</span>
                 @{
-                    // Đếm số lớp có môn này
                     var soLop = allLopMonHocs.Count(x => x.MonHocId == mon.Id);
                 }
-                <span style="font-size:10px;opacity:.75;margin-left:4px;">(@soLop lớp)</span>
+                <span style="font-size:11px; opacity: @(isActive ? "0.85" : "0.6"); background: @(isActive ? "rgba(255,255,255,0.2)" : "#f3f4f6"); padding: 2px 8px; border-radius: 20px;">
+                    @soLop lớp
+                </span>
             </a>
         }
     </div>
@@ -48,7 +73,7 @@
 {
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
                 padding:60px 20px;color:var(--text3);font-size:14px;gap:12px;">
-        <i class="fa-solid fa-users-slash" style="font-size:40px;color:var(--border)"></i>
+        
         <div>Chưa có học sinh nào được phân công cho môn này.</div>
     </div>
 }
@@ -57,24 +82,24 @@ else
     <!-- KPI -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-label">Trung bình lớp</div>
-            <div class="stat-value">@Model.DiemTrungBinhLop.ToString("0.#")</div>
-            <div class="stat-sub">Điểm tổng kết</div>
+            <div class="stat-icon" style="background:#eff6ff; color:#1d4ed8; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">TB</div>
+            <div class="fw-bold" style="font-size:1.65rem; color:#1d4ed8; letter-spacing:-0.02em;">@Model.DiemTrungBinhLop.ToString("0.#")</div>
+            <div class="text-muted" style="font-size:0.85rem; font-weight:500;">Điểm trung bình lớp</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Hoàn thành</div>
-            <div class="stat-value success">@Model.TiLeHoanThanh%</div>
-            <div class="stat-sub">Tỷ lệ nộp bài</div>
+            <div class="stat-icon" style="background:#f0fdf4; color:#15803d; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">HT</div>
+            <div class="fw-bold" style="font-size:1.65rem; color:#15803d; letter-spacing:-0.02em;">@Model.TiLeHoanThanh%</div>
+            <div class="text-muted" style="font-size:0.85rem; font-weight:500;">Tỷ lệ hoàn thành</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Học sinh xuất sắc</div>
-            <div class="stat-value">@Model.SoHocSinhXuatSac</div>
-            <div class="stat-sub">Điểm ≥ 9.0</div>
+            <div class="stat-icon" style="background:#faf5ff; color:#7e22ce; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">XS</div>
+            <div class="fw-bold" style="font-size:1.65rem; color:#7e22ce; letter-spacing:-0.02em;">@Model.SoHocSinhXuatSac</div>
+            <div class="text-muted" style="font-size:0.85rem; font-weight:500;">Học sinh xuất sắc</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Cần hỗ trợ</div>
-            <div class="stat-value @(Model.SoHocSinhCanHoTro > 0 ? "danger" : "")">@Model.SoHocSinhCanHoTro</div>
-            <div class="stat-sub">Điểm dưới 5.0</div>
+            <div class="stat-icon" style="background:#fff7ed; color:#c2410c; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">HT</div>
+            <div class="fw-bold" style="font-size:1.65rem; color:#c2410c; letter-spacing:-0.02em;">@Model.SoHocSinhCanHoTro</div>
+            <div class="text-muted" style="font-size:0.85rem; font-weight:500;">Cần hỗ trợ</div>
         </div>
     </div>
 
