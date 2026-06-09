@@ -77,11 +77,42 @@
     </div>
 </div>
 
+@{
+    var lopsOfMon = ViewBag.LopsOfMon as List<LMS_THPT.Models.LopMonHoc> ?? new List<LMS_THPT.Models.LopMonHoc>();
+    int defaultLopId = (int)(ViewBag.DefaultLopId ?? 0);
+}
 <div class="form-card">
     <form asp-action="CreateBaiTap" method="post" enctype="multipart/form-data">
         @Html.AntiForgeryToken()
-        <input type="hidden" name="lopId" value="@ViewBag.LopId" />
         <input type="hidden" name="monHocId" value="@ViewBag.MonHocId" />
+
+        @* ── Chọn lớp ── *@
+        <div class="mb-4">
+            <label class="form-label">Đăng cho lớp <span class="text-danger">*</span></label>
+            @if (!lopsOfMon.Any())
+            {
+                <div class="alert alert-warning py-2 px-3" style="border-radius:10px;font-size:.9rem;">
+                    ⚠️ Bạn chưa được phân công lớp nào cho môn học này.
+                </div>
+            }
+            else
+            {
+                <div style="display:flex;flex-wrap:wrap;gap:10px;padding:14px;background:#f8fafc;border-radius:12px;border:1.5px solid #e2e8f0;">
+                    @foreach (var lmh in lopsOfMon)
+                    {
+                        bool isDefault = lmh.LopId == defaultLopId || (defaultLopId == 0 && lmh == lopsOfMon.First());
+                        <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;padding:8px 16px;border-radius:10px;border:2px solid @(isDefault ? "#ff6b00" : "#e2e8f0");background:@(isDefault ? "#fff7ed" : "#fff");font-weight:600;font-size:.88rem;color:@(isDefault ? "#ff6b00" : "#475569");transition:all .15s;" class="lop-checkbox-label">
+                            <input type="checkbox" name="lopIds" value="@lmh.LopId"
+                                   @(isDefault ? "checked" : "")
+                                   style="accent-color:#ff6b00;width:16px;height:16px;"
+                                   onchange="updateLopLabel(this)" />
+                            🏫 @(lmh.Lop?.TenLop ?? $"Lớp #{lmh.LopId}")
+                        </label>
+                    }
+                </div>
+                <div style="margin-top:6px;font-size:.8rem;color:#94a3b8;">Tick chọn một hoặc nhiều lớp để đăng bài tập.</div>
+            }
+        </div>
         
         <div class="mb-4">
             <label class="form-label">Tiêu đề bài tập <span class="text-danger">*</span></label>
@@ -177,4 +208,19 @@
         dateInput.addEventListener('change', updateDay);
         updateDay();
     });
+
+    // Cập nhật style label khi tick/untick checkbox lớp
+    function updateLopLabel(cb) {
+        var label = cb.closest('label');
+        if (!label) return;
+        if (cb.checked) {
+            label.style.borderColor = '#ff6b00';
+            label.style.background = '#fff7ed';
+            label.style.color = '#ff6b00';
+        } else {
+            label.style.borderColor = '#e2e8f0';
+            label.style.background = '#fff';
+            label.style.color = '#475569';
+        }
+    }
 </script>

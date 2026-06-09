@@ -43,34 +43,23 @@ namespace LMS_THPT.Controllers
                 return View(new List<BaiGiang>());
             }
 
-            // ✅ BÀI GIẢNG - lọc theo cả monHocId và lopId (nếu có)
-            // Bài giảng hiện chưa lưu lopId trực tiếp, lọc theo monHocId là đủ cho feed của giáo viên
+            // ✅ BÀI GIẢNG - lọc theo monHocId và lopId (chỉ hiển thị bài của đúng lớp hoặc bài không gắn lớp)
             var postsQuery = _context.DanhSachBaiGiang
                 .Include(b => b.TaiLieus)
                 .Include(b => b.MonHoc)
                 .Include(b => b.NguoiDung)
-                .Where(b => b.MonHocId == monHocId && b.IsActive);
+                .Where(b => b.MonHocId == monHocId && b.IsActive
+                         && (b.LopId == null || b.LopId == lopId));
 
             var posts = await postsQuery
                 .OrderByDescending(b => b.NgayTao)
                 .ToListAsync();
 
-            // ✅ BÀI TẬP - lọc theo monHocId, và nếu có lopId thì lọc thêm theo GV phụ trách lớp đó
+            // ✅ BÀI TẬP - lọc theo monHocId và lopId để không hiển thị bài của lớp khác
             IQueryable<BaiTap> tapsQuery = _context.DanhSachBaiTap
-                .Where(t => t.MonHocId == monHocId)
+                .Where(t => t.MonHocId == monHocId
+                         && (t.LopId == null || t.LopId == lopId))
                 .Include(x => x.NguoiDung);
-
-            // Nếu có lopId, chỉ lấy bài tập của giáo viên dạy lớp đó (tránh GV cùng môn thấy bài của nhau)
-            if (lopId.HasValue)
-            {
-                var gvCuaLop = await _context.LopMonHocs
-                    .Where(lm => lm.LopId == lopId.Value && lm.MonHocId == monHocId.Value)
-                    .Select(lm => lm.GiaoVienId)
-                    .FirstOrDefaultAsync();
-
-                if (gvCuaLop != null)
-                    tapsQuery = tapsQuery.Where(t => t.NguoiDungId == gvCuaLop);
-            }
 
             var taps = await tapsQuery
                 .OrderByDescending(t => t.NgayTao)

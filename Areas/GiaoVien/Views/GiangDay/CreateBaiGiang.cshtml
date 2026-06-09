@@ -40,6 +40,11 @@
 .btn-cancel-outline:hover{background:#e2e8f0;color:#374151}
 </style>
 
+@{
+    var lopsOfMonBG = ViewBag.LopsOfMon as List<LMS_THPT.Models.LopMonHoc> ?? new List<LMS_THPT.Models.LopMonHoc>();
+    int defaultLopIdBG = (int)(ViewBag.DefaultLopId ?? 0);
+}
+
 <div class="bg-wrap">
   <div class="bg-hero">
     <div class="bg-hero-icon">📖</div>
@@ -55,7 +60,34 @@
     <div class="bg-body">
       <form asp-action="CreateBaiGiang" method="post" enctype="multipart/form-data">
         @Html.AntiForgeryToken()
-        <input type="hidden" name="lopId" value="@ViewBag.LopId" />
+
+        @* ── Chọn lớp ── *@
+        <div class="bg-field">
+          <label>Đăng cho lớp <span style="color:#ef4444">*</span></label>
+          @if (!lopsOfMonBG.Any())
+          {
+              <div style="background:#fef3c7;border:1.5px solid #fde68a;border-radius:10px;padding:10px 14px;font-size:.88rem;color:#92400e;">
+                  ⚠️ Bạn chưa được phân công lớp nào cho môn học này.
+              </div>
+          }
+          else
+          {
+              <div style="display:flex;flex-wrap:wrap;gap:10px;padding:14px;background:#f8fafc;border-radius:12px;border:1.5px solid #e2e8f0;">
+                  @foreach (var lmh in lopsOfMonBG)
+                  {
+                      bool isDefaultBG = lmh.LopId == defaultLopIdBG || (defaultLopIdBG == 0 && lmh == lopsOfMonBG.First());
+                      <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;padding:8px 16px;border-radius:10px;border:2px solid @(isDefaultBG ? "#ff6b00" : "#e2e8f0");background:@(isDefaultBG ? "#fff7ed" : "#fff");font-weight:600;font-size:.88rem;color:@(isDefaultBG ? "#ff6b00" : "#475569");transition:all .15s;">
+                          <input type="checkbox" name="lopIds" value="@lmh.LopId"
+                                 @(isDefaultBG ? "checked" : "")
+                                 style="accent-color:#ff6b00;width:16px;height:16px;"
+                                 onchange="updateLopLabelBG(this)" />
+                          🏫 @(lmh.Lop?.TenLop ?? $"Lớp #{lmh.LopId}")
+                      </label>
+                  }
+              </div>
+              <div style="margin-top:6px;font-size:.78rem;color:#94a3b8;">Tick chọn một hoặc nhiều lớp để đăng bài giảng.</div>
+          }
+        </div>
 
         <div class="bg-field">
           <label>Tiêu đề bài giảng <span style="color:#ef4444">*</span></label>
@@ -114,4 +146,18 @@ document.getElementById('tinhTienDo').addEventListener('change', function() {
     document.getElementById('tracNghiemContainer').style.display = this.checked ? 'block' : 'none';
     if (!this.checked) document.querySelector('input[name="linkTracNghiem"]').value = '';
 });
+
+function updateLopLabelBG(cb) {
+    var label = cb.closest('label');
+    if (!label) return;
+    if (cb.checked) {
+        label.style.borderColor = '#ff6b00';
+        label.style.background = '#fff7ed';
+        label.style.color = '#ff6b00';
+    } else {
+        label.style.borderColor = '#e2e8f0';
+        label.style.background = '#fff';
+        label.style.color = '#475569';
+    }
+}
 </script>

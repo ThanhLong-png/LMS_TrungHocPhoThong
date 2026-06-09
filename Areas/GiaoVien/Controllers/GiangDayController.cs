@@ -175,8 +175,9 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
         // Tạo bài giảng - GET
         [Authorize(Roles = "GiaoVien,Admin")]
         [HttpGet]
-        public IActionResult CreateBaiGiang(int? lopId, int? monHocId)
+        public async Task<IActionResult> CreateBaiGiang(int? lopId, int? monHocId)
         {
+            var user = await _userManager.GetUserAsync(User);
             ViewBag.LopId = lopId;
             ViewBag.MonHocId = monHocId;
             if (monHocId.HasValue)
@@ -185,6 +186,19 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
                 ViewBag.MonHoc = mon;
             }
             ViewBag.TatCaMonHoc = _context.DanhSachMonHoc.Where(m => m.IsActive).ToList();
+
+            // Danh sách lớp giáo viên được phân công theo môn đang chọn
+            var lopsOfMon = User.IsInRole("Admin")
+                ? await _context.LopMonHocs
+                    .Include(x => x.Lop)
+                    .Where(x => !monHocId.HasValue || x.MonHocId == monHocId.Value)
+                    .ToListAsync()
+                : await _context.LopMonHocs
+                    .Include(x => x.Lop)
+                    .Where(x => x.GiaoVienId == user.Id && (!monHocId.HasValue || x.MonHocId == monHocId.Value))
+                    .ToListAsync();
+            ViewBag.LopsOfMon = lopsOfMon;
+            ViewBag.DefaultLopId = lopId;
             return View();
         }
 
@@ -192,110 +206,122 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
         [Authorize(Roles = "GiaoVien,Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateBaiGiang(string title, string content, int? lopId, int? monHocId, IFormFile[] attachments, bool tinhTienDo, string linkTracNghiem)
+        public async Task<IActionResult> CreateBaiGiang(string title, string content, List<int> lopIds, int? monHocId, IFormFile[] attachments, bool tinhTienDo, string linkTracNghiem)
         {
             if (!monHocId.HasValue)
             {
                 TempData["Error"] = "Vui lòng chọn môn học trước khi đăng bài.";
-                return RedirectToAction("CreateBaiGiang", new { lopId, monHocId });
+                return RedirectToAction("CreateBaiGiang", new { monHocId });
+            }
+            if (lopIds == null || !lopIds.Any())
+            {
+                TempData["Error"] = "Vui lòng chọn ít nhất một lớp.";
+                return RedirectToAction("CreateBaiGiang", new { monHocId });
             }
 
             var user = await _userManager.GetUserAsync(User);
-            if (!User.IsInRole("Admin") && lopId.HasValue)
+
+            // Xác thực giáo viên có quyền với từng lớp được chọn
+            if (!User.IsInRole("Admin"))
             {
-                var isAuthorized = await _context.LopMonHocs.AnyAsync(x => x.LopId == lopId.Value && x.MonHocId == monHocId.Value && x.GiaoVienId == user.Id);
-                if (!isAuthorized)
+                foreach (var lId in lopIds)
                 {
-                    TempData["Error"] = "Bạn không được phân công giảng dạy môn học này cho lớp đã chọn.";
-                    return RedirectToAction("Index");
+                    var ok = await _context.LopMonHocs.AnyAsync(x => x.LopId == lId && x.MonHocId == monHocId.Value && x.GiaoVienId == user.Id);
+                    if (!ok)
+                    {
+                        TempData["Error"] = "Bạn không được phân công dạy môn này cho một hoặc nhiều lớp đã chọn.";
+                        return RedirectToAction("Index");
+                    }
                 }
             }
 
-            var bai = new BaiGiang
-            {
-                TieuDe = string.IsNullOrWhiteSpace(title) ? "(Không có tiêu đề)" : title.Trim(),
-                MoTa = content,
-                MonHocId = monHocId.Value,
-                LopId = lopId,
-                IsActive = true,
-                NgayTao = DateTime.Now,
-                NguoiDungId = user.Id,
-                TinhTienDo = tinhTienDo,
-                LinkTracNghiem = tinhTienDo ? linkTracNghiem : null
-            };
-
-            _context.DanhSachBaiGiang.Add(bai);
-            await _context.SaveChangesAsync();
-
+            // Upload file đính kèm một lần
+            var uploadedFiles = new List<(string relPath, string orig, LoaiTaiLieu loai, long size)>();
             if (attachments != null && attachments.Length > 0)
             {
                 var uploadsRoot = Path.Combine(_env.WebRootPath, "uploads", "baigiang", DateTime.Now.ToString("yyyyMMdd"));
                 Directory.CreateDirectory(uploadsRoot);
-
                 foreach (var file in attachments.Where(f => f != null && f.Length > 0))
                 {
                     var orig = Path.GetFileName(file.FileName);
                     var safe = Guid.NewGuid().ToString() + "_" + orig;
                     var savePath = Path.Combine(uploadsRoot, safe);
                     using (var fs = new FileStream(savePath, FileMode.Create))
-                    {
                         await file.CopyToAsync(fs);
-                    }
-
-                    var relPath = Path.Combine("/uploads/baigiang/", DateTime.Now.ToString("yyyyMMdd"), safe).Replace("\\", "/");
-
+                    var relPath = ("/uploads/baigiang/" + DateTime.Now.ToString("yyyyMMdd") + "/" + safe).Replace("\\", "/");
                     var ext = Path.GetExtension(orig).ToLowerInvariant();
-                    var loai = LoaiTaiLieu.Khac;
-                    if (ext == ".pdf") loai = LoaiTaiLieu.PDF;
-                    else if (ext == ".mp4" || ext == ".avi" || ext == ".mov") loai = LoaiTaiLieu.Video;
-                    else if (ext == ".ppt" || ext == ".pptx") loai = LoaiTaiLieu.Slide;
+                    var loai = ext == ".pdf" ? LoaiTaiLieu.PDF
+                             : (ext == ".mp4" || ext == ".avi" || ext == ".mov") ? LoaiTaiLieu.Video
+                             : (ext == ".ppt" || ext == ".pptx") ? LoaiTaiLieu.Slide
+                             : LoaiTaiLieu.Khac;
+                    uploadedFiles.Add((relPath, orig, loai, file.Length));
+                }
+            }
 
-                    var tl = new TaiLieu
+            // Tạo bài giảng riêng cho từng lớp được chọn
+            int? firstLopId = lopIds.FirstOrDefault();
+            foreach (var lId in lopIds)
+            {
+                var bai = new BaiGiang
+                {
+                    TieuDe = string.IsNullOrWhiteSpace(title) ? "(Không có tiêu đề)" : title.Trim(),
+                    MoTa = content,
+                    MonHocId = monHocId.Value,
+                    LopId = lId,
+                    IsActive = true,
+                    NgayTao = DateTime.Now,
+                    NguoiDungId = user.Id,
+                    TinhTienDo = tinhTienDo,
+                    LinkTracNghiem = tinhTienDo ? linkTracNghiem : null
+                };
+                _context.DanhSachBaiGiang.Add(bai);
+                await _context.SaveChangesAsync();
+
+                foreach (var (relPath, orig, loai, size) in uploadedFiles)
+                {
+                    _context.DanhSachTaiLieu.Add(new TaiLieu
                     {
                         TenTaiLieu = orig,
                         DuongDanFile = relPath,
                         LoaiTaiLieu = loai,
-                        KichThuocFile = file.Length,
+                        KichThuocFile = size,
                         NgayTao = DateTime.Now,
                         BaiGiangId = bai.Id,
                         MonHocId = monHocId
-                    };
+                    });
+                }
 
-                    _context.DanhSachTaiLieu.Add(tl);
+                if (tinhTienDo)
+                {
+                    _context.DanhSachBaiTap.Add(new BaiTap
+                    {
+                        TieuDe = "Trắc nghiệm: " + bai.TieuDe,
+                        MoTa = $"Vui lòng hoàn thành bài trắc nghiệm tại link sau: <a href='{linkTracNghiem}' target='_blank'>Nhấn vào đây</a><br/><br/>Sau khi hoàn thành, hãy tải lên ảnh chụp màn hình điểm số hoặc nhập 'Đã hoàn thành' vào nội dung bài nộp.",
+                        MonHocId = monHocId.Value,
+                        LopId = lId,
+                        HanNop = DateTime.Now.AddDays(7),
+                        DiemToiDa = 10,
+                        LoaiDiem = LoaiDiem.BaiTap,
+                        TrangThai = TrangThaiBaiTap.DangMo,
+                        NgayTao = DateTime.Now,
+                        NguoiDungId = user.Id,
+                        HocKy = (DateTime.Now.Month >= 8 || DateTime.Now.Month <= 1) ? 1 : 2
+                    });
                 }
 
                 await _context.SaveChangesAsync();
             }
 
-            if (tinhTienDo)
-            {
-                var baitap = new BaiTap
-                {
-                    TieuDe = "Trắc nghiệm: " + bai.TieuDe,
-                    MoTa = $"Vui lòng hoàn thành bài trắc nghiệm tại link sau: <a href='{linkTracNghiem}' target='_blank'>Nhấn vào đây</a><br/><br/>Sau khi hoàn thành, hãy tải lên ảnh chụp màn hình điểm số hoặc nhập 'Đã hoàn thành' vào nội dung bài nộp.",
-                    MonHocId = monHocId.Value,
-                    LopId = lopId,
-                    HanNop = DateTime.Now.AddDays(7),
-                    DiemToiDa = 10,
-                    LoaiDiem = LoaiDiem.BaiTap,
-                    TrangThai = TrangThaiBaiTap.DangMo,
-                    NgayTao = DateTime.Now,
-                    NguoiDungId = user.Id,
-                    HocKy = (DateTime.Now.Month >= 8 || DateTime.Now.Month <= 1) ? 1 : 2
-                };
-                _context.DanhSachBaiTap.Add(baitap);
-                await _context.SaveChangesAsync();
-            }
-
-            TempData["Success"] = "Đã đăng bài giảng.";
-            return RedirectToAction("Index", new { lopId, monHocId });
+            TempData["Success"] = $"Đã đăng bài giảng cho {lopIds.Count} lớp.";
+            return RedirectToAction("Index", new { lopId = firstLopId, monHocId });
         }
 
         // Tạo bài tập - GET
         [Authorize(Roles = "GiaoVien,Admin")]
         [HttpGet]
-        public IActionResult CreateBaiTap(int? lopId, int? monHocId)
+        public async Task<IActionResult> CreateBaiTap(int? lopId, int? monHocId)
         {
+            var user = await _userManager.GetUserAsync(User);
             ViewBag.LopId = lopId;
             ViewBag.MonHocId = monHocId;
             if (monHocId.HasValue)
@@ -304,59 +330,81 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
                 ViewBag.MonHoc = mon;
             }
             ViewBag.TatCaMonHoc = _context.DanhSachMonHoc.Where(m => m.IsActive).ToList();
+
+            // Danh sách lớp giáo viên được phân công theo môn đang chọn
+            var lopsOfMon = User.IsInRole("Admin")
+                ? await _context.LopMonHocs
+                    .Include(x => x.Lop)
+                    .Where(x => !monHocId.HasValue || x.MonHocId == monHocId.Value)
+                    .ToListAsync()
+                : await _context.LopMonHocs
+                    .Include(x => x.Lop)
+                    .Where(x => x.GiaoVienId == user.Id && (!monHocId.HasValue || x.MonHocId == monHocId.Value))
+                    .ToListAsync();
+            ViewBag.LopsOfMon = lopsOfMon;
+            ViewBag.DefaultLopId = lopId;
             return View();
         }
 
         [Authorize(Roles = "GiaoVien,Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateBaiTap(string title, string content, int? lopId, int? monHocId, string dueDate, string dueTime, IFormFile[] attachments, LoaiDiem loaiDiem, int hocKy, int cotDiemMieng = 1)
+        public async Task<IActionResult> CreateBaiTap(string title, string content, List<int> lopIds, int? monHocId, string dueDate, string dueTime, IFormFile[] attachments, LoaiDiem loaiDiem, int hocKy, int cotDiemMieng = 1)
         {
             if (!monHocId.HasValue)
             {
                 TempData["Error"] = "Vui lòng chọn môn học để tạo bài tập.";
-                return RedirectToAction("CreateBaiTap", new { lopId, monHocId });
+                return RedirectToAction("CreateBaiTap", new { monHocId });
+            }
+            if (lopIds == null || !lopIds.Any())
+            {
+                TempData["Error"] = "Vui lòng chọn ít nhất một lớp.";
+                return RedirectToAction("CreateBaiTap", new { monHocId });
             }
 
             var user = await _userManager.GetUserAsync(User);
-            if (!User.IsInRole("Admin") && lopId.HasValue)
+            if (!User.IsInRole("Admin"))
             {
-                var isAuthorized = await _context.LopMonHocs.AnyAsync(x => x.LopId == lopId.Value && x.MonHocId == monHocId.Value && x.GiaoVienId == user.Id);
-                if (!isAuthorized)
+                foreach (var lId in lopIds)
                 {
-                    TempData["Error"] = "Bạn không được phân công giảng dạy môn học này cho lớp đã chọn.";
-                    return RedirectToAction("Index");
+                    var ok = await _context.LopMonHocs.AnyAsync(x => x.LopId == lId && x.MonHocId == monHocId.Value && x.GiaoVienId == user.Id);
+                    if (!ok)
+                    {
+                        TempData["Error"] = "Bạn không được phân công dạy môn này cho một hoặc nhiều lớp đã chọn.";
+                        return RedirectToAction("Index");
+                    }
                 }
             }
 
             DateTime hanNop = DateTime.Now.AddDays(7);
             if (!string.IsNullOrWhiteSpace(dueDate) && DateTime.TryParse(dueDate, out var d))
                 hanNop = d.Date;
-
             if (!string.IsNullOrWhiteSpace(dueTime) && TimeSpan.TryParse(dueTime, out var t))
                 hanNop = hanNop.Date + t;
 
-            var baitap = new BaiTap
+            int? firstLopId = lopIds.FirstOrDefault();
+            foreach (var lId in lopIds)
             {
-                TieuDe = string.IsNullOrWhiteSpace(title) ? "(Không có tiêu đề)" : title.Trim(),
-                MoTa = content,
-                MonHocId = monHocId.Value,
-                LopId = lopId,
-                HanNop = hanNop,
-                DiemToiDa = 10,
-                LoaiDiem = loaiDiem,
-                CotDiemMieng = cotDiemMieng,
-                TrangThai = TrangThaiBaiTap.DangMo,
-                NgayTao = DateTime.Now,
-                NguoiDungId = user.Id,
-                HocKy = hocKy
-            };
-
-            _context.DanhSachBaiTap.Add(baitap);
+                _context.DanhSachBaiTap.Add(new BaiTap
+                {
+                    TieuDe = string.IsNullOrWhiteSpace(title) ? "(Không có tiêu đề)" : title.Trim(),
+                    MoTa = content,
+                    MonHocId = monHocId.Value,
+                    LopId = lId,
+                    HanNop = hanNop,
+                    DiemToiDa = 10,
+                    LoaiDiem = loaiDiem,
+                    CotDiemMieng = cotDiemMieng,
+                    TrangThai = TrangThaiBaiTap.DangMo,
+                    NgayTao = DateTime.Now,
+                    NguoiDungId = user.Id,
+                    HocKy = hocKy
+                });
+            }
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Đã tạo bài tập.";
-            return RedirectToAction("Index", new { lopId, monHocId });
+            TempData["Success"] = $"Đã tạo bài tập cho {lopIds.Count} lớp.";
+            return RedirectToAction("Index", new { lopId = firstLopId, monHocId });
         }
 
         // Chi tiết bài giảng

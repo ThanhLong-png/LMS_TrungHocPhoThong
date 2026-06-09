@@ -55,10 +55,11 @@ namespace LMS_THPT.Controllers
                     .ToListAsync()
                 : new List<int>();
 
-            // Bài tập chỉ thuộc các môn của lớp HS
+            // Bài tập chỉ thuộc các môn của lớp HS, và chỉ được giao cho đúng lớp (hoặc cho tất cả khi LopId == null)
             var tatCaBaiTap = await _context.DanhSachBaiTap
                 .Include(x => x.MonHoc)
-                .Where(bt => monHocIdsOfLop.Contains(bt.MonHocId))
+                .Where(bt => monHocIdsOfLop.Contains(bt.MonHocId)
+                          && (bt.LopId == null || bt.LopId == user.LopId))
                 .ToListAsync();
 
             // Bài đã nộp của học sinh
@@ -854,17 +855,19 @@ namespace LMS_THPT.Controllers
                     .FirstOrDefaultAsync(x => x.LopId == user.LopId.Value && x.MonHocId == id);
             }
 
-            // Bài giảng mới nhất của môn (hiển thị tối đa 5 bài)
+            // Bài giảng mới nhất của môn (hiển thị tối đa 5 bài), chỉ lấy của đúng lớp
             var baiGiangs = await _context.DanhSachBaiGiang
                 .Include(x => x.NguoiDung)
-                .Where(x => x.MonHocId == id && x.IsActive)
+                .Where(x => x.MonHocId == id && x.IsActive
+                         && (x.LopId == null || x.LopId == user.LopId))
                 .OrderByDescending(x => x.Id)
                 .Take(5)
                 .ToListAsync();
 
-            // Toàn bộ bài tập của môn (không giới hạn để thống kê đúng)
+            // Toàn bộ bài tập của môn đúng lớp (không giới hạn để thống kê đúng)
             var baiTaps = await _context.DanhSachBaiTap
-                .Where(x => x.MonHocId == id)
+                .Where(x => x.MonHocId == id
+                         && (x.LopId == null || x.LopId == user.LopId))
                 .OrderBy(x => x.HanNop)
                 .ToListAsync();
 
