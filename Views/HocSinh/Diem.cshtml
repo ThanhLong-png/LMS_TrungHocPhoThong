@@ -329,9 +329,7 @@
                                      <td class="ps-4 fw-semibold">@(d.MonHoc?.TenMonHoc ?? "—")</td>
                                      <td class="diem-cell">
                                          @{
-                                             var miengs = d.IsChotMieng
-                                                 ? new[]{ d.DiemMieng1, d.DiemMieng2, d.DiemMieng3, d.DiemMieng4 }.Where(x=>x.HasValue).Select(x=>x!.Value.ToString("F1"))
-                                                 : Enumerable.Empty<string>();
+                                             var miengs = new[]{ d.DiemMieng1, d.DiemMieng2, d.DiemMieng3, d.DiemMieng4 }.Where(x=>x.HasValue).Select(x=>x!.Value.ToString("F1"));
                                          }
                                          <span class="@(!miengs.Any()?"diem-null":"")">@(miengs.Any() ? string.Join(" | ", miengs) : "—")</span>
                                      </td>
@@ -341,19 +339,19 @@
                                      <td class="diem-cell">
                                          <span class="diem-null">—</span>
                                      </td>
-                                     <td class="diem-cell"><span class="@(!d.IsChotGiuaKy || !d.DiemGiuaKy.HasValue?"diem-null":"")">
-                                         @(d.IsChotGiuaKy && d.DiemGiuaKy.HasValue ? d.DiemGiuaKy.Value.ToString("F1") : "—")
+                                     <td class="diem-cell"><span class="@(!d.DiemGiuaKy.HasValue?"diem-null":"")">
+                                         @(d.DiemGiuaKy.HasValue ? d.DiemGiuaKy.Value.ToString("F1") : "—")
                                      </span></td>
-                                     <td class="diem-cell"><span class="@(!d.IsChotCuoiKy || !d.DiemCuoiKy.HasValue?"diem-null":"")">
-                                         @(d.IsChotCuoiKy && d.DiemCuoiKy.HasValue ? d.DiemCuoiKy.Value.ToString("F1") : "—")
+                                     <td class="diem-cell"><span class="@(!d.DiemCuoiKy.HasValue?"diem-null":"")">
+                                         @(d.DiemCuoiKy.HasValue ? d.DiemCuoiKy.Value.ToString("F1") : "—")
                                      </span></td>
                                      <td class="diem-cell">
                                          <span style="font-size:1.05rem;color:#ff6b00;font-weight:800;">
-                                             @(d.IsChotMieng && d.IsChotGiuaKy && d.IsChotCuoiKy && d.DiemTongKet.HasValue ? d.DiemTongKet.Value.ToString("F1") : "—")
+                                             @(d.DiemTongKet.HasValue ? d.DiemTongKet.Value.ToString("F1") : "—")
                                          </span>
                                      </td>
                                      <td class="diem-cell">
-                                         @if (d.IsChotMieng && d.IsChotGiuaKy && d.IsChotCuoiKy && !string.IsNullOrEmpty(xl)) {
+                                         @if (!string.IsNullOrEmpty(xl)) {
                                              <span class="xep-loai-badge @xlCls">@xl</span>
                                          } else { <span class="diem-null">—</span> }
                                      </td>

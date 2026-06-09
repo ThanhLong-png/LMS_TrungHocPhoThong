@@ -72,3 +72,23 @@ Console.WriteLine("==============================");
 - [x] Hiển thị: Trả về Toast thông báo thành công và highlight màu xanh nhạt (`#dcfce7`) lên ô input điểm.
 - [x] Consistency: Dữ liệu điểm ghi vào Database đồng nhất chính xác với bộ filter `Năm Học` / `Học Kỳ` trên giao diện.
 - [x] Reload Test: Tải lại trang (F5) hoặc đổi tab, dữ liệu mới nhập vẫn hiển thị bình thường.
+
+---
+
+## 4. Bổ sung: Lỗi chấm điểm bài tập không lưu vào sổ điểm và không phân biệt học kỳ
+
+### Mô tả lỗi bổ sung:
+- **Hiện tượng 1:** Khi giáo viên chấm điểm bài tập (trong màn hình Danh sách nộp bài - Submissions), điểm số được lưu vào bài nộp nhưng **không xuất hiện trong sổ điểm chính thức** của học sinh.
+- **Nguyên nhân 1:** Controller chấm bài `ChamDiemBaiTap` chỉ đồng bộ điểm số sang bảng cũ `DiemSos`, mà không đồng bộ sang bảng `DiemHocKys` (bảng đang được dùng để hiển thị trên Sổ điểm).
+- **Hiện tượng 2:** Khi giáo viên tạo bài tập ghi sổ điểm, hệ thống không phân biệt bài tập thuộc về Học kỳ nào. Nếu học kỳ trước đó đã chốt điểm mà giáo viên sửa hoặc chấm điểm, hệ thống sẽ gây xung đột dữ liệu hoặc không cho biết điểm thuộc về kỳ nào.
+
+### Giải pháp khắc phục:
+1. **Model:** Bổ sung thuộc tính `HocKy` (int) vào model `BaiTap` và tạo/chạy Migration cơ sở dữ liệu (`AddHocKyToBaiTap`) để tạo cột tương ứng trong database.
+2. **View:** Cập nhật giao diện Tạo bài tập (`CreateBaiTap.cshtml`) và Sửa bài tập (`EditBaiTap.cshtml`) bổ sung dropdown chọn Học kỳ (Học kỳ 1 / Học kỳ 2) với định dạng grid `col-md-3`.
+3. **Controller:** 
+   - Cập nhật action `CreateBaiTap` và `EditBaiTap` nhận giá trị học kỳ được giáo viên chọn từ View và lưu lại vào database.
+   - Cập nhật action `ChamDiemBaiTap` để:
+     - Tự động lấy `NamHoc` của học sinh và `HocKy` của bài tập.
+     - Kiểm tra trạng thái chốt điểm tương ứng trong `DiemHocKys` (`IsChotMieng`, `IsChotGiuaKy`, `IsChotCuoiKy`). Nếu học kỳ/loại điểm đó đã được chốt, API sẽ chặn lưu và trả về thông báo lỗi chi tiết cho giáo viên.
+     - Nếu chưa chốt, tiến hành cập nhật song song vào cả hai bảng `DiemSos` và `DiemHocKys` (đồng thời tính điểm tổng kết học kỳ tự động nếu cả 3 cột điểm đã chốt).
+

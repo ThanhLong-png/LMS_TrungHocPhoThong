@@ -96,49 +96,33 @@
         </div>
         
         <div class="row mb-4">
-            <div class="col-md-4 mb-3 mb-md-0">
+            <div class="col-md-3 mb-3 mb-md-0">
                 <label class="form-label">Hạn nộp - Ngày</label>
                 <input type="date" name="dueDate" class="form-control" value="@Model.HanNop.ToString("yyyy-MM-dd")" />
             </div>
-            <div class="col-md-4 mb-3 mb-md-0">
+            <div class="col-md-3 mb-3 mb-md-0">
                 <label class="form-label">Hạn nộp - Giờ</label>
                 <input type="time" name="dueTime" class="form-control" value="@Model.HanNop.ToString("HH:mm")" />
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3 mb-3 mb-md-0">
                 <label class="form-label">Loại điểm (Ghi sổ)</label>
-                <select name="loaiDiem" class="form-select form-control">
-                    @if (Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.BaiTap)
-                    {
-                        <option value="BaiTap" selected>Khác (Không ghi sổ)</option>
-                    }
-                    else
-                    {
-                        <option value="BaiTap">Khác (Không ghi sổ)</option>
-                    }
-                    @if (Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.MiengKiemTra)
-                    {
-                        <option value="MiengKiemTra" selected>Điểm miệng / 15 phút</option>
-                    }
-                    else
-                    {
-                        <option value="MiengKiemTra">Điểm miệng / 15 phút</option>
-                    }
-                    @if (Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.GiuaKy)
-                    {
-                        <option value="GiuaKy" selected>Điểm giữa kỳ (40%)</option>
-                    }
-                    else
-                    {
-                        <option value="GiuaKy">Điểm giữa kỳ (40%)</option>
-                    }
-                    @if (Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.CuoiKy)
-                    {
-                        <option value="CuoiKy" selected>Điểm cuối kỳ (60%)</option>
-                    }
-                    else
-                    {
-                        <option value="CuoiKy">Điểm cuối kỳ (60%)</option>
-                    }
+                <select id="selectLoaiDiem" class="form-select form-control" onchange="onLoaiDiemChange()">
+                    <option value="BaiTap|1" selected="@(Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.BaiTap)">Khác (Không ghi sổ)</option>
+                    <option value="MiengKiemTra|1" selected="@(Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.MiengKiemTra && Model.CotDiemMieng == 1)">Điểm miệng 1</option>
+                    <option value="MiengKiemTra|2" selected="@(Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.MiengKiemTra && Model.CotDiemMieng == 2)">Điểm miệng 2</option>
+                    <option value="MiengKiemTra|3" selected="@(Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.MiengKiemTra && Model.CotDiemMieng == 3)">Điểm miệng 3</option>
+                    <option value="MiengKiemTra|4" selected="@(Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.MiengKiemTra && Model.CotDiemMieng == 4)">Điểm miệng 4</option>
+                    <option value="GiuaKy|1" selected="@(Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.GiuaKy)">Điểm giữa kỳ (40%)</option>
+                    <option value="CuoiKy|1" selected="@(Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.CuoiKy)">Điểm cuối kỳ (60%)</option>
+                </select>
+                <input type="hidden" name="loaiDiem" id="loaiDiem" value="@Model.LoaiDiem" />
+                <input type="hidden" name="cotDiemMieng" id="cotDiemMieng" value="@Model.CotDiemMieng" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Học kỳ <span class="text-danger">*</span></label>
+                <select name="hocKy" class="form-select form-control" required>
+                    <option value="1" selected="@(Model.HocKy == 1)">Học kỳ 1</option>
+                    <option value="2" selected="@(Model.HocKy == 2)">Học kỳ 2</option>
                 </select>
             </div>
         </div>
@@ -157,8 +141,17 @@
 <script>
     CKEDITOR.replace('editor');
 
+    function onLoaiDiemChange() {
+        var select = document.getElementById("selectLoaiDiem");
+        var val = select.value.split('|');
+        document.getElementById("loaiDiem").value = val[0];
+        document.getElementById("cotDiemMieng").value = val[1];
+    }
+
     // Hiển thị ngày trong tuần khi thay đổi ngày
     document.addEventListener('DOMContentLoaded', function () {
+        onLoaiDiemChange(); // Initialize hidden inputs
+
         var dateInput = document.querySelector('input[name="dueDate"]');
         if (!dateInput) return;
 

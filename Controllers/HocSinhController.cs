@@ -573,7 +573,7 @@ namespace LMS_THPT.Controllers
 
             if (!hocKy.HasValue)
             {
-                hocKy = 1;
+                hocKy = (DateTime.Now.Month >= 8 || DateTime.Now.Month <= 1) ? 1 : 2;
             }
 
             // ---- Điểm học kỳ chính thức (DiemHocKy) ----

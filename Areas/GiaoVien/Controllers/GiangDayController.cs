@@ -280,7 +280,8 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
                     LoaiDiem = LoaiDiem.BaiTap,
                     TrangThai = TrangThaiBaiTap.DangMo,
                     NgayTao = DateTime.Now,
-                    NguoiDungId = user.Id
+                    NguoiDungId = user.Id,
+                    HocKy = (DateTime.Now.Month >= 8 || DateTime.Now.Month <= 1) ? 1 : 2
                 };
                 _context.DanhSachBaiTap.Add(baitap);
                 await _context.SaveChangesAsync();
@@ -306,11 +307,10 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
             return View();
         }
 
-        // Tạo bài tập - POST
         [Authorize(Roles = "GiaoVien,Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateBaiTap(string title, string content, int? lopId, int? monHocId, string dueDate, string dueTime, IFormFile[] attachments, LoaiDiem loaiDiem)
+        public async Task<IActionResult> CreateBaiTap(string title, string content, int? lopId, int? monHocId, string dueDate, string dueTime, IFormFile[] attachments, LoaiDiem loaiDiem, int hocKy, int cotDiemMieng = 1)
         {
             if (!monHocId.HasValue)
             {
@@ -345,9 +345,11 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
                 HanNop = hanNop,
                 DiemToiDa = 10,
                 LoaiDiem = loaiDiem,
+                CotDiemMieng = cotDiemMieng,
                 TrangThai = TrangThaiBaiTap.DangMo,
                 NgayTao = DateTime.Now,
-                NguoiDungId = user.Id
+                NguoiDungId = user.Id,
+                HocKy = hocKy
             };
 
             _context.DanhSachBaiTap.Add(baitap);
@@ -414,7 +416,7 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
         [Authorize(Roles = "GiaoVien,Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditBaiTap(int id, string title, string content, int? lopId, string dueDate, string dueTime, LoaiDiem loaiDiem)
+        public async Task<IActionResult> EditBaiTap(int id, string title, string content, int? lopId, string dueDate, string dueTime, LoaiDiem loaiDiem, int hocKy, int cotDiemMieng = 1)
         {
             var baitap = await _context.DanhSachBaiTap.FirstOrDefaultAsync(x => x.Id == id);
             if (baitap == null) return NotFound();
@@ -441,6 +443,8 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
             baitap.MoTa = content;
             baitap.HanNop = hanNop;
             baitap.LoaiDiem = loaiDiem;
+            baitap.CotDiemMieng = cotDiemMieng;
+            baitap.HocKy = hocKy;
 
             _context.Update(baitap);
             await _context.SaveChangesAsync();
@@ -533,18 +537,44 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
                 }
             }
 
-            // Lưu điểm vào bài nộp
-            baiNop.Diem = req.Diem;
-            baiNop.TrangThai = TrangThaiBaiNop.ChamXong;
-            baiNop.NgayCham = DateTime.Now;
-
-            // Đồng bộ sang bảng Điểm Số (ghi sổ)
+            // Đồng bộ sang bảng Điểm Số và Điểm Học Kỳ (ghi sổ)
             var hocSinhId = baiNop.HocSinhId;
             var monHocId = baiNop.BaiTap?.MonHocId;
             var loaiDiem = baiNop.BaiTap?.LoaiDiem ?? LoaiDiem.BaiTap;
 
             if (monHocId.HasValue && loaiDiem != LoaiDiem.BaiTap)
             {
+                var hs = await _context.Users.FirstOrDefaultAsync(u => u.Id == hocSinhId);
+                string namHoc = hs?.NamHoc;
+                if (string.IsNullOrEmpty(namHoc))
+                {
+                    namHoc = DateTime.Now.Month >= 9
+                        ? $"{DateTime.Now.Year}-{DateTime.Now.Year + 1}"
+                        : $"{DateTime.Now.Year - 1}-{DateTime.Now.Year}";
+                }
+                int hocKy = (baiNop.BaiTap != null && baiNop.BaiTap.HocKy > 0) ? baiNop.BaiTap.HocKy : ((DateTime.Now.Month >= 8 || DateTime.Now.Month <= 1) ? 1 : 2);
+
+                // Kiểm tra chốt điểm học kỳ
+                var diemHK = await _context.DiemHocKys
+                    .FirstOrDefaultAsync(d => d.HocSinhId == hocSinhId && d.MonHocId == monHocId.Value && d.NamHoc == namHoc && d.HocKy == hocKy);
+
+                if (diemHK != null)
+                {
+                    if (loaiDiem == LoaiDiem.MiengKiemTra && diemHK.IsChotMieng)
+                    {
+                        return Json(new { success = false, message = $"Điểm miệng Học kỳ {hocKy} ({namHoc}) đã được chốt, không thể chỉnh sửa!" });
+                    }
+                    if (loaiDiem == LoaiDiem.GiuaKy && diemHK.IsChotGiuaKy)
+                    {
+                        return Json(new { success = false, message = $"Điểm giữa kỳ Học kỳ {hocKy} ({namHoc}) đã được chốt, không thể chỉnh sửa!" });
+                    }
+                    if (loaiDiem == LoaiDiem.CuoiKy && diemHK.IsChotCuoiKy)
+                    {
+                        return Json(new { success = false, message = $"Điểm cuối kỳ Học kỳ {hocKy} ({namHoc}) đã được chốt, không thể chỉnh sửa!" });
+                    }
+                }
+
+                // Cập nhật DiemSo
                 var diemSo = await _context.DiemSos
                     .FirstOrDefaultAsync(d => d.NguoiDungId == hocSinhId && d.MonHocId == monHocId.Value);
 
@@ -561,10 +591,85 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
 
                 if (loaiDiem == LoaiDiem.GiuaKy) diemSo.DiemGiuaKy = req.Diem;
                 else if (loaiDiem == LoaiDiem.CuoiKy) diemSo.DiemCuoiKy = req.Diem;
-                else if (loaiDiem == LoaiDiem.MiengKiemTra) diemSo.Diem = req.Diem; // dùng chung với MiengKiemTra
+                else if (loaiDiem == LoaiDiem.MiengKiemTra)
+                {
+                    int cot = baiNop.BaiTap?.CotDiemMieng ?? 1;
+                    if (cot == 2) diemSo.DiemMieng2 = req.Diem;
+                    else if (cot == 3) diemSo.DiemMieng3 = req.Diem;
+                    else if (cot == 4) diemSo.DiemMieng4 = req.Diem;
+                    else diemSo.Diem = req.Diem; // cot == 1
+                }
 
                 diemSo.NgayCapNhat = DateTime.Now;
+                diemSo.GiaoVienId = user.Id;
+
+                // Cập nhật DiemHocKy
+                if (diemHK == null)
+                {
+                    diemHK = new DiemHocKy
+                    {
+                        HocSinhId = hocSinhId,
+                        MonHocId = monHocId.Value,
+                        LopId = hs?.LopId,
+                        NamHoc = namHoc,
+                        HocKy = hocKy,
+                        NgayNhap = DateTime.Now
+                    };
+                    _context.DiemHocKys.Add(diemHK);
+                }
+
+                if (loaiDiem == LoaiDiem.MiengKiemTra)
+                {
+                    int cot = baiNop.BaiTap?.CotDiemMieng ?? 1;
+                    if (cot == 2) diemHK.DiemMieng2 = req.Diem;
+                    else if (cot == 3) diemHK.DiemMieng3 = req.Diem;
+                    else if (cot == 4) diemHK.DiemMieng4 = req.Diem;
+                    else diemHK.DiemMieng1 = req.Diem; // cot == 1
+                }
+                else if (loaiDiem == LoaiDiem.GiuaKy)
+                {
+                    diemHK.DiemGiuaKy = req.Diem;
+                }
+                else if (loaiDiem == LoaiDiem.CuoiKy)
+                {
+                    diemHK.DiemCuoiKy = req.Diem;
+                }
+
+                diemHK.NgayCapNhat = DateTime.Now;
+                diemHK.GiaoVienId = user.Id;
+
+                // Tính điểm tổng kết
+                if (diemHK.IsChotMieng && diemHK.IsChotGiuaKy && diemHK.IsChotCuoiKy)
+                {
+                    var listDiem = new List<double>();
+                    if (diemHK.DiemMieng1.HasValue) listDiem.Add(diemHK.DiemMieng1.Value);
+                    if (diemHK.DiemMieng2.HasValue) listDiem.Add(diemHK.DiemMieng2.Value);
+                    if (diemHK.DiemMieng3.HasValue) listDiem.Add(diemHK.DiemMieng3.Value);
+                    if (diemHK.DiemMieng4.HasValue) listDiem.Add(diemHK.DiemMieng4.Value);
+
+                    if (diemHK.DiemGiuaKy.HasValue && diemHK.DiemCuoiKy.HasValue)
+                    {
+                        double avgMieng = listDiem.Any() ? listDiem.Average() : 0;
+                        diemHK.DiemTongKet = Math.Round((avgMieng + diemHK.DiemGiuaKy.Value * 2 + diemHK.DiemCuoiKy.Value * 3) / 6, 1);
+
+                        diemHK.XepLoai = diemHK.DiemTongKet >= 8.0 ? "Giỏi"
+                                       : diemHK.DiemTongKet >= 6.5 ? "Khá"
+                                       : diemHK.DiemTongKet >= 5.0 ? "Trung bình"
+                                       : diemHK.DiemTongKet >= 3.5 ? "Yếu"
+                                       : "Kém";
+                    }
+                }
+                else
+                {
+                    diemHK.DiemTongKet = null;
+                    diemHK.XepLoai = null;
+                }
             }
+
+            // Lưu điểm vào bài nộp
+            baiNop.Diem = req.Diem;
+            baiNop.TrangThai = TrangThaiBaiNop.ChamXong;
+            baiNop.NgayCham = DateTime.Now;
 
             await _context.SaveChangesAsync();
             return Json(new { success = true });

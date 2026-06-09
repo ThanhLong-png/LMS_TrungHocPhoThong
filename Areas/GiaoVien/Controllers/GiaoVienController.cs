@@ -1064,11 +1064,128 @@ namespace LMS_THPT.Areas.GiaoVien.Controllers
         [HttpPost]
         public async Task<IActionResult> LuuDiemBaiTap([FromBody] LuuDiemBaiTapRequest model)
         {
-            var baiNop = await _db.BaiNops.FindAsync(model.BaiNopId);
+            var baiNop = await _db.BaiNops
+                .Include(b => b.BaiTap)
+                .FirstOrDefaultAsync(b => b.Id == model.BaiNopId);
             if (baiNop == null) return Json(new { success = false, message = "Không tìm thấy bài nộp." });
 
             baiNop.Diem = model.Diem;
             baiNop.NhanXet = model.NhanXet;
+            baiNop.TrangThai = TrangThaiBaiNop.ChamXong;
+            baiNop.NgayCham = DateTime.Now;
+
+            // ── Đồng bộ sang DiemHocKy nếu loại bài tập ghi vào sổ điểm ──
+            var loaiDiem = baiNop.BaiTap?.LoaiDiem ?? LoaiDiem.BaiTap;
+            var monHocId = baiNop.BaiTap?.MonHocId;
+            var hocSinhId = baiNop.HocSinhId;
+
+            if (monHocId.HasValue && loaiDiem != LoaiDiem.BaiTap)
+            {
+                var gv = await _userManager.GetUserAsync(User);
+                var hs = await _db.Users.FirstOrDefaultAsync(u => u.Id == hocSinhId);
+                string namHoc = hs?.NamHoc ?? string.Empty;
+                if (string.IsNullOrEmpty(namHoc))
+                {
+                    namHoc = DateTime.Now.Month >= 9
+                        ? $"{DateTime.Now.Year}-{DateTime.Now.Year + 1}"
+                        : $"{DateTime.Now.Year - 1}-{DateTime.Now.Year}";
+                }
+                int hocKy = (baiNop.BaiTap != null && baiNop.BaiTap.HocKy > 0)
+                    ? baiNop.BaiTap.HocKy
+                    : ((DateTime.Now.Month >= 8 || DateTime.Now.Month <= 1) ? 1 : 2);
+
+                // Kiểm tra chốt điểm
+                var diemHK = await _db.DiemHocKys
+                    .FirstOrDefaultAsync(d => d.HocSinhId == hocSinhId
+                        && d.MonHocId == monHocId.Value
+                        && d.NamHoc == namHoc
+                        && d.HocKy == hocKy);
+
+                if (diemHK != null)
+                {
+                    if (loaiDiem == LoaiDiem.MiengKiemTra && diemHK.IsChotMieng)
+                        return Json(new { success = false, message = $"Điểm miệng HK{hocKy} ({namHoc}) đã được chốt!" });
+                    if (loaiDiem == LoaiDiem.GiuaKy && diemHK.IsChotGiuaKy)
+                        return Json(new { success = false, message = $"Điểm giữa kỳ HK{hocKy} ({namHoc}) đã được chốt!" });
+                    if (loaiDiem == LoaiDiem.CuoiKy && diemHK.IsChotCuoiKy)
+                        return Json(new { success = false, message = $"Điểm cuối kỳ HK{hocKy} ({namHoc}) đã được chốt!" });
+                }
+
+                // Cập nhật DiemSo
+                var diemSo = await _db.DiemSos
+                    .FirstOrDefaultAsync(d => d.NguoiDungId == hocSinhId && d.MonHocId == monHocId.Value);
+                if (diemSo == null)
+                {
+                    diemSo = new DiemSo { NguoiDungId = hocSinhId, MonHocId = monHocId.Value, NgayNhap = DateTime.Now };
+                    _db.DiemSos.Add(diemSo);
+                }
+                if (loaiDiem == LoaiDiem.GiuaKy) diemSo.DiemGiuaKy = model.Diem;
+                else if (loaiDiem == LoaiDiem.CuoiKy) diemSo.DiemCuoiKy = model.Diem;
+                else if (loaiDiem == LoaiDiem.MiengKiemTra)
+                {
+                    int cotMieng = baiNop.BaiTap?.CotDiemMieng ?? 1;
+                    if (cotMieng == 2) diemSo.DiemMieng2 = model.Diem;
+                    else if (cotMieng == 3) diemSo.DiemMieng3 = model.Diem;
+                    else if (cotMieng == 4) diemSo.DiemMieng4 = model.Diem;
+                    else diemSo.Diem = model.Diem; // cot == 1
+                }
+                diemSo.NgayCapNhat = DateTime.Now;
+                if (gv != null) diemSo.GiaoVienId = gv.Id;
+
+                // Cập nhật DiemHocKy
+                if (diemHK == null)
+                {
+                    diemHK = new DiemHocKy
+                    {
+                        HocSinhId = hocSinhId,
+                        MonHocId = monHocId.Value,
+                        LopId = hs?.LopId,
+                        NamHoc = namHoc,
+                        HocKy = hocKy,
+                        NgayNhap = DateTime.Now
+                    };
+                    _db.DiemHocKys.Add(diemHK);
+                }
+
+                if (loaiDiem == LoaiDiem.MiengKiemTra)
+                {
+                    int cotMieng = baiNop.BaiTap?.CotDiemMieng ?? 1;
+                    if (cotMieng == 2) diemHK.DiemMieng2 = model.Diem;
+                    else if (cotMieng == 3) diemHK.DiemMieng3 = model.Diem;
+                    else if (cotMieng == 4) diemHK.DiemMieng4 = model.Diem;
+                    else diemHK.DiemMieng1 = model.Diem; // cot == 1
+                }
+                else if (loaiDiem == LoaiDiem.GiuaKy) diemHK.DiemGiuaKy = model.Diem;
+                else if (loaiDiem == LoaiDiem.CuoiKy) diemHK.DiemCuoiKy = model.Diem;
+
+                diemHK.NgayCapNhat = DateTime.Now;
+                if (gv != null) diemHK.GiaoVienId = gv.Id;
+
+                // Tính tổng kết nếu đã chốt cả 3 loại
+                if (diemHK.IsChotMieng && diemHK.IsChotGiuaKy && diemHK.IsChotCuoiKy)
+                {
+                    var listMieng = new List<double>();
+                    if (diemHK.DiemMieng1.HasValue) listMieng.Add(diemHK.DiemMieng1.Value);
+                    if (diemHK.DiemMieng2.HasValue) listMieng.Add(diemHK.DiemMieng2.Value);
+                    if (diemHK.DiemMieng3.HasValue) listMieng.Add(diemHK.DiemMieng3.Value);
+                    if (diemHK.DiemMieng4.HasValue) listMieng.Add(diemHK.DiemMieng4.Value);
+                    if (diemHK.DiemGiuaKy.HasValue && diemHK.DiemCuoiKy.HasValue)
+                    {
+                        double avgMieng = listMieng.Any() ? listMieng.Average() : 0;
+                        diemHK.DiemTongKet = Math.Round((avgMieng + diemHK.DiemGiuaKy.Value * 2 + diemHK.DiemCuoiKy.Value * 3) / 6, 1);
+                        diemHK.XepLoai = diemHK.DiemTongKet >= 8.0 ? "Giỏi"
+                                       : diemHK.DiemTongKet >= 6.5 ? "Khá"
+                                       : diemHK.DiemTongKet >= 5.0 ? "Trung bình"
+                                       : diemHK.DiemTongKet >= 3.5 ? "Yếu" : "Kém";
+                    }
+                }
+                else
+                {
+                    diemHK.DiemTongKet = null;
+                    diemHK.XepLoai = null;
+                }
+            }
+
             await _db.SaveChangesAsync();
             return Json(new { success = true, message = "Đã lưu điểm!" });
         }

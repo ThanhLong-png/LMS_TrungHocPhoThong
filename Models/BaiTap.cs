@@ -20,6 +20,15 @@ namespace LMS_THPT.Models
         public DateTime NgayTao { get; set; } = DateTime.Now;
         public DateTime? NgayCapNhat { get; set; }
 
+        /// <summary>Học kỳ bài tập thuộc về (1 hoặc 2). 0 = chưa xác định.</summary>
+        public int HocKy { get; set; } = 0;
+
+        /// <summary>
+        /// Cột điểm miệng cụ thể (1-4). Chỉ dùng khi LoaiDiem = MiengKiemTra.
+        /// 1 = DiemMieng1, 2 = DiemMieng2, 3 = DiemMieng3, 4 = DiemMieng4.
+        /// </summary>
+        public int CotDiemMieng { get; set; } = 1;
+
         // Khóa ngoại
         public int MonHocId { get; set; }
         public MonHoc? MonHoc { get; set; }
@@ -31,4 +40,4 @@ namespace LMS_THPT.Models
         // Navigation
         public ICollection<BaiNop> BaiNops { get; set; } = new List<BaiNop>();
     }
-}
+}
