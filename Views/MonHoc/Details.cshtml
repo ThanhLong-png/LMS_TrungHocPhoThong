@@ -1,0 +1,164 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
+@model LMS_THPT.Models.MonHoc
+
+@{
+    ViewData["Title"] = "Chi tiết môn học";
+    Layout = "_AdminLayout";
+}
+
+
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">📖 @Model.TenMonHoc</h1>
+        <div style="font-size:0.85rem; color:var(--admin-text-muted); margin-top:4px;">Quản lý giáo viên &amp; phân công lớp học</div>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="admin-alert admin-alert-success"><span class="admin-alert-icon">✅</span> @TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="admin-alert admin-alert-danger"><span class="admin-alert-icon">❌</span> @TempData["Error"]</div>
+}
+
+<div class="admin-grid admin-grid-2">
+
+    <!-- LEFT: DANH SÁCH GIÁO VIÊN -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3>👨‍🏫 Giáo viên đang phân công</h3>
+        </div>
+        <div class="admin-card-body">
+            @if (Model.MonHocGiaoViens != null && Model.MonHocGiaoViens.Any())
+            {
+                <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                    @foreach (var gv in Model.MonHocGiaoViens.GroupBy(x => x.GiaoVien))
+                    {
+                        <div style="display:flex; align-items:center; justify-content:space-between;
+                                    gap:1rem; padding:1rem; background:var(--admin-surface);
+                                    border-radius:10px; border:1px solid var(--admin-border);">
+                            <div>
+                                <div style="font-weight:700; color:var(--admin-text-primary); font-size:0.95rem;">
+                                    @(gv.Key?.HoTen ?? "Không rõ")
+                                </div>
+                                <div style="font-size:0.82rem; color:var(--admin-text-muted); margin-top:3px;">
+                                    Giáo viên →
+                                    @string.Join(", ",
+                                        gv.Where(x => x.Lop != null)
+                                          .Select(x => x.Lop.TenLop)
+                                          .Distinct()
+                                    )
+                                </div>
+                            </div>
+                            <form asp-action="RemoveGiaoVien" method="post"
+                                  onsubmit="return confirm('Xóa toàn bộ phân công của giáo viên này?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="monHocId" value="@Model.Id" />
+                                <input type="hidden" name="nguoiDungId" value="@gv.Key.Id" />
+                                <button class="admin-btn admin-btn-danger admin-btn-sm">Xóa tất cả</button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="admin-empty">
+                    <div class="admin-empty-icon">👤</div>
+                    <div class="admin-empty-title">Chưa có giáo viên</div>
+                    <div class="admin-empty-text">Chưa có giáo viên được phân công môn học này</div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- RIGHT: THÊM GIÁO VIÊN -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3>➕ Thêm giáo viên</h3>
+        </div>
+        <div class="admin-card-body">
+            <form asp-action="AddGiaoVien" method="post">
+                <input type="hidden" name="monHocId" value="@Model.Id" />
+
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Giáo viên</label>
+                    <select name="nguoiDungId" id="giaoVienSelect" class="admin-form-control" required>
+                        <option value="">-- Chọn giáo viên --</option>
+                        @foreach (var it in (ViewBag.GiaoViens as IEnumerable<SelectListItem>) ?? Enumerable.Empty<SelectListItem>())
+                        {
+                            <option value="@it.Value">@it.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Phân công lớp (tick chọn)</label>
+                    <div id="lopCheckboxList"
+                         style="border:1.5px solid var(--admin-border); border-radius:10px;
+                                max-height:200px; overflow-y:auto; padding:0.4rem 0.6rem;
+                                background:#fff; display:flex; flex-direction:column; gap:0.1rem;">
+                        @{
+                            var lopList = (ViewBag.Lops as IEnumerable<SelectListItem>) ?? Enumerable.Empty<SelectListItem>();
+                        }
+                        @if (!lopList.Any())
+                        {
+                            <div style="padding:0.8rem; color:var(--admin-text-muted); font-size:0.85rem; text-align:center;">
+                                Tất cả lớp đã được phân công
+                            </div>
+                        }
+                        else
+                        {
+                            foreach (var it in lopList)
+                            {
+                                <label style="display:flex; align-items:center; gap:0.55rem;
+                                              padding:0.3rem 0.4rem; border-radius:7px; cursor:pointer;
+                                              transition:background 0.15s;"
+                                       onmouseover="this.style.background='var(--admin-surface)';"
+                                       onmouseout="this.style.background='';">
+                                    <input type="checkbox" name="lopIds" value="@it.Value"
+                                           style="width:15px; height:15px; accent-color:var(--admin-accent);
+                                                  cursor:pointer; flex-shrink:0;" />
+                                    <span style="font-size:0.88rem; font-weight:500;
+                                                 color:var(--admin-text-primary);">Lớp @it.Text</span>
+                                </label>
+                            }
+                        }
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">
+                        <div style="font-size:0.75rem; color:var(--admin-text-muted);">
+                            Tick chọn các lớp để phân công
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button type="button" onclick="selectAllLop(true)"
+                                    style="font-size:0.72rem; color:var(--admin-accent); background:none;
+                                           border:none; cursor:pointer; padding:0; font-weight:600;">Chọn tất cả</button>
+                            <span style="color:var(--admin-border);">|</span>
+                            <button type="button" onclick="selectAllLop(false)"
+                                    style="font-size:0.72rem; color:var(--admin-text-muted); background:none;
+                                           border:none; cursor:pointer; padding:0; font-weight:600;">Bỏ chọn</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="admin-btn admin-btn-primary" style="width:100%;">+ Thêm giáo viên</button>
+
+                <div style="font-size:0.82rem; color:var(--admin-text-muted); margin-top:0.75rem; text-align:center;">
+                    Chọn giáo viên và tick các lớp để phân công giảng dạy
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+    function selectAllLop(checked) {
+        document.querySelectorAll('#lopCheckboxList input[type="checkbox"]')
+                .forEach(cb => cb.checked = checked);
+    }
+</script>
+}

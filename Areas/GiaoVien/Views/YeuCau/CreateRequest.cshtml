@@ -1,0 +1,86 @@
+@model LMS_THPT.Models.YeuCauGiaoVien
+@{ ViewData["Title"] = "Tạo yêu cầu mới"; }
+
+<style>
+@@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+.cr-wrap{font-family:'Inter',sans-serif;max-width:700px;margin:0 auto;padding:0 4px}
+.cr-hero{background:linear-gradient(135deg,#ff6b00 0%,#ff8c00 100%);border-radius:20px;padding:1.8rem 2rem;color:#fff;margin-bottom:1.8rem;position:relative;overflow:hidden;display:flex;align-items:center;gap:1rem;box-shadow:0 10px 30px rgba(255,107,0,0.15)}
+.cr-hero::after{content:'';position:absolute;top:-30%;right:-5%;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.07);pointer-events:none}
+.cr-hero::before{content:'';position:absolute;bottom:-40%;left:5%;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none}
+.cr-hero-icon{width:56px;height:56px;border-radius:14px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;position:relative;z-index:1}
+.cr-hero-text{position:relative;z-index:1}
+.cr-hero-text h1{font-size:1.5rem;font-weight:800;margin:0 0 .25rem}
+.cr-hero-text p{font-size:.88rem;opacity:.75;margin:0}
+.cr-back{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .85rem;border-radius:10px;background:rgba(255,255,255,.15);color:#fff;text-decoration:none;font-size:.82rem;font-weight:600;margin-left:auto;position:relative;z-index:1;transition:background .15s}
+.cr-back:hover{background:rgba(255,255,255,.25);color:#fff}
+.cr-card{background:#fff;border-radius:16px;border:1px solid rgba(0,0,0,.06);box-shadow:0 4px 20px rgba(0,0,0,.07);overflow:hidden}
+.cr-card-head{height:8px;background:linear-gradient(90deg,#ff6b00,#ff8c00,#ea580c)}
+.cr-body{padding:2rem}
+.cr-field{margin-bottom:1.4rem}
+.cr-field label{display:block;font-size:.82rem;font-weight:700;color:#374151;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.04em}
+.cr-field select,
+.cr-field input,
+.cr-field textarea{width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:.9rem;font-family:'Inter',sans-serif;color:#1e293b;background:#f8fafc;transition:border .2s,background .2s;outline:none;box-sizing:border-box}
+.cr-field select:focus,
+.cr-field input:focus,
+.cr-field textarea:focus{border-color:#ff6b00;background:#fff;box-shadow:0 0 0 3px rgba(255,107,0,.1)}
+.cr-field textarea{resize:vertical;min-height:130px}
+.cr-field .text-danger{font-size:.78rem;color:#ef4444;margin-top:4px;display:block}
+.cr-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:1.8rem;padding-top:1.2rem;border-top:1px solid #f1f5f9}
+.btn-submit{background:linear-gradient(135deg,#ff6b00,#ea580c);color:#fff;padding:.7rem 1.6rem;border-radius:10px;border:none;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .18s;box-shadow:0 4px 12px rgba(255,107,0,.3)}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(255,107,0,.4)}
+.btn-cancel-link{background:#f1f5f9;color:#64748b;padding:.7rem 1.4rem;border-radius:10px;text-decoration:none;font-size:.9rem;font-weight:600;border:1.5px solid #e2e8f0;transition:all .15s}
+.btn-cancel-link:hover{background:#e2e8f0;color:#374151}
+</style>
+
+<div class="cr-wrap">
+  <div class="cr-hero">
+    <div class="cr-hero-icon">📝</div>
+    <div class="cr-hero-text">
+      <h1>Tạo yêu cầu mới</h1>
+      <p>Gửi yêu cầu đến Ban giám hiệu để được xem xét và xử lý</p>
+    </div>
+    <a href="@Url.Action("MyRequests")" class="cr-back">← Quay lại</a>
+  </div>
+
+  <div class="cr-card">
+    <div class="cr-card-head"></div>
+    <div class="cr-body">
+      <form asp-action="CreateRequest" method="post">
+        <div class="cr-field">
+          <label>Loại yêu cầu <span style="color:#ef4444">*</span></label>
+          <select asp-for="LoaiYeuCau" required>
+            <option value="">-- Chọn loại yêu cầu --</option>
+            <option value="@LMS_THPT.Models.LoaiYeuCau.NghiPhep">🏖️ Nghỉ phép</option>
+            <option value="@LMS_THPT.Models.LoaiYeuCau.DoiLich">📅 Đổi lịch</option>
+            <option value="@LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen">📦 Yêu cầu tài nguyên</option>
+            <option value="@LMS_THPT.Models.LoaiYeuCau.KhieuNai">⚠️ Khiếu nại</option>
+            <option value="@LMS_THPT.Models.LoaiYeuCau.Khac">❓ Khác</option>
+          </select>
+          <span asp-validation-for="LoaiYeuCau" class="text-danger"></span>
+        </div>
+
+        <div class="cr-field">
+          <label>Tiêu đề <span style="color:#ef4444">*</span></label>
+          <input asp-for="TieuDe" type="text" placeholder="Nhập tiêu đề yêu cầu..." required />
+          <span asp-validation-for="TieuDe" class="text-danger"></span>
+        </div>
+
+        <div class="cr-field">
+          <label>Nội dung chi tiết <span style="color:#ef4444">*</span></label>
+          <textarea asp-for="MoTa" placeholder="Mô tả chi tiết nội dung yêu cầu của bạn..." required></textarea>
+          <span asp-validation-for="MoTa" class="text-danger"></span>
+        </div>
+
+        <div class="cr-footer">
+          <a href="@Url.Action("MyRequests")" class="btn-cancel-link">Hủy bỏ</a>
+          <button type="submit" class="btn-submit">🚀 Gửi yêu cầu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

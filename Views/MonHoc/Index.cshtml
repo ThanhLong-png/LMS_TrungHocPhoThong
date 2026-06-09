@@ -1,0 +1,100 @@
+@model IEnumerable<LMS_THPT.Models.Khoi>
+
+@{
+    ViewData["Title"] = "Quản lý Môn học";
+    Layout = "_AdminLayout";
+}
+
+
+<div class="admin-page-header">
+    <h1 class="admin-page-title">📚 Quản lý Môn Học</h1>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="admin-alert admin-alert-success"><span class="admin-alert-icon">✅</span> @TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="admin-alert admin-alert-danger"><span class="admin-alert-icon">❌</span> @TempData["Error"]</div>
+}
+
+<div class="admin-grid admin-grid-3">
+    @foreach (var khoi in Model)
+    {
+        var collapseId = "collapseAddMonHoc_" + khoi.Id;
+
+        <div class="admin-card">
+            <div class="admin-card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem;">
+                <h3 style="margin: 0;">@khoi.TenKhoi</h3>
+                <button type="button"
+                        class="admin-btn admin-btn-sm"
+                        style="background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.3); margin: 0;"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#@collapseId">
+                    + Thêm
+                </button>
+            </div>
+
+            <div class="admin-card-body">
+                <!-- FORM ADD -->
+                <div class="collapse mb-3" id="@collapseId">
+                    <form asp-action="Create" method="post">
+                        <input type="hidden" name="KhoiId" value="@khoi.Id" />
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text"
+                                   name="TenMonHoc"
+                                   placeholder="Nhập tên môn học..."
+                                   class="admin-form-control"
+                                   style="margin: 0; flex: 1;"
+                                   required />
+                            <button type="submit" class="admin-btn admin-btn-primary" style="margin: 0;">Lưu</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- LIST MÔN -->
+                <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                    @if (khoi.MonHocs?.Count == 0)
+                    {
+                        <div class="admin-empty" style="padding: 1rem;">
+                            <div class="admin-empty-icon">📭</div>
+                            <div class="admin-empty-text" style="font-size: 0.8rem;">Không có môn học</div>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var mh in khoi.MonHocs)
+                        {
+                            <div style="display:flex; align-items:center; gap:0.4rem;
+                                        border:1px solid var(--admin-border); border-radius:8px;
+                                        overflow:hidden; transition:all var(--admin-transition);"
+                                 onmouseover="this.style.background='var(--admin-surface)';"
+                                 onmouseout="this.style.background='';">
+                                <a asp-action="Details" asp-route-id="@mh.Id"
+                                   style="display:flex; align-items:center; gap:0.7rem; padding:0.65rem 0.75rem;
+                                          text-decoration:none; color:var(--admin-text-primary); flex:1; min-width:0;">
+                                    <span style="font-size:1.05rem; flex-shrink:0;">📖</span>
+                                    <span style="font-weight:500; white-space:nowrap; overflow:hidden;
+                                                 text-overflow:ellipsis;">@mh.TenMonHoc</span>
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@mh.Id" method="post" style="margin:0; flex-shrink:0;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            title="Xóa môn học"
+                                            onclick="return confirm('Xóa môn học \'@mh.TenMonHoc\'? Hành động này không thể hoàn tác.')"
+                                            style="width:32px; height:100%; min-height:40px; background:none; border:none;
+                                                   border-left:1px solid var(--admin-border); cursor:pointer;
+                                                   color:#dc2626; font-size:0.9rem; display:flex; align-items:center;
+                                                   justify-content:center; transition:background 0.15s; padding:0 8px;"
+                                            onmouseover="this.style.background='#fef2f2';"
+                                            onmouseout="this.style.background='';">✕</button>
+                                </form>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

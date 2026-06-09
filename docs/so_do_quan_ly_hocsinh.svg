@@ -1,0 +1,221 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="750" viewBox="0 0 880 750">
+  <defs>
+    <!-- Arrow marker definition -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#333" />
+    </marker>
+  </defs>
+
+  <!-- Outer frame with rounded corners -->
+  <rect x="10" y="10" width="860" height="730" rx="15" ry="15" fill="#FFFFFF" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Yellow vertical header column on the left -->
+  <path d="M 60 10 L 25 10 A 15 15 0 0 0 10 25 L 10 725 A 15 15 0 0 0 25 740 L 60 740 Z" fill="#FFF9C4" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Horizontal division lines for swimlanes -->
+  <line x1="10" y1="260" x2="870" y2="260" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Vertical text labels inside the yellow header column -->
+  <text transform="rotate(-90, 35, 135)" x="35" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#333333" font-weight="bold">Admin / Hiệu trưởng</text>
+  <text transform="rotate(-90, 35, 500)" x="35" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#333333" font-weight="bold">Hệ thống</text>
+
+  <!-- ==================== LANE 1: ADMIN / HIỆU TRƯỞNG (y: 10 to 260) ==================== -->
+  
+  <!-- Start Node (Black circle) -->
+  <circle cx="120" cy="50" r="10" fill="#000000" />
+
+  <!-- Diamond: Chọn tác vụ? -->
+  <polygon points="185,40 200,50 185,60 170,50" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="185" y="33" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" font-weight="bold" fill="#000000">Chọn tác vụ?</text>
+
+  <!-- Box 1: Thêm học sinh -->
+  <rect x="110" y="100" width="150" height="45" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="185" y="118" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">
+    <tspan x="185" dy="0">Thêm học sinh</tspan>
+    <tspan x="185" dy="13">(Thủ công / Excel)</tspan>
+  </text>
+
+  <!-- Box 2: Cập nhật thông tin -->
+  <rect x="415" y="100" width="150" height="45" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="490" y="118" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">
+    <tspan x="490" dy="0">Cập nhật thông tin</tspan>
+    <tspan x="490" dy="13">học sinh</tspan>
+  </text>
+
+  <!-- Box 3: Xóa học sinh -->
+  <rect x="660" y="100" width="150" height="45" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="735" y="118" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">
+    <tspan x="735" dy="0">Xóa học sinh</tspan>
+    <tspan x="735" dy="13">(Lưu lịch sử &amp; điểm)</tspan>
+  </text>
+
+
+  <!-- ==================== LANE 2: HỆ THỐNG (y: 260 to 740) ==================== -->
+
+  <!-- === COLUMN 1: ADD STUDENT === -->
+  <!-- Diamond 1: Hình thức thêm? -->
+  <polygon points="185,270 205,290 185,310 165,290" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="135" y="294" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" font-weight="bold" fill="#000000">Chọn hình thức?</text>
+
+  <!-- HT Box 1: Thủ công -->
+  <rect x="50" y="340" width="120" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="110" y="358" text-anchor="middle" font-family="Arial, sans-serif" font-size="9.5" font-weight="bold" fill="#0d47a1">
+    <tspan x="110" dy="0">Tự sinh mã</tspan>
+    <tspan x="110" dy="13">học sinh tuần tự</tspan>
+  </text>
+
+  <!-- HT Box 2: Excel -->
+  <rect x="200" y="340" width="120" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="260" y="358" text-anchor="middle" font-family="Arial, sans-serif" font-size="9.5" font-weight="bold" fill="#0d47a1">
+    <tspan x="260" dy="0">Đọc Excel &amp; sinh</tspan>
+    <tspan x="260" dy="13">mã học sinh theo lô</tspan>
+  </text>
+
+  <!-- HT Box 3: Tạo Account & Role -->
+  <rect x="110" y="430" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="185" y="448" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="185" dy="0">Tạo tài khoản &amp;</tspan>
+    <tspan x="185" dy="13">gán vai trò HocSinh</tspan>
+  </text>
+
+  <!-- HT Box 4: Khởi tạo điểm rỗng -->
+  <rect x="110" y="510" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="185" y="528" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="185" dy="0">Khởi tạo điểm rỗng</tspan>
+    <tspan x="185" dy="13">(DiemSo &amp; DiemHocKy)</tspan>
+  </text>
+
+
+  <!-- === COLUMN 2: UPDATE STUDENT === -->
+  <!-- Diamond 2: Trùng mã học sinh? -->
+  <polygon points="490,270 515,290 490,310 465,290" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="525" y="294" text-anchor="start" font-family="Arial, sans-serif" font-size="9.5" font-weight="bold" fill="#000000">Trùng mã HS?</text>
+
+  <!-- HT Box 5: Lưu CSDL -->
+  <rect x="415" y="430" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="490" y="448" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="490" dy="0">Lưu thông tin</tspan>
+    <tspan x="490" dy="13">cập nhật vào CSDL</tspan>
+  </text>
+
+
+  <!-- === COLUMN 3: DELETE STUDENT === -->
+  <!-- HT Box 6: Lưu LichSuHocSinh -->
+  <rect x="660" y="290" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="735" y="308" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="735" dy="0">Lưu thông tin vào</tspan>
+    <tspan x="735" dy="13">bảng LichSuHocSinh</tspan>
+  </text>
+
+  <!-- HT Box 7: Snapshot điểm -->
+  <rect x="660" y="370" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="735" y="388" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="735" dy="0">Snapshot điểm sang</tspan>
+    <tspan x="735" dy="13">LichSuDiemHocSinh</tspan>
+  </text>
+
+  <!-- HT Box 8: Xóa bản ghi FK -->
+  <rect x="660" y="450" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="735" y="468" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="735" dy="0">Xóa các bản ghi FK</tspan>
+    <tspan x="735" dy="13">(DiemSo, BaiNop,...)</tspan>
+  </text>
+
+  <!-- HT Box 9: Xóa Users -->
+  <rect x="660" y="530" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="735" y="548" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="735" dy="0">Xóa tài khoản</tspan>
+    <tspan x="735" dy="13">khỏi bảng Users</tspan>
+  </text>
+
+
+  <!-- End Node (Black circle with outer border) -->
+  <circle cx="830" cy="380" r="10" fill="#000000" />
+  <circle cx="830" cy="380" r="15" fill="none" stroke="#000000" stroke-width="1.5" />
+
+
+  <!-- ==================== CONNECTIONS / FLOWS ==================== -->
+
+  <!-- Start to Diamond -->
+  <path d="M 130 50 L 170 50" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Diamond to Box 1 -->
+  <path d="M 185 60 L 185 100" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="189" y="80" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Thêm mới</text>
+
+  <!-- Diamond to Box 2 -->
+  <path d="M 200 50 L 490 50 L 490 100" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="345" y="43" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Cập nhật</text>
+
+  <!-- Diamond to Box 3 -->
+  <path d="M 200 50 L 735 50 L 735 100" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="612" y="43" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Xóa học sinh</text>
+
+
+  <!-- === COLUMN 1 FLOWS === -->
+  <!-- Box 1 -> HT Diamond 1 -->
+  <path d="M 185 145 L 185 270" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Diamond 1 -> HT Box 1 (Thủ công) -->
+  <path d="M 175 280 L 110 280 L 110 340" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="142" y="273" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Thủ công</text>
+
+  <!-- Diamond 1 -> HT Box 2 (Excel) -->
+  <path d="M 195 280 L 260 280 L 260 340" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="228" y="273" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Excel</text>
+
+  <!-- HT Box 1 -> HT Box 3 -->
+  <path d="M 110 385 L 110 405 L 185 405 L 185 430" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- HT Box 2 -> HT Box 3 -->
+  <path d="M 260 385 L 260 405 L 185 405 L 185 430" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- HT Box 3 -> HT Box 4 -->
+  <path d="M 185 475 L 185 510" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- HT Box 4 to Join Bar -->
+  <path d="M 185 555 L 185 657" fill="none" stroke="#333333" stroke-width="1.2" />
+
+
+  <!-- === COLUMN 2 FLOWS === -->
+  <!-- Box 2 -> HT Diamond 2 -->
+  <path d="M 490 145 L 490 270" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Diamond 2 -> Edit Box (Yes - Trùng, routed to Corridor 1.5 at x=375 to avoid intersections) -->
+  <path d="M 465 290 L 375 290 L 375 122 L 415 122" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="350" y="210" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#C62828" font-weight="bold">Có (Báo lỗi)</text>
+
+  <!-- Diamond 2 -> HT Box 5 (No) -->
+  <path d="M 490 310 L 490 430" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="495" y="350" font-family="Arial, sans-serif" font-size="8.5" fill="#2E7D32" font-weight="bold">Không</text>
+
+  <!-- HT Box 5 to Join Bar -->
+  <path d="M 490 475 L 490 657" fill="none" stroke="#333333" stroke-width="1.2" />
+
+
+  <!-- === COLUMN 3 FLOWS === -->
+  <!-- Box 3 -> HT Box 6 -->
+  <path d="M 735 145 L 735 290" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- HT Box 6 -> HT Box 7 -->
+  <path d="M 735 335 L 735 370" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- HT Box 7 -> HT Box 8 -->
+  <path d="M 735 415 L 735 450" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- HT Box 8 -> HT Box 9 -->
+  <path d="M 735 495 L 735 530" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- HT Box 9 to Join Bar -->
+  <path d="M 735 575 L 735 657" fill="none" stroke="#333333" stroke-width="1.2" />
+
+
+  <!-- ==================== COLLECTOR & END NODE ==================== -->
+
+  <!-- Join Bar (UML Fork/Join Bar) -->
+  <line x1="150" y1="660" x2="770" y2="660" stroke="#000000" stroke-width="6" stroke-linecap="round" />
+
+  <!-- Join Bar to End Node -->
+  <path d="M 770 660 L 830 660 L 830 395" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+</svg>

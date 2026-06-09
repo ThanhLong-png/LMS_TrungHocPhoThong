@@ -1,0 +1,131 @@
+@model IEnumerable<LMS_THPT.Models.ThongBao>
+@{
+    ViewData["Title"] = "Quản Lý Thông Báo";
+    ViewData["PageTitle"] = "Điều hành thông báo";
+    Layout = "_HieuTruongLayout";
+}
+
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">📢 Quản Lý Thông Báo</h1>
+        <div style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">
+            Đăng tin và điều hành các thông tin chung toàn trường
+        </div>
+    </div>
+
+</div>
+
+<!-- ALERTS -->
+@if (TempData["Success"] != null)
+{
+    <div class="admin-alert admin-alert-success" style="margin-bottom: 1.5rem;">
+        <span class="admin-alert-icon">✅</span>
+        <div>@TempData["Success"]</div>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="admin-alert admin-alert-danger" style="margin-bottom: 1.5rem;">
+        <span class="admin-alert-icon">❌</span>
+        <div>@TempData["Error"]</div>
+    </div>
+}
+
+<div class="row g-4">
+
+    <!-- DANH SÁCH THÔNG BÁO -->
+    <div class="col-lg-7">
+        <div class="admin-card">
+            <div class="admin-card-header" style="justify-content: space-between;">
+                <h3 style="font-size: 1.1rem;">📝 Danh sách thông báo</h3>
+                <span class="admin-badge admin-badge-info">@(Model?.Count() ?? 0) bản ghi</span>
+            </div>
+            <div class="admin-card-body" style="padding: 1rem;">
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var tb in Model)
+                    {
+                        <div style="padding: 1.25rem; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1rem; background: #fff; transition: all 0.2s; position: relative;" 
+                             onmouseover="this.style.borderColor='var(--accent-light)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.05)';"
+                             onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                                <h4 style="font-size: 1rem; font-weight: 700; color: var(--navy); margin: 0; padding-right: 80px;">@tb.TieuDe</h4>
+                                <span class="admin-badge @(tb.HienThi ? "admin-badge-success" : "admin-badge-secondary")" style="font-size: 0.65rem; position: absolute; right: 1.25rem; top: 1.25rem;">
+                                    @(tb.HienThi ? "HIỂN THỊ" : "ĐÃ ẨN")
+                                </span>
+                            </div>
+                            
+                            <div style="font-size: 0.9rem; color: var(--text-primary); line-height: 1.6; margin-bottom: 1rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                @tb.NoiDung
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border);">
+                                <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">🕐 @tb.NgayDang.ToString("dd/MM/yyyy HH:mm")</span>
+                                
+                                <div style="display: flex; gap: 6px;">
+                                    <form asp-action="ToggleThongBao" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@tb.Id" />
+                                        <button type="submit" class="admin-btn admin-btn-sm @(tb.HienThi ? "admin-btn-secondary" : "admin-btn-primary")" style="font-size: 0.7rem; padding: 4px 10px;">
+                                            @(tb.HienThi ? "👁️ Ẩn tin" : "👁️ Hiện tin")
+                                        </button>
+                                    </form>
+
+                                    <a asp-action="SuaThongBao" asp-route-id="@tb.Id" class="admin-btn admin-btn-sm admin-btn-secondary" style="font-size: 0.7rem; padding: 4px 10px;">✏️ Sửa</a>
+
+                                    <form asp-action="XoaThongBao" method="post" style="display:inline;" onsubmit="return confirm('Xác nhận xóa thông báo này?')">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@tb.Id" />
+                                        <button type="submit" class="admin-btn admin-btn-sm" style="font-size: 0.7rem; padding: 4px 10px; color: #ef4444; border-color: #fecaca;">🗑️ Xóa</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div style="padding: 4rem 2rem; text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
+                        <h3 style="font-weight: 700; color: var(--navy);">Chưa có thông báo nào</h3>
+                        <p style="color: var(--text-muted);">Bạn có thể đăng thông báo đầu tiên ở biểu mẫu bên cạnh.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- FORM ĐĂNG BÀI -->
+    <div class="col-lg-5">
+        <div class="admin-card" style="position: sticky; top: 1.5rem;">
+            <div class="admin-card-header">
+                <h3 style="font-size: 1.1rem;">✍️ Đăng thông báo mới</h3>
+            </div>
+            <div class="admin-card-body">
+                <form asp-action="TaoThongBao" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">Tiêu đề thông báo <span style="color:#dc2626;">*</span></label>
+                        <input type="text" name="tieuDe" class="admin-form-control"
+                               placeholder="Nhập tiêu đề ngắn gọn, súc tích..." maxlength="200" required />
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">Nội dung chi tiết <span style="color:#dc2626;">*</span></label>
+                        <textarea name="noiDung" class="admin-form-control" rows="8"
+                                  placeholder="Nhập nội dung thông báo đầy đủ tại đây..." required></textarea>
+                    </div>
+
+                    <div style="margin-top: 1.5rem;">
+                        <button type="submit" class="admin-btn admin-btn-primary w-100" style="padding: 0.85rem;">
+                            🚀 Lưu và Đăng Tin Ngay
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>

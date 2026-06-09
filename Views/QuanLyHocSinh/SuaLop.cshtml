@@ -1,0 +1,52 @@
+@model LMS_THPT.Models.Lop
+@{
+    ViewData["Title"] = "Chỉnh sửa lớp học";
+    Layout = "_AdminLayout";
+}
+
+
+
+<div style="max-width: 540px; margin: 2rem auto;">
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3>✏️ Chỉnh sửa lớp học</h3>
+        </div>
+        <div class="admin-card-body">
+            <form method="post">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Tên lớp học</label>
+                    <input asp-for="TenLop" class="admin-form-control" placeholder="Ví dụ: 10A1, 11B2..." required />
+                    <span asp-validation-for="TenLop" style="color:#dc2626; font-size:0.82rem;"></span>
+                </div>
+
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Giáo viên chủ nhiệm</label>
+                    <select asp-for="GiaoVienChuNhiemId" class="admin-form-control">
+                        <option value="">-- Chọn giáo viên từ danh sách --</option>
+                        @if (ViewBag.GiaoViens != null)
+                        {
+                            foreach (var gv in ViewBag.GiaoViens)
+                            {
+                                <option value="@gv.Id">@gv.HoTen</option>
+                            }
+                        }
+                    </select>
+                    <div style="font-size:0.8rem; color:var(--admin-text-muted); margin-top:6px;">
+                        Giáo viên sẽ có quyền quản lý điểm của lớp này.
+                    </div>
+                </div>
+
+                <div class="admin-card-footer" style="padding:0; background:none; border:none; margin-top:1.5rem; justify-content:flex-start; gap:0.75rem;">
+                    <button type="submit" class="admin-btn admin-btn-primary">Lưu thông tin lớp</button>
+                    <a asp-action="Lops" asp-route-khoiId="@Model.MaKhoi" class="admin-btn admin-btn-secondary">← Hủy bỏ</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

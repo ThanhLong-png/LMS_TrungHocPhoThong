@@ -1,0 +1,213 @@
+@* Views/GiaoVien/TienDo.cshtml *@
+@model LMS_THPT.ViewModels.TienDoViewModel
+@{
+    ViewData["Title"] = "Tiến độ học tập";
+    ViewData["ActivePage"] = "TienDo";
+    ViewData["PageTitle"] = "Theo dõi tiến độ học tập";
+    var monHocHienTai = (int)(ViewBag.MonHocHienTai ?? 0);
+    var monHocIds = ViewBag.MonHocIds as List<int> ?? new List<int>();
+    var allLopMonHocs = ViewBag.AllLopMonHocs as List<LMS_THPT.Models.LopMonHoc> ?? new List<LMS_THPT.Models.LopMonHoc>();
+
+    // Danh sách môn học của giáo viên
+    var danhSachMon = ViewBag.DanhSachMon as List<LMS_THPT.Models.MonHoc> ?? new List<LMS_THPT.Models.MonHoc>();
+}
+
+
+@* ── Gradient Page Header ── *@
+<div style="background:linear-gradient(135deg,#ff6b00 0%,#ff8c00 100%);border-radius:16px;padding:1.6rem 2rem;color:#fff;margin-bottom:1.5rem;position:relative;overflow:hidden;box-shadow:0 10px 30px rgba(255,107,0,0.15);">
+    <div style="position:absolute;top:-30%;right:-5%;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06);"></div>
+    <div class="d-flex align-items-center gap-3" style="position:relative;z-index:1;">
+        <div>
+            <h1 class="fw-bold mb-0" style="font-size:1.65rem;letter-spacing:-0.02em;font-weight:800;">Theo dõi tiến độ học tập</h1>
+            <p class="mb-0" style="font-size:.9rem;opacity:.8;font-weight:500;margin-top:.3rem;">Thống kê và phân tích kết quả học tập của học sinh</p>
+        </div>
+    </div>
+</div>
+
+@* ── Môn học tabs ── *@
+@if (danhSachMon.Any())
+{
+    <style>
+        .mon-tab {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 10px 20px; font-size: 14px; font-weight: 500;
+            border-radius: 50px; text-decoration: none; transition: all 0.25s ease;
+            cursor: pointer; gap: 6px; border: 1px solid transparent;
+        }
+        .mon-tab-active {
+            background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+            border: 1px solid transparent;
+        }
+        .mon-tab-inactive {
+            background: #ffffff; color: #4b5563 !important;
+            border: 1px solid #e5e7eb;
+        }
+        .mon-tab-inactive:hover {
+            background: #f9fafb; color: #111827 !important;
+            border-color: #d1d5db; transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+    </style>
+    <div class="tab-bar mb-16" style="gap:12px; display: flex; flex-wrap: wrap; margin-bottom: 24px;">
+        @foreach (var mon in danhSachMon)
+        {
+            var isActive = mon!.Id == monHocHienTai;
+            <a asp-action="TienDo" asp-route-monHocId="@mon.Id"
+               class="mon-tab @(isActive ? "mon-tab-active" : "mon-tab-inactive")">
+                
+                <span>@mon.TenMonHoc</span>
+                @{
+                    var soLop = allLopMonHocs.Count(x => x.MonHocId == mon.Id);
+                }
+                <span style="font-size:11px; opacity: @(isActive ? "0.85" : "0.6"); background: @(isActive ? "rgba(255,255,255,0.2)" : "#f3f4f6"); padding: 2px 8px; border-radius: 20px;">
+                    @soLop lớp
+                </span>
+            </a>
+        }
+    </div>
+}
+
+@if (!Model.TienDoHocSinh.Any())
+{
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                padding:60px 20px;color:var(--text3);font-size:14px;gap:12px;">
+        
+        <div>Chưa có học sinh nào được phân công cho môn này.</div>
+    </div>
+}
+else
+{
+    <!-- KPI -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#eff6ff; color:#1d4ed8; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">HS</div>
+            <div class="fw-bold" style="font-size:1.65rem; color:#1d4ed8; letter-spacing:-0.02em;">@ViewBag.TongHocSinh</div>
+            <div class="text-muted" style="font-size:0.85rem; font-weight:500;">Tổng số học sinh</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#faf5ff; color:#7e22ce; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">LH</div>
+            <div class="fw-bold" style="font-size:1.65rem; color:#7e22ce; letter-spacing:-0.02em;">@ViewBag.SoLopHoc</div>
+            <div class="text-muted" style="font-size:0.85rem; font-weight:500;">Số lượng lớp học</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fff7ed; color:#c2410c; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">BT</div>
+            <div class="fw-bold" style="font-size:1.65rem; color:#c2410c; letter-spacing:-0.02em;">@ViewBag.TongBaiTap</div>
+            <div class="text-muted" style="font-size:0.85rem; font-weight:500;">Tổng số bài tập giao</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#f0fdf4; color:#15803d; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">TL</div>
+            <div class="fw-bold" style="font-size:1.65rem; color:#15803d; letter-spacing:-0.02em;">@Model.TiLeHoanThanh%</div>
+            <div class="text-muted" style="font-size:0.85rem; font-weight:500;">Tỷ lệ hoàn thành trung bình</div>
+        </div>
+    </div>
+
+    <div class="two-col">
+        <!-- Tiến độ từng học sinh -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Tiến độ từng học sinh</span>
+                @if (Model.DanhSachLop.Any())
+                {
+                    <select class="form-control form-control-sm" style="width:auto"
+                            onchange="filterLop(this.value)">
+                        <option value="">-- Tất cả lớp --</option>
+                        @foreach (var lop in Model.DanhSachLop)
+                        {
+                            <option value="@lop">@lop</option>
+                        }
+                    </select>
+                }
+            </div>
+
+            @foreach (var hs in Model.TienDoHocSinh)
+            {
+                <div class="student-row" data-lop="@hs.TenLop">
+                    <div class="avatar-sm">@hs.TenVietTat</div>
+                    <div class="student-info">
+                        <div class="student-name">
+                            @hs.TenHocSinh
+                            @if (!string.IsNullOrEmpty(hs.TenLop))
+                            {
+                                <span style="font-size:10px;color:var(--text3);margin-left:6px;
+                                             background:var(--bg-color);padding:1px 6px;border-radius:8px;">
+                                    @hs.TenLop
+                                </span>
+                            }
+                        </div>
+                        <div style="margin-top:5px">
+                            <div class="progress-bar">
+                                <div class="progress-fill"
+                                     style="width:@(hs.PhanTram)%;background:@hs.MauBar">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align:right;min-width:44px">
+                        <div style="font-size:13px;font-weight:600;color:@hs.MauBar">
+                            @hs.Diem.ToString("0.#")
+                        </div>
+                        <div style="font-size:10px;color:var(--text3)">@hs.PhanTram%</div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Thống kê theo lớp học -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Tiến độ theo lớp học</span>
+            </div>
+            <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse; font-size:13px; margin-top:8px;">
+                    <thead>
+                        <tr style="border-bottom:1px solid var(--border); text-align:left;">
+                            <th style="padding:10px 12px; color:var(--text3); font-weight:500;">Lớp học</th>
+                            <th style="padding:10px 12px; color:var(--text3); font-weight:500;">Sĩ số</th>
+                            <th style="padding:10px 12px; color:var(--text3); font-weight:500; text-align:right;">Tiến độ trung bình</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var l in (List<LMS_THPT.ViewModels.ThongKeLopItem>)(ViewBag.ThongKeLop ?? new List<LMS_THPT.ViewModels.ThongKeLopItem>()))
+                        {
+                            <tr style="border-bottom:0.5px solid var(--border); transition:background .12s;"
+                                onmouseover="this.style.background='var(--bg2)'"
+                                onmouseout="this.style.background=''">
+                                <td style="padding:12px 12px; font-weight:600; color:var(--text1);">
+                                    @l.TenLop <span style="font-size:10px; font-weight:normal; color:var(--text3); margin-left:4px;">(@l.TenKhoi)</span>
+                                </td>
+                                <td style="padding:12px 12px; color:var(--text2);">
+                                    @l.SoHocSinh học sinh
+                                </td>
+                                <td style="padding:12px 12px; text-align:right;">
+                                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                                        <span style="font-weight:700; color:#ff6b00;">@l.TiLeHoanThanh%</span>
+                                        <div style="width:100px; height:6px; background:var(--bg3); border-radius:3px; overflow:hidden;">
+                                            <div style="width:@(l.TiLeHoanThanh)%; height:100%; background:linear-gradient(90deg, #ff6b00, #ff8c00); border-radius:3px;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+<script>
+function filterLop(tenLop) {
+    const rows = document.querySelectorAll('.student-row');
+    rows.forEach(row => {
+        if (!tenLop || row.getAttribute('data-lop') === tenLop) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
+}

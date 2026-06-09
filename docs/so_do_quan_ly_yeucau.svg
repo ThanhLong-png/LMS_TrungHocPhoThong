@@ -1,0 +1,197 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="700" viewBox="0 0 880 700">
+  <defs>
+    <!-- Arrow marker definition -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#333" />
+    </marker>
+  </defs>
+
+  <!-- Outer frame with rounded corners -->
+  <rect x="10" y="10" width="860" height="680" rx="15" ry="15" fill="#FFFFFF" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Yellow vertical header column on the left -->
+  <path d="M 60 10 L 25 10 A 15 15 0 0 0 10 25 L 10 675 A 15 15 0 0 0 25 690 L 60 690 Z" fill="#FFF9C4" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Horizontal division lines for swimlanes -->
+  <line x1="10" y1="280" x2="870" y2="280" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Vertical text labels inside the yellow header column -->
+  <text transform="rotate(-90, 35, 145)" x="35" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#333333" font-weight="bold">Giáo viên / Admin</text>
+  <text transform="rotate(-90, 35, 490)" x="35" y="495" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#333333" font-weight="bold">Hệ thống</text>
+
+  <!-- ==================== LANE 1: GIÁO VIÊN / ADMIN (y: 10 to 280) ==================== -->
+  
+  <!-- Start Node (Black circle) -->
+  <circle cx="120" cy="50" r="10" fill="#000000" />
+
+  <!-- Diamond: Chọn hành động? -->
+  <polygon points="185,40 200,50 185,60 170,50" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="185" y="33" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" font-weight="bold" fill="#000000">Chọn tác vụ?</text>
+
+  <!-- Box 1: Tạo yêu cầu mới -->
+  <rect x="110" y="100" width="150" height="45" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="185" y="118" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">
+    <tspan x="185" dy="0">Tạo yêu cầu</tspan>
+    <tspan x="185" dy="13">(Nghỉ, Dạy/Học bù)</tspan>
+  </text>
+
+  <!-- Box 2: Duyệt / Từ chối yêu cầu (Admin) -->
+  <rect x="330" y="100" width="150" height="45" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="405" y="118" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">
+    <tspan x="405" dy="0">Xem chi tiết &amp;</tspan>
+    <tspan x="405" dy="13">Duyệt / Từ chối (Admin)</tspan>
+  </text>
+
+  <!-- Box 3: Hủy yêu cầu (Giáo viên) -->
+  <rect x="550" y="100" width="150" height="45" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="625" y="118" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">
+    <tspan x="625" dy="0">Chọn hủy yêu cầu</tspan>
+    <tspan x="625" dy="13">đang chờ duyệt</tspan>
+  </text>
+
+
+  <!-- ==================== LANE 2: HỆ THỐNG (y: 280 to 690) ==================== -->
+
+  <!-- Box 1: AJAX load thông tin -->
+  <rect x="110" y="320" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="185" y="338" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="185" dy="0">Tải AJAX Môn/Tiết</tspan>
+    <tspan x="185" dy="13">theo Lớp &amp; Ngày</tspan>
+  </text>
+
+  <!-- Diamond 1: Có yêu cầu chờ xử lý / Trùng? -->
+  <polygon points="185,400 210,420 185,440 160,420" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="150" y="424" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" font-weight="bold" fill="#000000">Đã tồn tại / Trùng?</text>
+
+  <!-- Box 2: Lưu yêu cầu vào DB -->
+  <rect x="110" y="520" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="185" y="543" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">Lưu yêu cầu (Chờ duyệt)</text>
+
+
+  <!-- Diamond 2: Quyết định? (Duyệt/Từ chối) -->
+  <polygon points="405,300 430,320 405,340 380,320" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="440" y="324" text-anchor="start" font-family="Arial, sans-serif" font-size="9.5" font-weight="bold" fill="#000000">Quyết định?</text>
+
+  <!-- Box 3: Cập nhật Từ chối -->
+  <rect x="290" y="420" width="100" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="340" y="438" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="340" dy="0">Cập nhật Từ chối</tspan>
+    <tspan x="340" dy="13">&amp; lưu lý do</tspan>
+  </text>
+
+  <!-- Box 4: Cập nhật Đã duyệt -->
+  <rect x="420" y="420" width="100" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="470" y="438" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="470" dy="0">Cập nhật</tspan>
+    <tspan x="470" dy="13">Đã duyệt</tspan>
+  </text>
+
+  <!-- Diamond 3: Là dạy/học bù? -->
+  <polygon points="470,480 495,500 470,520 445,500" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="435" y="504" text-anchor="end" font-family="Arial, sans-serif" font-size="9.5" font-weight="bold" fill="#000000">Là dạy/học bù?</text>
+
+  <!-- Box 5: Tự động sinh lịch học bù mới -->
+  <rect x="415" y="540" width="110" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="470" y="558" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="470" dy="0">Tự động tạo</tspan>
+    <tspan x="470" dy="13">LichHoc (IsHocBu)</tspan>
+  </text>
+
+
+  <!-- Box 6: Cập nhật trạng thái Hủy bỏ -->
+  <rect x="550" y="320" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="625" y="343" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">Hủy yêu cầu (HuyBo)</text>
+
+  <!-- End Node (Black circle with outer border) -->
+  <circle cx="790" cy="380" r="10" fill="#000000" />
+  <circle cx="790" cy="380" r="15" fill="none" stroke="#000000" stroke-width="1.5" />
+
+
+  <!-- ==================== CONNECTIONS / FLOWS ==================== -->
+
+  <!-- Start to Diamond -->
+  <path d="M 130 50 L 170 50" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Diamond to Box 1 -->
+  <path d="M 185 60 L 185 100" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="189" y="80" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Tạo yêu cầu</text>
+
+  <!-- Diamond to Box 2 -->
+  <path d="M 200 50 L 405 50 L 405 100" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="302" y="43" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Duyệt / Từ chối</text>
+
+  <!-- Diamond to Box 3 -->
+  <path d="M 200 50 L 625 50 L 625 100" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="515" y="43" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Hủy yêu cầu</text>
+
+
+  <!-- === COLUMN 1: CREATE REQUEST === -->
+  <!-- QTV Box 1 -> HT Box 1 (AJAX) -->
+  <path d="M 185 145 L 185 320" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- HT Box 1 -> QTV Box 1 (AJAX Return, left corridor x=80) -->
+  <path d="M 110 342 L 80 342 L 80 122 L 110 122" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- QTV Box 1 -> HT Diamond 1 (Gửi form, routed to x=280) -->
+  <path d="M 185 100 L 185 80 L 280 80 L 280 420 L 210 420" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="235" y="73" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Gửi yêu cầu</text>
+
+  <!-- Diamond 1 -> QTV Box 1 (Trùng/Có yêu cầu chờ, loops back via Corridor 1 at x=265) -->
+  <path d="M 185 400 L 185 385 L 265 385 L 265 130 L 260 130" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="230" y="378" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#C62828" font-weight="bold">Có (Báo lỗi)</text>
+
+  <!-- Diamond 1 -> HT Box 2 (Hợp lệ) -->
+  <path d="M 185 440 L 185 520" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="192" y="480" font-family="Arial, sans-serif" font-size="8.5" fill="#2E7D32" font-weight="bold">Không</text>
+
+
+  <!-- === COLUMN 2: ADMIN PROCESS === -->
+  <!-- QTV Box 2 -> HT Diamond 2 -->
+  <path d="M 405 145 L 405 300" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Diamond 2 -> HT Box 3 (Từ chối) -->
+  <path d="M 380 320 L 340 320 L 340 420" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="360" y="313" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#C62828" font-weight="bold">Từ chối</text>
+
+  <!-- Diamond 2 -> HT Box 4 (Duyệt) -->
+  <path d="M 430 320 L 470 320 L 470 420" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="450" y="313" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#2E7D32" font-weight="bold">Duyệt</text>
+
+  <!-- HT Box 4 -> Diamond 3 -->
+  <path d="M 470 465 L 470 480" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Diamond 3 -> HT Box 5 (Là học bù) -->
+  <path d="M 470 520 L 470 540" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="475" y="530" font-family="Arial, sans-serif" font-size="8.5" fill="#2E7D32" font-weight="bold">Có</text>
+
+  <!-- Diamond 3 -> Join Bar (Không phải học bù, routed to Corridor 2 at x=540 to avoid Box 5) -->
+  <path d="M 495 500 L 540 500 L 540 607" fill="none" stroke="#333333" stroke-width="1.2" />
+  <text x="548" y="493" font-family="Arial, sans-serif" font-size="8.5" fill="#757575" font-weight="bold">Không</text>
+
+
+  <!-- === COLUMN 3: CANCEL REQUEST === -->
+  <!-- QTV Box 3 -> HT Box 6 -->
+  <path d="M 625 145 L 625 320" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+
+  <!-- ==================== COLLECTOR & END NODE ==================== -->
+
+  <!-- HT Box 2 to Join Bar -->
+  <path d="M 185 565 L 185 607" fill="none" stroke="#333333" stroke-width="1.2" />
+
+  <!-- HT Box 3 to Join Bar -->
+  <path d="M 340 465 L 340 607" fill="none" stroke="#333333" stroke-width="1.2" />
+
+  <!-- HT Box 5 to Join Bar -->
+  <path d="M 470 585 L 470 607" fill="none" stroke="#333333" stroke-width="1.2" />
+
+  <!-- HT Box 6 to Join Bar -->
+  <path d="M 625 365 L 625 607" fill="none" stroke="#333333" stroke-width="1.2" />
+
+  <!-- Join Bar (UML Fork/Join Bar) -->
+  <line x1="150" y1="610" x2="700" y2="610" stroke="#000000" stroke-width="6" stroke-linecap="round" />
+
+  <!-- Join Bar to End Node -->
+  <path d="M 700 610 L 790 610 L 790 395" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+</svg>

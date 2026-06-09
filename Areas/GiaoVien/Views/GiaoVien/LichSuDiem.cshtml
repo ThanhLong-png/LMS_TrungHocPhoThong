@@ -1,0 +1,390 @@
+@model List<LMS_THPT.Models.DiemHocKy>
+@{
+    ViewData["Title"] = "Lịch sử điểm số";
+    ViewData["ActivePage"] = "DiemSo";
+
+    var danhSachKhoi  = ViewBag.DanhSachKhoi  as List<LMS_THPT.Models.Khoi>     ?? new();
+    var lopsOfKhoi    = ViewBag.LopsOfKhoi    as List<LMS_THPT.Models.Lop>      ?? new();
+    var hocSinhList   = ViewBag.HocSinhTrongLop as List<LMS_THPT.Models.NguoiDung> ?? new();
+    int khoiId        = ViewBag.KhoiHienTai   ?? 0;
+    int lopId         = ViewBag.LopHienTai    ?? 0;
+    string? hsId      = ViewBag.HocSinhId;
+    string  selNam    = ViewBag.SelectedNamHoc ?? "";
+    var dsNamHoc      = ViewBag.DsNamHoc      as List<string>                   ?? new();
+    var hk1           = ViewBag.HK1           as List<LMS_THPT.Models.DiemHocKy> ?? new();
+    var hk2           = ViewBag.HK2           as List<LMS_THPT.Models.DiemHocKy> ?? new();
+    dynamic tbCaNam   = ViewBag.TbCaNam       ?? new List<object>();
+    var hocSinhHT     = ViewBag.HocSinhHienTai as LMS_THPT.Models.NguoiDung;
+}
+
+<style>
+    .ls-header {
+        background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+        border-radius: 18px; padding: 1.8rem 2rem; color: #fff; margin-bottom: 1.5rem;
+        position: relative; overflow: hidden;
+        box-shadow: 0 10px 30px rgba(255,107,0,0.15);
+    }
+    .ls-header::before {
+        content:''; position:absolute; top:-40%; right:-5%; width:260px; height:260px;
+        border-radius:50%; background:rgba(255,255,255,.05);
+    }
+    .filter-panel {
+        background:#fff; border-radius:14px; padding:1.2rem 1.5rem;
+        box-shadow:0 2px 12px rgba(0,0,0,.07); margin-bottom:1.2rem;
+    }
+    .chip-bar { display:flex; flex-wrap:wrap; gap:.45rem; }
+    .chip {
+        padding:.38rem 1rem; border-radius:999px; font-size:.83rem; font-weight:600;
+        text-decoration:none; transition:all .15s; border:2px solid #e5e7eb; color:#374151; background:#fff;
+    }
+    .chip.active  { background:#ff6b00; color:#fff; border-color:#ff6b00; box-shadow:0 4px 10px rgba(255,107,0,.25); }
+    .chip:not(.active):hover { border-color:#ff6b00; color:#ff6b00; }
+    .chip.green.active   { background:#ea580c; border-color:#ea580c; }
+    .chip.green:not(.active):hover { border-color:#ea580c; color:#ea580c; }
+    .chip.amber.active   { background:#d97706; border-color:#d97706; }
+
+    .hs-select-list { display:flex; flex-wrap:wrap; gap:.4rem; }
+    .hs-chip {
+        padding:.32rem .9rem; border-radius:8px; font-size:.82rem; font-weight:500;
+        text-decoration:none; transition:all .13s; border:1.5px solid #e5e7eb;
+        color:#475569; background:#f8fafc; white-space:nowrap;
+    }
+    .hs-chip.active  { background:#ff6b00; color:#fff; border-color:#ff6b00; }
+    .hs-chip:not(.active):hover { border-color:#ff6b00; color:#ff6b00; background:#fff7ed; }
+
+    .hk-section {
+        background:#fff; border-radius:16px;
+        box-shadow:0 4px 20px rgba(0,0,0,.07); border:1px solid rgba(0,0,0,.05);
+        margin-bottom:1.5rem; overflow:hidden;
+    }
+    .hk-header {
+        padding:1rem 1.5rem; font-weight:700; font-size:.95rem;
+        display:flex; align-items:center; gap:.6rem;
+        border-bottom:1px solid #f1f5f9;
+    }
+    .diem-cell { text-align:center; font-weight:600; font-size:.87rem; }
+    .diem-null { color:#cbd5e1; font-weight:400; }
+    .xep-loai-badge { padding:2px 10px; border-radius:999px; font-size:.75rem; font-weight:700; }
+    .xl-gioi { background:#dcfce7; color:#15803d; }
+    .xl-kha  { background:#dbeafe; color:#1d4ed8; }
+    .xl-tb   { background:#fef9c3; color:#854d0e; }
+    .xl-yeu  { background:#fee2e2; color:#dc2626; }
+    .xl-kem  { background:#fce7f3; color:#9d174d; }
+    .tb-nam-score { font-size:1.1rem; font-weight:800; color:#ff6b00; }
+    .hs-info-card {
+        background:linear-gradient(135deg,#fff7ed,#ffedd5); border:1px solid #fed7aa;
+        border-radius:14px; padding:1rem 1.4rem; margin-bottom:1.2rem;
+        display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
+    }
+    .hs-avatar {
+        width:52px; height:52px; border-radius:50%;
+        background:linear-gradient(135deg,#ff6b00,#ff8c00);
+        display:flex; align-items:center; justify-content:center;
+        color:#fff; font-weight:700; font-size:1.2rem; flex-shrink:0;
+    }
+    .empty-state { text-align:center; padding:3rem 1rem; color:#94a3b8; }
+    .label-sm { font-size:.78rem; font-weight:600; color:#6b7280; margin-bottom:.35rem; }
+</style>
+
+<!-- HEADER -->
+<div class="ls-header">
+    <div class="d-flex align-items-center gap-3" style="position:relative;z-index:1;">
+        <div style="font-size:2.4rem;">📊</div>
+        <div>
+            <h1 class="fw-bold mb-0" style="font-size:1.55rem;">Lịch sử điểm số</h1>
+            <p class="mb-0 opacity-75" style="font-size:.88rem;">
+                Xem bảng điểm theo từng năm học của học sinh trong lớp bạn dạy
+            </p>
+        </div>
+        <div class="ms-auto">
+            <a href="@Url.Action("QuanLyDiemSo","GiaoVien",new{area="GiaoVien"})"
+               style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);
+                      border-radius:10px;padding:.4rem 1rem;text-decoration:none;font-size:.82rem;font-weight:600;">
+               ← Nhập điểm
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- BỘ LỌC KHỐI -->
+@if (danhSachKhoi.Any())
+{
+    <div class="filter-panel">
+        <div class="label-sm">🏫 Khối lớp</div>
+        <div class="chip-bar">
+            @foreach (var khoi in danhSachKhoi)
+            {
+                <a asp-action="LichSuDiem" asp-route-khoiId="@khoi!.Id"
+                   class="chip @(khoi.Id == khoiId ? "active" : "")">
+                    @khoi.TenKhoi
+                </a>
+            }
+        </div>
+    </div>
+}
+
+<!-- BỘ LỌC LỚP -->
+@if (lopsOfKhoi.Any())
+{
+    <div class="filter-panel" style="padding:.9rem 1.3rem;">
+        <div class="label-sm">🚪 Lớp học</div>
+        <div class="chip-bar">
+            @foreach (var lop in lopsOfKhoi)
+            {
+                <a asp-action="LichSuDiem"
+                   asp-route-khoiId="@khoiId"
+                   asp-route-lopId="@lop.Id"
+                   class="chip green @(lop.Id == lopId ? "active" : "")">
+                    @lop.TenLop
+                </a>
+            }
+        </div>
+    </div>
+}
+
+<!-- CHỌN HỌC SINH -->
+@if (hocSinhList.Any())
+{
+    <div class="filter-panel" style="padding:.9rem 1.3rem;">
+        <div class="label-sm mb-2">👤 Học sinh (@hocSinhList.Count em)</div>
+        <div class="hs-select-list">
+            @foreach (var hs in hocSinhList)
+            {
+                string tenGoi = (hs.HoTen ?? "").Contains(' ')
+                    ? (hs.HoTen ?? "").Substring((hs.HoTen ?? "").LastIndexOf(' ') + 1)
+                    : (hs.HoTen ?? hs.UserName ?? "");
+                <a asp-action="LichSuDiem"
+                   asp-route-khoiId="@khoiId"
+                   asp-route-lopId="@lopId"
+                   asp-route-hocSinhId="@hs.Id"
+                   class="hs-chip @(hs.Id == hsId ? "active" : "")"
+                   title="@hs.HoTen">
+                    @tenGoi
+                </a>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <div style="font-size:3rem;margin-bottom:.8rem;">👥</div>
+        <h6>Chưa có học sinh trong lớp này</h6>
+    </div>
+}
+
+<!-- THÔNG TIN HỌC SINH ĐANG XEM -->
+@if (hocSinhHT != null)
+{
+    string initials = string.IsNullOrWhiteSpace(hocSinhHT.HoTen) ? "?" : 
+        string.Join("", (hocSinhHT.HoTen ?? "").Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Where((_, i) => i == 0 || i == (hocSinhHT.HoTen ?? "").Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries).Length - 1)
+            .Select(p => p[0].ToString().ToUpper()));
+
+    <div class="hs-info-card">
+        <div class="hs-avatar">@initials</div>
+        <div>
+            <div class="fw-bold" style="font-size:1.05rem;color:#ff6b00;">@hocSinhHT.HoTen</div>
+            <div style="font-size:.83rem;color:#374151;">
+                <span class="me-3">🪪 @(hocSinhHT.MaHocSinh ?? "—")</span>
+                <span class="me-3">🚪 @(hocSinhHT.Lop?.TenLop ?? "—")</span>
+                <span>📅 Năm học: @(hocSinhHT.NamHoc ?? "—")</span>
+            </div>
+        </div>
+        <div class="ms-auto">
+            <span style="background:#ff6b00;color:#fff;padding:.3rem .9rem;border-radius:8px;font-size:.8rem;font-weight:600;">
+                @dsNamHoc.Count năm học
+            </span>
+        </div>
+    </div>
+
+    <!-- CHỌN NĂM HỌC -->
+    @if (dsNamHoc.Any())
+    {
+        <div style="background:#fff;border-radius:14px;padding:1rem 1.4rem;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-bottom:1.3rem;">
+            <div class="label-sm mb-2">📆 Chọn năm học</div>
+            <div class="chip-bar">
+                @foreach (var nh in dsNamHoc)
+                {
+                    <a asp-action="LichSuDiem"
+                       asp-route-khoiId="@khoiId"
+                       asp-route-lopId="@lopId"
+                       asp-route-hocSinhId="@hsId"
+                       asp-route-namHoc="@nh"
+                       class="chip amber @(selNam == nh ? "active" : "")">
+                        Năm @nh
+                    </a>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- BẢNG TỔNG KẾT CẢ NĂM -->
+    @if (Model.Any())
+    {
+        <div class="hk-section mb-4">
+            <div class="hk-header" style="background:linear-gradient(90deg,#ff6b00,#ff8c00);">
+                <span style="color:#fff;">🏆</span>
+                <span style="color:#fff;font-weight:700;">Bảng tổng kết cả năm</span>
+                <span style="color:#fff7ed;margin-left:.4rem;">— @selNam</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0" style="font-size:.88rem;">
+                    <thead style="background:#f8fafc;">
+                        <tr>
+                            <th class="ps-4">Môn học</th>
+                            <th class="diem-cell">TK Học Kỳ 1</th>
+                            <th class="diem-cell">TK Học Kỳ 2</th>
+                            <th class="diem-cell" style="color:#ff6b00;">TB Cả Năm</th>
+                            <th class="diem-cell">Xếp loại năm</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (dynamic row in tbCaNam)
+                        {
+                            string? xl = row.XepLoai;
+                            string xlCls = xl == "Giỏi" ? "xl-gioi" : xl == "Khá" ? "xl-kha" : xl == "Trung bình" ? "xl-tb" : xl == "Yếu" ? "xl-yeu" : "xl-kem";
+                            <tr>
+                                <td class="ps-4 fw-semibold">@row.TenMonHoc</td>
+                                <td class="diem-cell">
+                                    <span class="@(row.TkHK1==null?"diem-null":"")">
+                                        @(row.TkHK1 != null ? ((double)row.TkHK1).ToString("F1") : "—")
+                                    </span>
+                                </td>
+                                <td class="diem-cell">
+                                    <span class="@(row.TkHK2==null?"diem-null":"")">
+                                        @(row.TkHK2 != null ? ((double)row.TkHK2).ToString("F1") : "—")
+                                    </span>
+                                </td>
+                                <td class="diem-cell">
+                                    <span class="tb-nam-score">
+                                        @(row.TbNam != null ? ((double)row.TbNam).ToString("F1") : "—")
+                                    </span>
+                                </td>
+                                <td class="diem-cell">
+                                    @if (!string.IsNullOrEmpty(xl)) {
+                                        <span class="xep-loai-badge @xlCls">@xl</span>
+                                    } else { <span class="diem-null">—</span> }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- HỌC KỲ 1 -->
+        @if (hk1.Any())
+        {
+            <div class="hk-section">
+                <div class="hk-header" style="background:linear-gradient(90deg,#ff6b00,#ff8c00);">
+                    <span style="color:#fff;">📘</span> <span style="color:#fff;">Chi tiết Học Kỳ 1 — @selNam</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table mb-0" style="font-size:.86rem;">
+                        <thead style="background:#f8fafc;">
+                            <tr>
+                                <th class="ps-4">Môn học</th>
+                                <th class="diem-cell">Miệng</th>
+                                <th class="diem-cell">15 phút</th>
+                                <th class="diem-cell">1 tiết</th>
+                                <th class="diem-cell">Giữa kỳ</th>
+                                <th class="diem-cell">Cuối kỳ</th>
+                                <th class="diem-cell" style="color:#ff6b00;">Tổng kết HK1</th>
+                                <th class="diem-cell">Xếp loại</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var d in hk1)
+                            {
+                                string? xl = d.XepLoai;
+                                string xlCls = xl == "Giỏi" ? "xl-gioi" : xl == "Khá" ? "xl-kha" : xl == "Trung bình" ? "xl-tb" : xl == "Yếu" ? "xl-yeu" : "xl-kem";
+                                var miengs = new[]{ d.DiemMieng1, d.DiemMieng2, d.DiemMieng3, d.DiemMieng4 }.Where(x=>x.HasValue).Select(x=>x!.Value.ToString("F1"));
+                                var p15s   = new[]{ d.Diem15Phut1, d.Diem15Phut2 }.Where(x=>x.HasValue).Select(x=>x!.Value.ToString("F1"));
+                                var mts    = new[]{ d.DiemMotTiet1, d.DiemMotTiet2 }.Where(x=>x.HasValue).Select(x=>x!.Value.ToString("F1"));
+                                <tr>
+                                    <td class="ps-4 fw-semibold">@(d.MonHoc?.TenMonHoc ?? "—")</td>
+                                    <td class="diem-cell"><span class="@(!miengs.Any()?"diem-null":"")">@(miengs.Any()?string.Join(" | ",miengs):"—")</span></td>
+                                    <td class="diem-cell"><span class="@(!p15s.Any()?"diem-null":"")">@(p15s.Any()?string.Join(" | ",p15s):"—")</span></td>
+                                    <td class="diem-cell"><span class="@(!mts.Any()?"diem-null":"")">@(mts.Any()?string.Join(" | ",mts):"—")</span></td>
+                                    <td class="diem-cell"><span class="@(!d.DiemGiuaKy.HasValue?"diem-null":"")">@(d.DiemGiuaKy?.ToString("F1")??"—")</span></td>
+                                    <td class="diem-cell"><span class="@(!d.DiemCuoiKy.HasValue?"diem-null":"")">@(d.DiemCuoiKy?.ToString("F1")??"—")</span></td>
+                                    <td class="diem-cell"><span style="font-weight:800;color:#ff6b00;font-size:1rem;">@(d.DiemTongKet?.ToString("F1")??"—")</span></td>
+                                    <td class="diem-cell">
+                                        @if (!string.IsNullOrEmpty(xl)) { <span class="xep-loai-badge @xlCls">@xl</span> }
+                                        else { <span class="diem-null">—</span> }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+        <!-- HỌC KỲ 2 -->
+        @if (hk2.Any())
+        {
+            <div class="hk-section mt-3">
+                <div class="hk-header" style="background:linear-gradient(90deg,#ff6b00,#ff8c00);">
+                    <span style="color:#fff;">📗</span> <span style="color:#fff;">Chi tiết Học Kỳ 2 — @selNam</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table mb-0" style="font-size:.86rem;">
+                        <thead style="background:#f8fafc;">
+                            <tr>
+                                <th class="ps-4">Môn học</th>
+                                <th class="diem-cell">Miệng</th>
+                                <th class="diem-cell">15 phút</th>
+                                <th class="diem-cell">1 tiết</th>
+                                <th class="diem-cell">Giữa kỳ</th>
+                                <th class="diem-cell">Cuối kỳ</th>
+                                <th class="diem-cell" style="color:#ff6b00;">Tổng kết HK2</th>
+                                <th class="diem-cell">Xếp loại</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var d in hk2)
+                            {
+                                string? xl = d.XepLoai;
+                                string xlCls = xl == "Giỏi" ? "xl-gioi" : xl == "Khá" ? "xl-kha" : xl == "Trung bình" ? "xl-tb" : xl == "Yếu" ? "xl-yeu" : "xl-kem";
+                                var miengs = new[]{ d.DiemMieng1, d.DiemMieng2, d.DiemMieng3, d.DiemMieng4 }.Where(x=>x.HasValue).Select(x=>x!.Value.ToString("F1"));
+                                var p15s   = new[]{ d.Diem15Phut1, d.Diem15Phut2 }.Where(x=>x.HasValue).Select(x=>x!.Value.ToString("F1"));
+                                var mts    = new[]{ d.DiemMotTiet1, d.DiemMotTiet2 }.Where(x=>x.HasValue).Select(x=>x!.Value.ToString("F1"));
+                                <tr>
+                                    <td class="ps-4 fw-semibold">@(d.MonHoc?.TenMonHoc ?? "—")</td>
+                                    <td class="diem-cell"><span class="@(!miengs.Any()?"diem-null":"")">@(miengs.Any()?string.Join(" | ",miengs):"—")</span></td>
+                                    <td class="diem-cell"><span class="@(!p15s.Any()?"diem-null":"")">@(p15s.Any()?string.Join(" | ",p15s):"—")</span></td>
+                                    <td class="diem-cell"><span class="@(!mts.Any()?"diem-null":"")">@(mts.Any()?string.Join(" | ",mts):"—")</span></td>
+                                    <td class="diem-cell"><span class="@(!d.DiemGiuaKy.HasValue?"diem-null":"")">@(d.DiemGiuaKy?.ToString("F1")??"—")</span></td>
+                                    <td class="diem-cell"><span class="@(!d.DiemCuoiKy.HasValue?"diem-null":"")">@(d.DiemCuoiKy?.ToString("F1")??"—")</span></td>
+                                    <td class="diem-cell"><span style="font-weight:800;color:#ff6b00;font-size:1rem;">@(d.DiemTongKet?.ToString("F1")??"—")</span></td>
+                                    <td class="diem-cell">
+                                        @if (!string.IsNullOrEmpty(xl)) { <span class="xep-loai-badge @xlCls">@xl</span> }
+                                        else { <span class="diem-null">—</span> }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    }
+    else if (hocSinhHT != null && dsNamHoc.Any())
+    {
+        <div class="empty-state">
+            <div style="font-size:3rem;margin-bottom:.8rem;">📋</div>
+            <h6>Chưa có điểm cho năm học @selNam</h6>
+            <p>Giáo viên chưa nhập điểm cho học sinh này trong năm học này.</p>
+        </div>
+    }
+    else if (hocSinhHT != null)
+    {
+        <div class="empty-state">
+            <div style="font-size:3rem;margin-bottom:.8rem;">🎓</div>
+            <h6>Chưa có dữ liệu điểm</h6>
+            <p>Học sinh này chưa có điểm học kỳ nào được ghi nhận.</p>
+        </div>
+    }
+}

@@ -1,0 +1,116 @@
+@model LMS_THPT.Models.BaiTap
+@{
+    ViewData["Title"] = "Chi tiết bài tập";
+}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+        border-radius: 16px;
+        padding: 1.8rem 2rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(255,107,0,0.15);
+    }
+    
+    .detail-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.05);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-edit { background: #fff7ed; color: #ff6b00; border: 1px solid #fed7aa; }
+    .btn-edit:hover { background: #ffedd5; color: #ea580c; }
+    
+    .btn-delete { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .btn-delete:hover { background: #fee2e2; color: #991b1b; }
+    
+    .btn-view { background: linear-gradient(135deg, #ff6b00, #ea580c); color: #fff; border: none; }
+    .btn-view:hover { opacity: 0.9; color: #fff; }
+</style>
+
+<div class="page-header">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div style="font-size:2.5rem;">📝</div>
+            <div>
+                <h1 class="fw-bold mb-0" style="font-size:1.6rem;">@Model.TieuDe</h1>
+                <p class="mb-0 opacity-75" style="font-size:0.9rem;">
+                    Môn: @(Model.MonHoc?.TenMonHoc ?? "Không xác định") &bull; Hạn nộp: @Model.HanNop.ToString("dd/MM/yyyy HH:mm")
+                </p>
+            </div>
+        </div>
+        @if (User.IsInRole("GiaoVien") || User.IsInRole("Admin"))
+        {
+            <div class="d-flex gap-2">
+                <a asp-action="EditBaiTap" asp-route-id="@Model.Id" asp-route-lopId="@ViewBag.LopId" class="btn-action btn-edit">
+                    <i class="fa fa-edit"></i> Sửa
+                </a>
+                <form asp-action="DeleteBaiTap" method="post" onsubmit="return false;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="lopId" value="@ViewBag.LopId" />
+                    <button type="button" class="btn-action btn-delete"
+                            onclick="xacNhanXoa(this.closest('form'), 'Bạn có chắc chắn muốn xóa bài tập này? Toàn bộ bài nộp của học sinh cũng sẽ bị xóa theo!')">
+                        <i class="fa fa-trash"></i> Xóa
+                    </button>
+                </form>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="detail-card">
+    <div class="d-flex align-items-center gap-3 mb-4 pb-3" style="border-bottom: 1px solid #f1f5f9;">
+        <div>
+            @if (!string.IsNullOrEmpty(Model.NguoiDung?.AnhDaiDien))
+            {
+                <img src="@Model.NguoiDung.AnhDaiDien" style="width:48px; height:48px; border-radius:50%; object-fit:cover;" />
+            }
+            else
+            {
+                <div style="width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, #ff6b00, #ff8c00); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.2rem;">
+                    @(Model.NguoiDung?.HoTen?.Substring(0, 1).ToUpper() ?? "?")
+                </div>
+            }
+        </div>
+        <div>
+            <div style="font-weight:600; font-size:1.05rem; color:#1e293b;">
+                @(Model.NguoiDung?.HoTen ?? "Ẩn danh")
+            </div>
+            <div class="text-muted" style="font-size:0.85rem;">
+                Ngày tạo: @Model.NgayTao.ToString("dd/MM/yyyy HH:mm")
+            </div>
+        </div>
+    </div>
+
+    <div class="content-body" style="font-size:1rem; line-height:1.6; color:#334155;">
+        @Html.Raw(Model.MoTa ?? "<span class='text-muted'>Không có nội dung mô tả.</span>")
+    </div>
+
+    <div class="mt-5 pt-4 d-flex flex-wrap gap-3" style="border-top: 1px solid #f1f5f9;">
+        @if (User.IsInRole("GiaoVien") || User.IsInRole("Admin"))
+        {
+            <a asp-action="Submissions" asp-route-baiTapId="@Model.Id" asp-route-lopId="@ViewBag.LopId" class="btn-action btn-view">
+                <i class="fa fa-users"></i> Xem nộp bài
+            </a>
+        }
+    </div>
+</div>

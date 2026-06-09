@@ -1,0 +1,245 @@
+@model List<LMS_THPT.Models.LichHoc>
+@{
+    ViewData["Title"] = "Thời khóa biểu Toàn trường";
+    ViewData["PageTitle"] = "Giám sát lịch học";
+    Layout = "_HieuTruongLayout";
+    var lops = ViewBag.Lops as List<LMS_THPT.Models.Lop>;
+    var selectedLopId = ViewBag.SelectedLopId?.ToString();
+    var leaves = ViewBag.Leaves as List<LMS_THPT.Models.YeuCauGiaoVien>;
+    
+    DateTime selectedDate = DateTime.Parse(ViewBag.SelectedDate);
+    string dayOfWeekStr = "";
+    switch (selectedDate.DayOfWeek)
+    {
+        case DayOfWeek.Monday: dayOfWeekStr = "Thứ Hai"; break;
+        case DayOfWeek.Tuesday: dayOfWeekStr = "Thứ Ba"; break;
+        case DayOfWeek.Wednesday: dayOfWeekStr = "Thứ Tư"; break;
+        case DayOfWeek.Thursday: dayOfWeekStr = "Thứ Năm"; break;
+        case DayOfWeek.Friday: dayOfWeekStr = "Thứ Sáu"; break;
+        case DayOfWeek.Saturday: dayOfWeekStr = "Thứ Bảy"; break;
+        case DayOfWeek.Sunday: dayOfWeekStr = "Chủ Nhật"; break;
+    }
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    /* Premium Timeline Styling */
+    .ht-timeline { position: relative; padding-left: 100px; }
+    .ht-timeline::before {
+        content: '';
+        position: absolute;
+        left: 85px; top: 0; bottom: 0;
+        width: 2px;
+        background: var(--border);
+    }
+
+    .ht-period-item {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .ht-period-num {
+        position: absolute;
+        left: -100px;
+        top: 10px;
+        width: 70px;
+        text-align: right;
+        font-weight: 800;
+        color: var(--navy);
+        font-size: 0.8rem;
+        letter-spacing: 0.05em;
+    }
+
+    .ht-period-dot {
+        position: absolute;
+        left: -19px;
+        top: 14px;
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        background: var(--border);
+        border: 2px solid white;
+        z-index: 1;
+        transition: all 0.3s;
+    }
+
+    .ht-period-item:hover .ht-period-dot {
+        background: var(--accent);
+        transform: scale(1.5);
+    }
+
+    .ht-lesson-box {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.25rem;
+        transition: all 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .ht-period-item:hover .ht-lesson-box {
+        border-color: var(--accent-light);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .ht-lesson-title { font-weight: 700; color: var(--navy); font-size: 1.1rem; margin-bottom: 4px; }
+    .ht-lesson-meta { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 12px; }
+
+    /* Custom Flatpickr Indigo Theme */
+    .flatpickr-calendar {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--border) !important;
+        border-radius: 12px !important;
+        padding: 8px;
+    }
+    .flatpickr-day.selected {
+        background: var(--navy) !important;
+        border-color: var(--navy) !important;
+    }
+    .flatpickr-day.today { border-color: var(--accent) !important; color: var(--accent) !important; }
+
+    .empty-lesson {
+        padding: 1rem;
+        color: var(--text-muted);
+        font-style: italic;
+        font-size: 0.85rem;
+        background: #f8fafc;
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+    }
+</style>
+
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">📅 Thời Khóa Biểu Toàn Trường</h1>
+        <div style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">
+            Giám sát lịch giảng dạy và học tập chi tiết của từng lớp trong ngày
+        </div>
+    </div>
+
+</div>
+
+<div class="row g-4">
+    <!-- BỘ LỌC & LỊCH -->
+    <div class="col-lg-4">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h3 style="font-size: 1rem;">🔍 Bộ lọc giám sát</h3>
+            </div>
+            <div class="admin-card-body">
+                <form method="get" id="filterForm">
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">1. Chọn lớp học</label>
+                        <select name="lopId" class="admin-form-control" onchange="document.getElementById('filterForm').submit()">
+                            <option value="">-- Chọn lớp cần xem --</option>
+                            @if (lops != null)
+                            {
+                                foreach (var lop in lops)
+                                {
+                                    <option value="@lop.Id" selected="@(selectedLopId == lop.Id.ToString())">Lớp @lop.TenLop</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">2. Chọn ngày áp dụng</label>
+                        <input type="hidden" name="date" id="selectedDate" value="@ViewBag.SelectedDate" />
+                        <div id="inlineCalendar" style="width: 100%;"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- CHI TIẾT LỊCH TRÌNH -->
+    <div class="col-lg-8">
+        @if (string.IsNullOrEmpty(selectedLopId))
+        {
+            <div class="admin-card" style="height: 100%; min-height: 400px; display: flex; align-items: center; justify-content: center; text-align: center; border-style: dashed;">
+                <div style="padding: 2rem;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">🏫</div>
+                    <h3 style="font-weight: 800; color: var(--navy);">BẠN CHƯA CHỌN LỚP</h3>
+                    <p style="color: var(--text-muted);">Vui lòng chọn một lớp học ở bộ lọc bên trái để bắt đầu giám sát lịch trình.</p>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="admin-card">
+                <div class="admin-card-header" style="justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 style="font-size: 1.1rem;">📅 Lịch ngày @selectedDate.ToString("dd/MM/yyyy")</h3>
+                        <div style="font-size: 0.8rem; color: var(--accent); font-weight: 700; text-transform: uppercase; margin-top: 2px;">@dayOfWeekStr</div>
+                    </div>
+                    <div class="admin-badge admin-badge-info">Lớp @(lops?.FirstOrDefault(l => l.Id.ToString() == selectedLopId)?.TenLop)</div>
+                </div>
+                <div class="admin-card-body">
+                    <div class="ht-timeline">
+                        @for (int i = 1; i <= 10; i++)
+                        {
+                            var lesson = Model?.FirstOrDefault(l => l.TietHoc == i);
+                            var leave = lesson != null && leaves != null ? leaves.FirstOrDefault(y => y.MaGiaoVien == lesson.GiaoVienId && y.TuTiet <= i && y.DenTiet >= i) : null;
+                            
+                            <div class="ht-period-item">
+                                <div class="ht-period-num">TIẾT @i</div>
+                                <div class="ht-period-dot"></div>
+                                
+                                @if (lesson != null)
+                                {
+                                    <div class="ht-lesson-box @(leave != null ? "border-danger" : "")">
+                                        <div>
+                                            <div class="ht-lesson-title">@lesson.MonHoc?.TenMonHoc</div>
+                                            <div class="ht-lesson-meta">
+                                                <span>👤 <strong>@lesson.GiaoVien?.HoTen</strong></span>
+                                                <span>🚪 Phòng: <strong>@lesson.PhongHoc</strong></span>
+                                            </div>
+                                            @if(leave != null)
+                                            {
+                                                <div style="margin-top: 8px;">
+                                                    <span class="admin-badge admin-badge-danger" style="font-size: 0.65rem;">⚠️ GIÁO VIÊN ĐÃ BÁO NGHỈ</span>
+                                                </div>
+                                            }
+                                        </div>
+                                        @if(leave == null)
+                                        {
+                                            <span class="admin-badge admin-badge-success" style="font-size: 0.6rem;">ĐANG DIỄN RA</span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="empty-lesson">
+                                        (Thời gian trống)
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var selectedDate = document.getElementById('selectedDate').value;
+            
+            flatpickr("#inlineCalendar", {
+                inline: true,
+                defaultDate: selectedDate,
+                locale: "vn",
+                dateFormat: "Y-m-d",
+                onChange: function(selectedDates, dateStr, instance) {
+                    document.getElementById('selectedDate').value = dateStr;
+                    document.getElementById('filterForm').submit();
+                }
+            });
+        });
+    </script>
+}

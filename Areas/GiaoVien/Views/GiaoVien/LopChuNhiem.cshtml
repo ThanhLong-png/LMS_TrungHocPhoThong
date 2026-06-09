@@ -1,0 +1,271 @@
+@model LMS_THPT.ViewModels.LopChuNhiemViewModel
+@{
+    ViewData["Title"] = Model.LopChuNhiem != null ? $"Lớp {Model.LopChuNhiem.TenLop}" : "Lớp chủ nhiệm";
+    ViewData["ActivePage"] = "LopChuNhiem";
+    ViewData["PageTitle"] = "Lớp chủ nhiệm";
+}
+
+<div style="background:linear-gradient(135deg,#ff6b00 0%,#ff8c00 100%);border-radius:16px;padding:1.6rem 2rem;color:#fff;margin-bottom:1.5rem;position:relative;overflow:hidden;box-shadow:0 10px 30px rgba(255,107,0,0.15);">
+    <div style="position:absolute;top:-30%;right:-5%;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06);"></div>
+    <div class="d-flex align-items-center gap-3" style="position:relative;z-index:1;">
+        <div>
+            <h1 class="fw-bold mb-0" style="font-size:1.65rem; letter-spacing:-0.02em; font-weight:800;">Lớp chủ nhiệm</h1>
+            <p class="mb-0" style="font-size:.9rem; opacity:.8; font-weight:500; margin-top:.3rem;">
+                @if (Model.LopChuNhiem != null) { <text>Lớp <strong>@Model.LopChuNhiem.TenLop</strong> &mdash; Quản lý và theo dõi học sinh</text> }
+                else { <text>Chưa được phân công lớp chủ nhiệm</text> }
+            </p>
+        </div>
+    </div>
+</div>
+
+@if (Model.LopChuNhiem == null)
+{
+    <div class="card" style="text-align:center; padding: 48px 24px;">
+        
+        <div style="font-size:16px; font-weight:500; color:var(--text2);">Bạn chưa được phân công làm chủ nhiệm lớp nào.</div>
+        <div style="font-size:13px; color:var(--text3); margin-top:8px;">Vui lòng liên hệ Ban giám hiệu để được phân công.</div>
+    </div>
+}
+else
+{
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fff7ed; color:#ff6b00; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">SS</div>
+            <div class="fw-bold" style="font-size:1.65rem; color:#ff6b00; letter-spacing:-0.02em;">@Model.SiSo</div>
+            <div class="text-muted" style="font-size:0.85rem; font-weight:500;">Sĩ số học sinh</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#f0fdf4; color:#15803d; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">Nam</div>
+            <div class="fw-bold" style="font-size:1.65rem; color:#15803d; letter-spacing:-0.02em;">@Model.SoNamSinh</div>
+            <div class="text-muted" style="font-size:0.85rem; font-weight:500;">Nam sinh</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#faf5ff; color:#7e22ce; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">Nữ</div>
+            <div class="fw-bold" style="font-size:1.65rem; color:#7e22ce; letter-spacing:-0.02em;">@Model.SoNuSinh</div>
+            <div class="text-muted" style="font-size:0.85rem; font-weight:500;">Nữ sinh</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fff7ed; color:#c2410c; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">LD</div>
+            <div class="fw-bold" style="font-size:1.65rem; color:#c2410c; letter-spacing:-0.02em;">@Model.LichHomNay.Count</div>
+            <div class="text-muted" style="font-size:0.85rem; font-weight:500;">Lịch dạy hôm nay</div>
+        </div>
+    </div>
+
+    <div class="two-col">
+        <!-- Danh sách học sinh -->
+        <div class="card" style="grid-column: span 2;">
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <span class="card-title" style="margin:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    Danh sách học sinh – Lớp @Model.LopChuNhiem.TenLop
+                    <span style="font-size: 13px; font-weight: 500; color: var(--text3);">
+                        (Năm học @ViewBag.SelectedNamHoc – Học kỳ @ViewBag.SelectedHocKy)
+                    </span>
+                    @if (ViewBag.IsPastYear == true)
+                    {
+                        <span style="background:rgba(245,158,11,0.1); color:rgb(245,158,11); font-size:11px; padding:3px 8px; border-radius:12px; font-weight:600; border:1px solid rgba(245,158,11,0.2);">
+                            Lịch sử (Chỉ xem)
+                        </span>
+                    }
+                </span>
+                <span style="font-size:13px; color:var(--text3);">@Model.SiSo học sinh</span>
+            </div>
+
+            <!-- Ô tìm kiếm và Bộ lọc -->
+            <div style="display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap; align-items:center;">
+                <div style="flex:1; min-width:200px;">
+                    <input type="text" id="searchInput" placeholder="Tìm học sinh..."
+                           oninput="filterStudents(this.value)"
+                           style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px;
+                    font-size:13px; background:var(--bg2); color:var(--text1); outline:none;" />
+                </div>
+                <!-- Filter Nam hoc -->
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <label style="font-size:13px; font-weight:500; color:var(--text2);">Năm học:</label>
+                    <select id="selectNamHoc" onchange="applyFilters()" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:var(--bg2); color:var(--text1); outline:none; font-weight:500;">
+                        @foreach(var nh in (List<string>)ViewBag.DsNamHoc)
+                        {
+                            <!option value="@nh" @(nh == (string)ViewBag.SelectedNamHoc ? "selected" : "")>@nh</!option>
+                        }
+                    </select>
+                </div>
+                <!-- Filter Hoc ky -->
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <label style="font-size:13px; font-weight:500; color:var(--text2);">Học kỳ:</label>
+                    <select id="selectHocKy" onchange="applyFilters()" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; background:var(--bg2); color:var(--text1); outline:none; font-weight:500;">
+                        <!option value="1" @(1 == (int)ViewBag.SelectedHocKy ? "selected" : "")>Học kỳ 1</!option>
+                        <!option value="2" @(2 == (int)ViewBag.SelectedHocKy ? "selected" : "")>Học kỳ 2</!option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse; font-size:13px;" id="studentTable">
+                    <thead>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <th style="padding:8px 12px; text-align:left; color:var(--text3); font-weight:500;">#</th>
+                            <th style="padding:8px 12px; text-align:left; color:var(--text3); font-weight:500;">Họ tên</th>
+                            <th style="padding:8px 12px; text-align:left; color:var(--text3); font-weight:500;">Giới tính</th>
+                            @foreach (var mon in Model.DanhSachMonHoc)
+                            {
+                                <th style="padding:8px 12px; text-align:center; color:var(--text3); font-weight:500; white-space:nowrap;">@mon</th>
+                            }
+                            <th style="padding:8px 12px; text-align:center; color:var(--text3); font-weight:bold; white-space:nowrap;">TB Chung</th>
+                            <th style="padding:8px 12px; text-align:left; color:var(--text3); font-weight:500;">Hạnh kiểm</th>
+                            <th style="padding:8px 12px; text-align:left; color:var(--text3); font-weight:500;">Ngày sinh</th>
+                            <th style="padding:8px 12px; text-align:left; color:var(--text3); font-weight:500;">Email</th>
+                            <th style="padding:8px 12px; text-align:left; color:var(--text3); font-weight:500;">Địa chỉ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTbody">
+                        @{
+                            int stt = 1;
+                        }
+                        @foreach (var hs in Model.DanhSachHocSinh)
+                        {
+                            <tr class="student-tr" style="border-bottom:0.5px solid var(--border); transition:background .12s;"
+                                onmouseover="this.style.background='var(--bg2)'"
+                                onmouseout="this.style.background=''">
+                                <td style="padding:10px 12px; color:var(--text3);">@(stt++)</td>
+                                <td style="padding:10px 12px;">
+                                    <div style="display:flex; align-items:center; gap:10px;">
+                                        @if (!string.IsNullOrEmpty(hs.AnhDaiDien))
+                                        {
+                                            <img src="@hs.AnhDaiDien" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="avatar-sm">@hs.TenVietTat</div>
+                                        }
+                                        <div>
+                                             <span style="font-weight:500; color:var(--text1);">@hs.HoTen</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="padding:10px 12px; color:var(--text2);">
+                                    @if (hs.GioiTinh == "Nam")
+                                    {
+                                        <span class="badge badge-blue">Nam</span>
+                                    }
+                                    else if (hs.GioiTinh == "Nữ")
+                                    {
+                                        <span class="badge badge-pink">Nữ</span>
+                                    }
+                                    else
+                                    {
+                                        <span>–</span>
+                                    }
+                                </td>
+                                @foreach (var mon in Model.DanhSachMonHoc)
+                                {
+                                    var d = hs.DiemTungMon.ContainsKey(mon) ? hs.DiemTungMon[mon] : null;
+                                    <td style="padding:10px 12px; text-align:center; color:var(--text2);">
+                                        <span style="font-weight:600; color:@(d >= 8.0 ? "var(--green)" : d >= 6.5 ? "var(--blue)" : d >= 5.0 ? "var(--amber)" : d < 5.0 ? "var(--red)" : "var(--text3)")">
+                                            @(d.HasValue ? d.Value.ToString("0.0") : "–")
+                                        </span>
+                                    </td>
+                                }
+                                <td style="padding:10px 12px; color:var(--text2); text-align:center;">
+                                    <span style="font-weight:700; color:@(hs.DiemTrungBinh >= 8.0 ? "var(--green)" : hs.DiemTrungBinh >= 6.5 ? "var(--blue)" : hs.DiemTrungBinh >= 5.0 ? "var(--amber)" : hs.DiemTrungBinh < 5.0 ? "var(--red)" : "var(--text3)")">
+                                        @(hs.DiemTrungBinh.HasValue ? hs.DiemTrungBinh.Value.ToString("0.0") : "–")
+                                    </span>
+                                </td>
+                                <td style="padding:10px 12px;">
+                                    @if (ViewBag.IsPastYear == true)
+                                    {
+                                        <span class="badge" style="background:var(--bg3); color:var(--text2); padding: 5px 8px; font-weight:500; font-size:12px;">
+                                            @(hs.HanhKiem ?? "Chưa đánh giá")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <select class="form-control form-control-sm" style="width: 130px; font-weight:500;" onchange="updateHanhKiem('@hs.Id', this.value)">
+                                            <!option value="Chưa đánh giá" @(hs.HanhKiem == "Chưa đánh giá" ? "selected" : "")>Chưa đánh giá</!option>
+                                            <!option value="Tốt" @(hs.HanhKiem == "Tốt" ? "selected" : "")>Tốt</!option>
+                                            <!option value="Khá" @(hs.HanhKiem == "Khá" ? "selected" : "")>Khá</!option>
+                                            <!option value="Trung bình" @(hs.HanhKiem == "Trung bình" ? "selected" : "")>Trung bình</!option>
+                                            <!option value="Yếu" @(hs.HanhKiem == "Yếu" ? "selected" : "")>Yếu</!option>
+                                        </select>
+                                    }
+                                </td>
+                                <td style="padding:10px 12px; color:var(--text2);">@(hs.NgaySinh ?? "–")</td>
+                                <td style="padding:10px 12px; color:var(--text2);">@(string.IsNullOrEmpty(hs.Email) ? "–" : hs.Email)</td>
+                                <td style="padding:10px 12px; color:var(--text2);">@(string.IsNullOrEmpty(hs.DiaChi) ? "–" : hs.DiaChi)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @if (!Model.DanhSachHocSinh.Any())
+                {
+                    <div style="text-align:center; color:var(--text3); font-size:13px; padding:24px 0;">
+                        Chưa có học sinh nào trong lớp.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Lịch hôm nay -->
+    <div class="two-col">
+        <div class="card" style="grid-column: span 2;">
+            <div class="card-header">
+                <span class="card-title">Lịch học hôm nay</span>
+                <span style="font-size:12px; color:var(--text3);">@DateTime.Today.ToString("dd/MM/yyyy")</span>
+            </div>
+            @if (!Model.LichHomNay.Any())
+            {
+                <div style="color:var(--text3);font-size:13px;padding:12px 0">Không có tiết học hôm nay.</div>
+            }
+            <div class="schedule-grid">
+                @foreach (var l in Model.LichHomNay)
+                {
+                    <div class="schedule-card">
+                        <div class="schedule-time">@l.ThoiGian</div>
+                        <div class="schedule-subject">@l.TenMon</div>
+                        <div class="schedule-room">@l.PhongLop</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function filterStudents(query) {
+            const rows = document.querySelectorAll('.student-tr');
+            const q = query.toLowerCase().trim();
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = (!q || text.includes(q)) ? '' : 'none';
+            });
+        }
+
+        function updateHanhKiem(hsId, hanhKiem) {
+            fetch('/GiaoVien/GiaoVien/LuuHanhKiem', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ HocSinhId: hsId, HanhKiem: hanhKiem })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(!data.success) {
+                    if (typeof showToast !== 'undefined') showToast(data.message || 'Lỗi lưu hạnh kiểm', 'error');
+                    else alert(data.message || 'Lỗi lưu hạnh kiểm');
+                }
+            })
+            .catch(err => {
+                if (typeof showToast !== 'undefined') showToast('Lỗi mạng', 'error');
+                else alert('Lỗi mạng');
+            });
+        }
+
+        function applyFilters() {
+            var namHoc = document.getElementById('selectNamHoc').value;
+            var hocKy = document.getElementById('selectHocKy').value;
+            window.location.href = '?namHoc=' + encodeURIComponent(namHoc) + '&hocKy=' + hocKy;
+        }
+    </script>
+}

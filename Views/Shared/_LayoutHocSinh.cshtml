@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - LMS Quốc Học</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --sidebar-w: 68px;
+            --topnav-h: 56px;
+            --navy: #ffffff;
+            --navy-hover: #fff7ed;
+            --accent: #ff6b00;
+            --accent-light: #ffedd5;
+            --surface: #f8fafc;
+            --white: #ffffff;
+            --text-primary: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 12px;
+            --transition: 0.18s ease;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--surface);
+            color: var(--text-primary);
+            /* override site.css margin-bottom */
+            margin-bottom: 0 !important;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        /* ===== TOP NAV ===== */
+        .hs-topnav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--topnav-h);
+            background: var(--navy);
+            display: flex;
+            align-items: center;
+            padding: 0 1.2rem 0 calc(var(--sidebar-w) + 1rem);
+            z-index: 200;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            gap: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hs-topnav-logo {
+            color: var(--text-primary);
+            font-weight: 800;
+            font-size: 1.05rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hs-topnav-logo span {
+            background: linear-gradient(90deg, #ff6b00, #ff8c00);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .hs-topnav-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .hs-user-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 600;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            transition: background var(--transition);
+        }
+
+        .hs-user-btn:hover { background: var(--navy-hover); color: var(--text-primary); }
+
+        .hs-avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+        }
+
+        .hs-logout-btn {
+            background: var(--accent-light);
+            color: var(--accent);
+            border: 1px solid rgba(255,107,0,0.25);
+            border-radius: 8px;
+            padding: 0.35rem 0.85rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .hs-logout-btn:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        /* ===== SIDEBAR ===== */
+        .hs-sidebar {
+            position: fixed;
+            top: var(--topnav-h);
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-w);
+            background: var(--navy);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.8rem 0;
+            z-index: 150;
+            border-right: 1px solid var(--border);
+        }
+
+        .hs-sidenav {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+            width: 100%;
+        }
+
+        .hs-nav-item {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.65rem 0.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            gap: 0.25rem;
+            cursor: pointer;
+            transition: color var(--transition);
+            border-radius: 0;
+        }
+
+        .hs-nav-item:hover { color: var(--accent); }
+
+        .hs-nav-item.active { color: var(--accent); }
+
+        /* Active indicator bar on left */
+        .hs-nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 20%; bottom: 20%;
+            width: 3px;
+            background: var(--accent);
+            border-radius: 0 3px 3px 0;
+        }
+
+        /* Icon background pill */
+        .hs-nav-icon {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: background var(--transition), transform var(--transition);
+            background: transparent;
+        }
+
+        .hs-nav-item:hover .hs-nav-icon { background: var(--accent-light); transform: scale(1.05); }
+        .hs-nav-item.active .hs-nav-icon { background: var(--accent-light); color: var(--accent); }
+
+        .hs-nav-label {
+            font-size: 0.62rem;
+            font-weight: 600;
+            letter-spacing: 0;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        /* Divider in sidebar */
+        .hs-nav-divider {
+            width: 36px;
+            height: 1px;
+            background: var(--border);
+            margin: 0.4rem 0;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .hs-content {
+            margin-left: var(--sidebar-w);
+            margin-top: var(--topnav-h);
+            min-height: calc(100vh - var(--topnav-h));
+            padding: 1.8rem 2rem;
+        }
+
+        @@media (max-width: 768px) {
+            .hs-content { padding: 1rem; }
+            .hs-nav-label { display: none; }
+            .hs-nav-icon { width: 34px; height: 34px; font-size: 1.1rem; }
+        }
+
+        /* ===== BREADCRUMB ===== */
+        .hs-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 1.2rem;
+        }
+
+        .hs-breadcrumb a { color: var(--accent); text-decoration: none; }
+        .hs-breadcrumb a:hover { text-decoration: underline; }
+        .hs-breadcrumb-sep { color: #cbd5e1; }
+
+        /* ===== TOAST / ALERT ===== */
+        .hs-alert {
+            border-radius: 12px;
+            border: none;
+            padding: 0.85rem 1.2rem;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    @{
+        var avatarClaim = User.Claims.FirstOrDefault(c => c.Type == "AnhDaiDien")?.Value;
+        var avatarUrl = string.IsNullOrEmpty(avatarClaim)
+            ? Url.Content("~/images/default-avatar.svg")
+            : Url.Content(avatarClaim.StartsWith("~") ? avatarClaim : "~/" + avatarClaim.TrimStart('/'));
+
+        var currentAction  = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+        bool IsActive(string action) => currentAction.Equals(action, StringComparison.OrdinalIgnoreCase);
+    }
+
+    <!-- ===== TOP NAV ===== -->
+    <nav class="hs-topnav">
+        <a asp-controller="HocSinh" asp-action="Index" class="hs-topnav-logo">
+            🎓 <span>LMS Quốc Học</span>
+        </a>
+
+        <div class="hs-topnav-right">
+            <a asp-controller="HocSinh" asp-action="Index" class="hs-user-btn">
+                <img src="@avatarUrl" class="hs-avatar" alt="avatar" />
+                <span class="d-none d-md-inline">@User.Identity!.Name</span>
+            </a>
+
+            <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="hs-logout-btn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span class="d-none d-sm-inline">Đăng xuất</span>
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="hs-sidebar">
+        <nav class="hs-sidenav">
+
+            <!-- Dashboard -->
+            <a asp-controller="HocSinh" asp-action="Index"
+               class="hs-nav-item @(IsActive("Index") ? "active" : "")">
+                <div class="hs-nav-icon">🏠</div>
+                <span class="hs-nav-label">Trang chủ</span>
+            </a>
+
+            <!-- Môn học -->
+            <a asp-controller="HocSinh" asp-action="MonHoc"
+               class="hs-nav-item @(IsActive("MonHoc") || IsActive("ChiTietMonHoc") ? "active" : "")">
+                <div class="hs-nav-icon">📚</div>
+                <span class="hs-nav-label">Môn học</span>
+            </a>
+
+            <div class="hs-nav-divider"></div>
+
+            <!-- Bài tập -->
+            <a asp-controller="HocSinh" asp-action="BaiTap"
+               class="hs-nav-item @(IsActive("BaiTap") || IsActive("NopBai") ? "active" : "")">
+                <div class="hs-nav-icon">📝</div>
+                <span class="hs-nav-label">Bài tập</span>
+            </a>
+
+            <!-- Điểm -->
+            <a asp-controller="HocSinh" asp-action="Diem"
+               class="hs-nav-item @(IsActive("Diem") ? "active" : "")">
+                <div class="hs-nav-icon">🏆</div>
+                <span class="hs-nav-label">Điểm số</span>
+            </a>
+
+
+            <!-- Lịch học -->
+            <a asp-controller="HocSinh" asp-action="LichHoc"
+               class="hs-nav-item @(IsActive("LichHoc") ? "active" : "")">
+                <div class="hs-nav-icon">📅</div>
+                <span class="hs-nav-label">Lịch học</span>
+            </a>
+
+            <div class="hs-nav-divider"></div>
+
+            <!-- Bài giảng -->
+            <a asp-controller="HocSinh" asp-action="BaiGiang"
+               class="hs-nav-item @(IsActive("BaiGiang") || IsActive("ChiTietBaiGiang") ? "active" : "")">
+                <div class="hs-nav-icon">▶️</div>
+                <span class="hs-nav-label">Bài giảng</span>
+            </a>
+
+
+            <!-- Tài khoản -->
+            <a asp-controller="HocSinh" asp-action="SuaThongTin"
+               class="hs-nav-item @(IsActive("SuaThongTin") ? "active" : "")">
+                <div class="hs-nav-icon">👤</div>
+                <span class="hs-nav-label">Tài khoản</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="hs-content">
+        @RenderBody()
+    </main>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

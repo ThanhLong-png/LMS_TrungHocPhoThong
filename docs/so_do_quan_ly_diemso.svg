@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="700" viewBox="0 0 880 700">
+  <defs>
+    <!-- Arrow marker definition -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#333" />
+    </marker>
+  </defs>
+
+  <!-- Outer frame with rounded corners -->
+  <rect x="10" y="10" width="860" height="680" rx="15" ry="15" fill="#FFFFFF" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Yellow vertical header column on the left -->
+  <path d="M 60 10 L 25 10 A 15 15 0 0 0 10 25 L 10 675 A 15 15 0 0 0 25 690 L 60 690 Z" fill="#FFF9C4" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Horizontal division lines for swimlanes -->
+  <line x1="10" y1="260" x2="870" y2="260" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Vertical text labels inside the yellow header column -->
+  <text transform="rotate(-90, 35, 135)" x="35" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#333333" font-weight="bold">Giáo viên</text>
+  <text transform="rotate(-90, 35, 480)" x="35" y="485" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#333333" font-weight="bold">Hệ thống</text>
+
+  <!-- ==================== LANE 1: GIÁO VIÊN (y: 10 to 260) ==================== -->
+  
+  <!-- Start Node (Black circle) -->
+  <circle cx="120" cy="50" r="10" fill="#000000" />
+
+  <!-- Diamond: Chọn hành động? -->
+  <polygon points="185,40 200,50 185,60 170,50" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="185" y="33" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" font-weight="bold" fill="#000000">Chọn tác vụ?</text>
+
+  <!-- Box 1: Nhập điểm môn học -->
+  <rect x="110" y="100" width="150" height="45" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="185" y="118" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">
+    <tspan x="185" dy="0">Nhập điểm môn học</tspan>
+    <tspan x="185" dy="13">(Miệng, GK, CK)</tspan>
+  </text>
+
+  <!-- Box 2: Chấm điểm bài tập -->
+  <rect x="415" y="100" width="150" height="45" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="490" y="118" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">
+    <tspan x="490" dy="0">Chấm điểm bài tập</tspan>
+    <tspan x="490" dy="13">tự luận / trắc nghiệm</tspan>
+  </text>
+
+  <!-- Box 3: Đánh giá hạnh kiểm -->
+  <rect x="605" y="100" width="150" height="45" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="680" y="118" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">
+    <tspan x="680" dy="0">Đánh giá hạnh kiểm</tspan>
+    <tspan x="680" dy="13">(Dành cho GVCN)</tspan>
+  </text>
+
+
+  <!-- ==================== LANE 2: HỆ THỐNG (y: 260 to 690) ==================== -->
+
+  <!-- === COLUMN 1: SUBJECT GRADES === -->
+  <!-- HT Box 1: Lưu DiemSo -->
+  <rect x="110" y="290" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="185" y="308" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="185" dy="0">Lưu / Cập nhật</tspan>
+    <tspan x="185" dy="13">bản ghi DiemSo</tspan>
+  </text>
+
+  <!-- HT Box 2: Đồng bộ DiemHocKy -->
+  <rect x="110" y="370" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="185" y="388" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="185" dy="0">Đồng bộ sang</tspan>
+    <tspan x="185" dy="13">DiemHocKy theo học kỳ</tspan>
+  </text>
+
+  <!-- HT Box 3: Tính điểm tổng kết -->
+  <rect x="110" y="450" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="185" y="468" text-anchor="middle" font-family="Arial, sans-serif" font-size="9.5" font-weight="bold" fill="#0d47a1">
+    <tspan x="185" dy="0">Tính điểm tổng kết</tspan>
+    <tspan x="185" dy="13">(MiệngTB+GK*2+CK*3)/6</tspan>
+  </text>
+
+  <!-- HT Box 4: Xếp loại học lực -->
+  <rect x="110" y="530" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="185" y="548" text-anchor="middle" font-family="Arial, sans-serif" font-size="9.5" font-weight="bold" fill="#0d47a1">
+    <tspan x="185" dy="0">Xếp loại học lực</tspan>
+    <tspan x="185" dy="13">(Giỏi, Khá, TB, Yếu...)</tspan>
+  </text>
+
+
+  <!-- === COLUMN 2: ASSIGNMENT GRADES === -->
+  <!-- HT Box 5: Lưu điểm bài nộp -->
+  <rect x="415" y="290" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="490" y="308" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="490" dy="0">Lưu điểm &amp; nhận xét</tspan>
+    <tspan x="490" dy="13">vào bản ghi BaiNop</tspan>
+  </text>
+
+
+  <!-- === COLUMN 3: CONDUCT GRADES === -->
+  <!-- HT Box 6: Cập nhật HanhKiem -->
+  <rect x="605" y="290" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="680" y="308" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="680" dy="0">Cập nhật HanhKiem</tspan>
+    <tspan x="680" dy="13">vào hồ sơ NguoiDung</tspan>
+  </text>
+
+
+  <!-- End Node (Black circle with outer border) -->
+  <circle cx="800" cy="380" r="10" fill="#000000" />
+  <circle cx="800" cy="380" r="15" fill="none" stroke="#000000" stroke-width="1.5" />
+
+
+  <!-- ==================== CONNECTIONS / FLOWS ==================== -->
+
+  <!-- Start to Diamond -->
+  <path d="M 130 50 L 170 50" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Diamond to Box 1 -->
+  <path d="M 185 60 L 185 100" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="189" y="80" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Nhập điểm môn</text>
+
+  <!-- Diamond to Box 2 -->
+  <path d="M 200 50 L 490 50 L 490 100" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="345" y="43" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Chấm bài tập</text>
+
+  <!-- Diamond to Box 3 -->
+  <path d="M 200 50 L 680 50 L 680 100" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="585" y="43" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Đánh giá hạnh kiểm</text>
+
+
+  <!-- === COLUMN 1 FLOWS === -->
+  <!-- Box 1 -> HT Box 1 -->
+  <path d="M 185 145 L 185 290" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- HT Box 1 -> HT Box 2 -->
+  <path d="M 185 335 L 185 370" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- HT Box 2 -> HT Box 3 -->
+  <path d="M 185 415 L 185 450" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- HT Box 3 -> HT Box 4 -->
+  <path d="M 185 495 L 185 530" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- HT Box 4 to Join Bar -->
+  <path d="M 185 575 L 185 607" fill="none" stroke="#333333" stroke-width="1.2" />
+
+
+  <!-- === COLUMN 2 FLOWS === -->
+  <!-- Box 2 -> HT Box 5 -->
+  <path d="M 490 145 L 490 290" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- HT Box 5 to Join Bar -->
+  <path d="M 490 335 L 490 607" fill="none" stroke="#333333" stroke-width="1.2" />
+
+
+  <!-- === COLUMN 3 FLOWS === -->
+  <!-- Box 3 -> HT Box 6 -->
+  <path d="M 680 145 L 680 290" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- HT Box 6 to Join Bar -->
+  <path d="M 680 335 L 680 607" fill="none" stroke="#333333" stroke-width="1.2" />
+
+
+  <!-- ==================== COLLECTOR & END NODE ==================== -->
+
+  <!-- Join Bar (UML Fork/Join Bar) -->
+  <line x1="150" y1="610" x2="730" y2="610" stroke="#000000" stroke-width="6" stroke-linecap="round" />
+
+  <!-- Join Bar to End Node -->
+  <path d="M 730 610 L 800 610 L 800 395" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+</svg>

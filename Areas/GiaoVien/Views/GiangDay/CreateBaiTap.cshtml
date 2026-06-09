@@ -1,0 +1,159 @@
+@{
+    ViewData["Title"] = "Tạo bài tập";
+}
+
+<script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+        border-radius: 16px;
+        padding: 1.8rem 2rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(255,107,0,0.15);
+    }
+    
+    .form-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.05);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        padding: 0.6rem 1rem;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #ff6b00;
+        box-shadow: 0 0 0 3px rgba(255,107,0,0.1);
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #ff6b00, #ea580c);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 0.6rem 1.8rem;
+        font-weight: 600;
+        transition: opacity 0.2s;
+    }
+
+    .btn-submit:hover { opacity: 0.9; color: #fff; }
+
+    .btn-cancel {
+        background: #f1f5f9;
+        color: #475569;
+        border: none;
+        border-radius: 10px;
+        padding: 0.6rem 1.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+
+    .btn-cancel:hover { background: #e2e8f0; color: #1e293b; }
+</style>
+
+<div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+        <div style="font-size:2.5rem;">📝</div>
+        <div>
+            <h1 class="fw-bold mb-0" style="font-size:1.6rem;">Tạo bài tập mới</h1>
+            <p class="mb-0 opacity-75" style="font-size:0.9rem;">Thêm bài tập và kiểm tra cho lớp học</p>
+        </div>
+    </div>
+</div>
+
+<div class="form-card">
+    <form asp-action="CreateBaiTap" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="lopId" value="@ViewBag.LopId" />
+        <input type="hidden" name="monHocId" value="@ViewBag.MonHocId" />
+        
+        <div class="mb-4">
+            <label class="form-label">Tiêu đề bài tập <span class="text-danger">*</span></label>
+            <input name="title" class="form-control" required placeholder="Nhập tiêu đề bài tập..." />
+        </div>
+        
+        <div class="mb-4">
+            <label class="form-label">Nội dung / Yêu cầu chi tiết</label>
+            <textarea name="content" id="editor" rows="8" class="form-control"></textarea>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <label class="form-label">Hạn nộp - Ngày</label>
+                <input type="date" name="dueDate" class="form-control" />
+            </div>
+            <div class="col-md-4 mb-3 mb-md-0">
+                <label class="form-label">Hạn nộp - Giờ</label>
+                <input type="time" name="dueTime" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Loại điểm (Ghi sổ)</label>
+                <select name="loaiDiem" class="form-select form-control">
+                    <option value="BaiTap">Khác (Không ghi sổ)</option>
+                    <option value="MiengKiemTra">Điểm miệng / 15 phút</option>
+                    <option value="GiuaKy">Điểm giữa kỳ (40%)</option>
+                    <option value="CuoiKy">Điểm cuối kỳ (60%)</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="mb-4">
+            <label class="form-label">Tệp đính kèm (Tùy chọn)</label>
+            <input type="file" name="attachments" multiple class="form-control" />
+            <div class="form-text text-muted mt-1" style="font-size:0.85rem;">Bạn có thể tải lên nhiều tệp (PDF, Word, Ảnh...).</div>
+        </div>
+        
+        <div class="d-flex gap-3 pt-2">
+            <button type="submit" class="btn-submit">
+                <i class="fa fa-save me-1"></i> Tạo bài tập
+            </button>
+            <a asp-action="Index" asp-route-lopId="@ViewBag.LopId" asp-route-monHocId="@ViewBag.MonHocId" class="btn-cancel">
+                Hủy bỏ
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    CKEDITOR.replace('editor');
+
+    // Hiển thị ngày trong tuần khi thay đổi ngày
+    document.addEventListener('DOMContentLoaded', function () {
+        var dateInput = document.querySelector('input[name="dueDate"]');
+        if (!dateInput) return;
+
+        var info = document.createElement('div');
+        info.style.marginTop = '6px';
+        info.style.fontSize = '0.85rem';
+        info.style.color = '#64748b';
+        info.style.fontWeight = '500';
+        dateInput.parentElement.appendChild(info);
+
+        function updateDay() {
+            var v = dateInput.value;
+            if (!v) { info.textContent = ''; return; }
+            var d = new Date(v + 'T00:00:00');
+            var days = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+            info.textContent = '📅 ' + d.toLocaleDateString() + ' (' + days[d.getDay()] + ')';
+        }
+
+        dateInput.addEventListener('change', updateDay);
+        updateDay();
+    });
+</script>

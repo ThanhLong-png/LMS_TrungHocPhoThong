@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#333" />
+    </marker>
+  </defs>
+
+  <!-- Outer frame -->
+  <rect x="10" y="10" width="1180" height="660" rx="15" ry="15" fill="#FFFFFF" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Swimlane headers -->
+  <!-- Admin/HieuTruong -->
+  <path d="M 25 10 A 15 15 0 0 0 10 25 L 10 50 L 400 50 L 400 10 Z" fill="#FFF9C4" stroke="#333333" stroke-width="1.5"/>
+  <!-- Hệ thống -->
+  <path d="M 400 10 L 400 50 L 800 50 L 800 10 Z" fill="#FFF9C4" stroke="#333333" stroke-width="1.5"/>
+  <!-- Kết quả -->
+  <path d="M 800 10 L 800 50 L 1190 50 A 15 15 0 0 0 1175 10 Z" fill="#FFF9C4" stroke="#333333" stroke-width="1.5"/>
+
+  <!-- Vertical dividers -->
+  <line x1="400" y1="50" x2="400" y2="670" stroke="#333333" stroke-width="1.5"/>
+  <line x1="800" y1="50" x2="800" y2="670" stroke="#333333" stroke-width="1.5"/>
+
+  <!-- Header texts -->
+  <text x="200" y="34" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#333333">Admin / Hiệu trưởng</text>
+  <text x="600" y="34" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#333333">Hệ thống</text>
+  <text x="1000" y="34" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#333333">Kết quả / Thông báo</text>
+
+  <!-- ==================== NODES ==================== -->
+
+  <!-- Start node -->
+  <circle cx="200" cy="80" r="12" fill="#1a1a2e"/>
+  <!-- Arrow: Start -> Chọn chức năng -->
+  <path d="M 200 92 L 200 112" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- Chọn chức năng quản lý lớp -->
+  <rect x="80" y="112" width="240" height="34" rx="17" fill="#1a1a2e" stroke="#333" stroke-width="1.2"/>
+  <text x="200" y="133" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#ffffff">Chọn chức năng quản lý lớp</text>
+
+  <!-- Arrow -> Decision: chọn loại -->
+  <path d="M 200 146 L 200 172" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- Decision: Thao tác? -->
+  <polygon points="200,172 280,200 200,228 120,200" fill="#ffffff" stroke="#333" stroke-width="1.2"/>
+  <text x="200" y="204" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Thao tác?</text>
+
+  <!-- Branch labels from decision -->
+  <text x="108" y="196" font-family="Arial, sans-serif" font-size="9" fill="#1565C0" font-weight="bold">Tạo lớp</text>
+  <text x="282" y="196" font-family="Arial, sans-serif" font-size="9" fill="#C62828" font-weight="bold">Sửa/Xóa</text>
+  <text x="190" y="240" font-family="Arial, sans-serif" font-size="9" fill="#2E7D32" font-weight="bold">Phân công GV</text>
+
+  <!-- ===== BRANCH 1: TẠO LỚP ===== -->
+  <!-- Decision -> Nhập thông tin lớp -->
+  <path d="M 120 200 L 60 200 L 60 290" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="20" y="290" width="160" height="34" rx="6" fill="#e8f5e9" stroke="#333" stroke-width="1.2"/>
+  <text x="100" y="311" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#1b5e20">Nhập tên lớp, khối</text>
+
+  <!-- -> Hệ thống kiểm tra trùng -->
+  <path d="M 180 307 L 480 307" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="480" y="290" width="200" height="34" rx="6" fill="#e3f2fd" stroke="#333" stroke-width="1.2"/>
+  <text x="580" y="307" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#0d47a1">Kiểm tra trùng tên lớp</text>
+  <text x="580" y="318" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#0d47a1">trong CSDL</text>
+
+  <!-- Decision: trùng? -->
+  <path d="M 580 324 L 580 352" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <polygon points="580,352 640,372 580,392 520,372" fill="#ffffff" stroke="#333" stroke-width="1.2"/>
+  <text x="580" y="376" text-anchor="middle" font-family="Arial, sans-serif" font-size="9.5" fill="#333">Trùng?</text>
+
+  <!-- Trùng -> Thông báo lỗi -->
+  <text x="648" y="368" font-family="Arial, sans-serif" font-size="9" fill="#C62828" font-weight="bold">Có</text>
+  <path d="M 640 372 L 850 372" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="850" y="356" width="180" height="32" rx="6" fill="#fce4ec" stroke="#CC0000" stroke-width="1.2"/>
+  <text x="940" y="376" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#b71c1c">❌ Tên lớp đã tồn tại!</text>
+
+  <!-- Lỗi -> quay lại nhập -->
+  <path d="M 940 388 L 940 430 L 100 430 L 100 324" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+
+  <!-- Không trùng -> Lưu vào CSDL -->
+  <text x="508" y="368" font-family="Arial, sans-serif" font-size="9" fill="#2E7D32" font-weight="bold">Không</text>
+  <path d="M 520 372 L 480 372 L 480 450 L 820 450" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="820" y="436" width="180" height="32" rx="6" fill="#e8f5e9" stroke="#333" stroke-width="1.2"/>
+  <text x="910" y="456" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#1b5e20">✅ Tạo lớp thành công!</text>
+
+  <!-- ===== BRANCH 2: SỬA / XÓA LỚP ===== -->
+  <!-- Decision -> Chọn lớp -->
+  <path d="M 280 200 L 340 200 L 340 290" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="260" y="290" width="160" height="34" rx="6" fill="#fff3e0" stroke="#333" stroke-width="1.2"/>
+  <text x="340" y="311" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#e65100">Chọn lớp cần sửa/xóa</text>
+
+  <!-- -> Hệ thống hiển thị form -->
+  <path d="M 420 307 L 480 307 L 480 290" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- Decision: Sửa hay Xóa? -->
+  <path d="M 340 324 L 340 500" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <polygon points="340,500 400,520 340,540 280,520" fill="#ffffff" stroke="#333" stroke-width="1.2"/>
+  <text x="340" y="519" text-anchor="middle" font-family="Arial, sans-serif" font-size="9.5" fill="#333">Sửa hay Xóa?</text>
+
+  <!-- Sửa branch -->
+  <text x="238" y="516" font-family="Arial, sans-serif" font-size="9" fill="#1565C0" font-weight="bold">Sửa</text>
+  <path d="M 280 520 L 200 520 L 200 555" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="100" y="555" width="200" height="34" rx="6" fill="#e3f2fd" stroke="#333" stroke-width="1.2"/>
+  <text x="200" y="576" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#0d47a1">Cập nhật thông tin lớp</text>
+
+  <!-- Sửa -> Lưu -->
+  <path d="M 300 572 L 820 572" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="820" y="558" width="180" height="32" rx="6" fill="#e8f5e9" stroke="#333" stroke-width="1.2"/>
+  <text x="910" y="578" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#1b5e20">✅ Cập nhật thành công!</text>
+
+  <!-- Xóa branch -->
+  <text x="402" y="516" font-family="Arial, sans-serif" font-size="9" fill="#C62828" font-weight="bold">Xóa</text>
+  <path d="M 400 520 L 460 520 L 460 555" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="380" y="555" width="160" height="34" rx="6" fill="#fce4ec" stroke="#CC0000" stroke-width="1.2"/>
+  <text x="460" y="572" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#b71c1c">Xác nhận xóa lớp?</text>
+
+  <!-- Xóa xác nhận -> Hệ thống xóa -->
+  <path d="M 540 572 L 820 610" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="820" y="598" width="180" height="32" rx="6" fill="#fce4ec" stroke="#CC0000" stroke-width="1.2"/>
+  <text x="910" y="618" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#b71c1c">🗑️ Xóa lớp khỏi hệ thống</text>
+
+  <!-- ===== BRANCH 3: PHÂN CÔNG GIÁO VIÊN ===== -->
+  <path d="M 200 228 L 200 258" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="100" y="258" width="200" height="30" rx="6" fill="#f3e5f5" stroke="#333" stroke-width="1.2"/>
+  <text x="200" y="277" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#4a148c">Chọn lớp → chọn môn → chọn GV</text>
+
+  <!-- -> Hệ thống cập nhật LopMonHoc -->
+  <path d="M 300 273 L 480 273" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="480" y="258" width="200" height="30" rx="6" fill="#e8eaf6" stroke="#333" stroke-width="1.2"/>
+  <text x="580" y="273" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#283593">Cập nhật bảng LopMonHoc</text>
+  <text x="580" y="284" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#283593">&amp; MonHocGiaoVien</text>
+
+  <!-- -> Thông báo -->
+  <path d="M 680 273 L 820 273" fill="none" stroke="#333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="820" y="258" width="200" height="30" rx="6" fill="#e8f5e9" stroke="#333" stroke-width="1.2"/>
+  <text x="920" y="279" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#1b5e20">✅ Phân công thành công!</text>
+
+  <!-- End node -->
+  <circle cx="600" cy="645" r="12" fill="#1a1a2e"/>
+  <circle cx="600" cy="645" r="16" fill="none" stroke="#1a1a2e" stroke-width="2"/>
+
+  <!-- Footer label -->
+  <text x="600" y="670" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">Kết thúc</text>
+</svg>

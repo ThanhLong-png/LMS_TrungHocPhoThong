@@ -1,0 +1,85 @@
+@{
+    ViewData["Title"] = "Tạo Lớp mới";
+    Layout = "_AdminLayout";
+    int khoiId = ViewBag.KhoiId;
+    string tenKhoi = ViewBag.TenKhoi;
+}
+
+
+
+<div style="max-width: 640px; margin: 0 auto;">
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3>➕ Tạo lớp mới – @tenKhoi</h3>
+        </div>
+        <div class="admin-card-body">
+            <form asp-action="TaoLop" method="post">
+                <input type="hidden" name="khoiId" value="@khoiId" />
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="admin-alert admin-alert-danger">
+                        <span class="admin-alert-icon">⚠️</span>
+                        <div>
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <div>@error.ErrorMessage</div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Tên lớp</label>
+                    <input type="text" name="tenLop" class="admin-form-control" placeholder="VD: 10A1" />
+                </div>
+
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Giáo viên chủ nhiệm</label>
+                    <select id="giaoVienId" name="giaoVienId" class="admin-form-control">
+                        <option value="">-- Chọn giáo viên --</option>
+                        @foreach (var gv in ViewBag.GiaoViens)
+                        {
+                            <option value="@gv.Id">@gv.HoTen (@gv.Email)</option>
+                        }
+                    </select>
+                    <div style="font-size:0.8rem; color:var(--admin-text-muted); margin-top:6px;">
+                        Lưu ý: một giáo viên chỉ có thể là chủ nhiệm tối đa 1 lớp.
+                    </div>
+                </div>
+
+                <div class="admin-card-footer" style="padding:0; background:none; border:none; margin-top:1.5rem; justify-content:flex-start; gap:0.75rem;">
+                    <button type="submit" class="admin-btn admin-btn-primary">Tạo lớp</button>
+                    <a asp-action="Lops" asp-route-khoiId="@khoiId" class="admin-btn admin-btn-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    (function(){
+        const form = document.querySelector('form');
+        if (!form) return;
+        const tenInput = form.querySelector('input[name="tenLop"]');
+        const khoiId = '@khoiId';
+
+        form.addEventListener('submit', function(e){
+            const ten = (tenInput.value || '').trim();
+            if (!ten) return;
+            e.preventDefault();
+            fetch(`/QuanLyHocSinh/CheckLopExists?khoiId=${khoiId}&tenLop=${encodeURIComponent(ten)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.exists) {
+                        alert('Lớp đã tồn tại. Vui lòng chọn tên khác.');
+                    } else {
+                        form.submit();
+                    }
+                })
+                .catch(() => form.submit());
+        });
+    })();
+</script>
+}

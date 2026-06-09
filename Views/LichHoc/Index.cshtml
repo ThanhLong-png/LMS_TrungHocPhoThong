@@ -1,0 +1,74 @@
+@model IEnumerable<LMS_THPT.Models.LichHoc>
+
+@{
+    ViewData["Title"] = "Quản lý thời khóa biểu";
+    Layout = "_AdminLayout";
+}
+
+
+<div class="admin-page-header">
+    <h1 class="admin-page-title">📅 Quản lý Thời Khóa Biểu</h1>
+    <div class="admin-page-actions">
+        <a asp-action="Create" class="admin-btn admin-btn-primary">
+            <span>+</span> Thêm lịch học
+        </a>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card-body" style="padding: 0;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Lớp</th>
+                    <th>Môn học</th>
+                    <th>Giáo viên</th>
+                    <th>Thứ</th>
+                    <th>Tiết</th>
+                    <th>Phòng</th>
+                    <th style="width: 100px;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7">
+                            <div class="admin-empty">
+                                <div class="admin-empty-icon">📋</div>
+                                <div class="admin-empty-title">Không có lịch học</div>
+                                <div class="admin-empty-text">Bắt đầu bằng cách thêm lịch học đầu tiên</div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><strong>@item.Lop</strong></td>
+                            <td>@item.MonHoc</td>
+                            <td>@item.GiaoVien</td>
+                            <td>Thứ @item.Thu</td>
+                            <td>Tiết @item.TietHoc</td>
+                            <td>@item.PhongHoc</td>
+                            <td>
+                                <div style="display: flex; gap: 0.3rem;">
+                                    <a href="@Url.Action("Edit", new { id = item.Id })" class="admin-btn admin-btn-secondary admin-btn-sm">
+                                        Sửa
+                                    </a>
+                                    <a href="@Url.Action("Delete", new { id = item.Id })" 
+                                       class="admin-btn admin-btn-danger admin-btn-sm"
+                                       onclick="return confirm('Xóa lịch này?')">
+                                        Xóa
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

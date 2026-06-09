@@ -1,0 +1,59 @@
+@model LMS_THPT.Models.ThongBao
+@{
+    ViewData["Title"] = "Chỉnh Sửa Thông Báo";
+    ViewData["PageTitle"] = "Cập nhật tin tức";
+    Layout = "_HieuTruongLayout";
+}
+
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">✏️ Chỉnh Sửa Thông Báo</h1>
+        <div style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">
+            Cập nhật nội dung hoặc thay đổi trạng thái hiển thị của thông báo
+        </div>
+    </div>
+
+</div>
+
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3 style="font-size: 1.1rem;">✍️ Nội dung thông báo</h3>
+        </div>
+        <div class="admin-card-body">
+            <form asp-action="SuaThongBao" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Tiêu đề thông báo <span style="color:#dc2626;">*</span></label>
+                    <input type="text" name="tieuDe" value="@Model.TieuDe" class="admin-form-control" 
+                           placeholder="Nhập tiêu đề thông báo..." maxlength="200" required />
+                </div>
+
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Nội dung chi tiết <span style="color:#dc2626;">*</span></label>
+                    <textarea name="noiDung" class="admin-form-control" rows="10" 
+                              placeholder="Nhập nội dung thông báo đầy đủ..." required>@Model.NoiDung</textarea>
+                </div>
+
+                <div class="admin-form-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 0.75rem; background: #f8fafc; border-radius: 10px; width: fit-content;">
+                        <input type="checkbox" name="hienThi" value="true" @(Model.HienThi ? "checked" : "") 
+                               style="width: 18px; height: 18px; accent-color: var(--accent);" />
+                        <span style="font-weight: 600; font-size: 0.95rem; color: var(--navy);">Công khai hiển thị thông báo này</span>
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
+                    <button type="submit" class="admin-btn admin-btn-primary" style="padding: 0.75rem 2rem;">
+                        💾 Lưu thay đổi
+                    </button>
+                    <a asp-action="QuanLyThongBao" class="admin-btn admin-btn-secondary" style="padding: 0.75rem 2rem;">
+                        Hủy bỏ
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

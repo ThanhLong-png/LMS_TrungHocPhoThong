@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="700" viewBox="0 0 880 700">
+  <defs>
+    <!-- Arrow marker definition -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#333" />
+    </marker>
+  </defs>
+
+  <!-- Outer frame with rounded corners -->
+  <rect x="10" y="10" width="860" height="680" rx="15" ry="15" fill="#FFFFFF" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Yellow vertical header column on the left -->
+  <path d="M 60 10 L 25 10 A 15 15 0 0 0 10 25 L 10 675 A 15 15 0 0 0 25 690 L 60 690 Z" fill="#FFF9C4" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Horizontal division lines for swimlanes -->
+  <line x1="10" y1="280" x2="870" y2="280" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Vertical text labels inside the yellow header column -->
+  <text transform="rotate(-90, 35, 145)" x="35" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#333333" font-weight="bold">Quản trị viên</text>
+  <text transform="rotate(-90, 35, 490)" x="35" y="495" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#333333" font-weight="bold">Hệ thống</text>
+
+  <!-- ==================== LANE 1: QUẢN TRỊ VIÊN (y: 10 to 280) ==================== -->
+  
+  <!-- Start Node (Black circle) -->
+  <circle cx="120" cy="50" r="10" fill="#000000" />
+
+  <!-- Diamond: Chọn chức năng? -->
+  <polygon points="185,40 200,50 185,60 170,50" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="185" y="33" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.5" font-weight="bold" fill="#000000">Chọn chức năng?</text>
+
+  <!-- Box 1: Xem TKB & Chọn tác vụ -->
+  <rect x="110" y="100" width="150" height="45" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="185" y="118" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">
+    <tspan x="185" dy="0">Xem TKB lớp học</tspan>
+    <tspan x="185" dy="13">&amp; Chọn tác vụ</tspan>
+  </text>
+
+  <!-- Box 2: Thêm / Sửa TKB tiết học -->
+  <rect x="330" y="100" width="150" height="45" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="405" y="118" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">
+    <tspan x="405" dy="0">Thêm / Sửa TKB</tspan>
+    <tspan x="405" dy="13">thủ công cho lớp</tspan>
+  </text>
+
+  <!-- Box 3: Chọn file Excel TKB -->
+  <rect x="550" y="100" width="150" height="45" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="625" y="118" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">
+    <tspan x="625" dy="0">Chọn file Excel TKB</tspan>
+    <tspan x="625" dy="13">&amp; Tải lên hệ thống</tspan>
+  </text>
+
+
+  <!-- ==================== LANE 2: HỆ THỐNG (y: 280 to 690) ==================== -->
+
+  <!-- Box 1: Truy vấn DB & Hiển thị TKB -->
+  <rect x="110" y="320" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="185" y="338" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="185" dy="0">Truy vấn DB, lọc Thứ</tspan>
+    <tspan x="185" dy="13">&amp; hiển thị bảng TKB</tspan>
+  </text>
+
+  <!-- Box 2: Sinh file Excel mẫu TKB -->
+  <rect x="110" y="420" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="185" y="438" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="185" dy="0">Tạo file mẫu Excel</tspan>
+    <tspan x="185" dy="13">&amp; tải về máy QTV</tspan>
+  </text>
+
+  <!-- Box 3: AJAX load Môn & Giáo viên -->
+  <rect x="330" y="320" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="405" y="338" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="405" dy="0">Tải AJAX danh sách</tspan>
+    <tspan x="405" dy="13">Môn học &amp; Giáo viên</tspan>
+  </text>
+
+  <!-- Diamond 2: Trùng lịch? (Lớp/GV/Phòng) -->
+  <polygon points="405,400 430,420 405,440 380,420" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="440" y="424" text-anchor="start" font-family="Arial, sans-serif" font-size="9.5" font-weight="bold" fill="#000000">Trùng lịch?</text>
+
+  <!-- Box 4: Lưu thông tin TKB vào DB -->
+  <rect x="330" y="520" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="405" y="538" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="405" dy="0">Lưu dữ liệu TKB</tspan>
+    <tspan x="405" dy="13">mới / sửa vào DB</tspan>
+  </text>
+
+  <!-- Box 5: Đọc file Excel & ánh xạ dữ liệu -->
+  <rect x="550" y="320" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="625" y="338" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="625" dy="0">Đọc dữ liệu Excel &amp;</tspan>
+    <tspan x="625" dy="13">tìm Môn / GV theo tên</tspan>
+  </text>
+
+  <!-- Box 6: Lưu danh sách TKB từ file -->
+  <rect x="550" y="420" width="150" height="45" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="625" y="438" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">
+    <tspan x="625" dy="0">Lưu danh sách TKB</tspan>
+    <tspan x="625" dy="13">hợp lệ vào DB</tspan>
+  </text>
+
+  <!-- End Node (Black circle with outer border) -->
+  <circle cx="790" cy="380" r="10" fill="#000000" />
+  <circle cx="790" cy="380" r="15" fill="none" stroke="#000000" stroke-width="1.5" />
+
+
+  <!-- ==================== CONNECTIONS / FLOWS ==================== -->
+
+  <!-- QTV: Start to Diamond -->
+  <path d="M 130 50 L 170 50" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- QTV: Diamond to Box 1 -->
+  <path d="M 185 60 L 185 100" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="189" y="80" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Xem TKB</text>
+
+  <!-- QTV: Diamond to Box 2 -->
+  <path d="M 200 50 L 405 50 L 405 100" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="302" y="43" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Thêm / Sửa</text>
+
+  <!-- QTV: Diamond to Box 3 -->
+  <path d="M 200 50 L 625 50 L 625 100" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="515" y="43" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Import Excel</text>
+
+
+  <!-- === COLUMN 1: VIEW & DOWNLOAD TEMPLATE === -->
+  <!-- QTV Box 1 -> HT Box 1 (Straight down, no loopback to eliminate visual clutter) -->
+  <path d="M 185 145 L 185 320" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- QTV Box 1 -> HT Box 2 (Tải file mẫu, via left corridor x=80) -->
+  <path d="M 185 145 L 185 160 L 80 160 L 80 442 L 110 442" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="90" y="153" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Tải file mẫu</text>
+
+
+  <!-- === COLUMN 2: MANUAL CREATE / EDIT === -->
+  <!-- QTV Box 2 -> HT Box 3 -->
+  <path d="M 405 145 L 405 320" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- HT Box 3 -> QTV Box 2 (AJAX Return, routed in Corridor 2 at x=510) -->
+  <path d="M 480 342 L 510 342 L 510 122 L 480 122" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- QTV Box 2 -> HT Diamond 2 (Lưu form, routed from TOP of Box 2 through y=80 and Corridor 1 at x=280) -->
+  <path d="M 405 100 L 405 80 L 280 80 L 280 420 L 380 420" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="340" y="73" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#1565C0" font-weight="bold">Nhấn Lưu</text>
+
+  <!-- Diamond 2 -> QTV Box 2 (Trùng lịch, loops back via Corridor 1 at x=305 - 25px gap from the Save line) -->
+  <path d="M 405 400 L 405 385 L 305 385 L 305 130 L 330 130" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="355" y="378" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" fill="#C62828" font-weight="bold">Có (Báo lỗi)</text>
+
+  <!-- Diamond 2 -> HT Box 4 (Không trùng) -->
+  <path d="M 405 440 L 405 520" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="412" y="480" font-family="Arial, sans-serif" font-size="8.5" fill="#2E7D32" font-weight="bold">Không</text>
+
+
+  <!-- === COLUMN 3: EXCEL IMPORT === -->
+  <!-- QTV Box 3 -> HT Box 5 -->
+  <path d="M 625 145 L 625 320" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- HT Box 5 -> HT Box 6 -->
+  <path d="M 625 365 L 625 420" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+
+  <!-- ==================== COLLECTOR & END NODE ==================== -->
+
+  <!-- HT Box 2 to Join Bar -->
+  <path d="M 185 465 L 185 607" fill="none" stroke="#333333" stroke-width="1.2" />
+
+  <!-- HT Box 4 to Join Bar -->
+  <path d="M 405 565 L 405 607" fill="none" stroke="#333333" stroke-width="1.2" />
+
+  <!-- HT Box 6 to Join Bar -->
+  <path d="M 625 465 L 625 607" fill="none" stroke="#333333" stroke-width="1.2" />
+
+  <!-- Join Bar (UML Fork/Join Bar) -->
+  <line x1="150" y1="610" x2="700" y2="610" stroke="#000000" stroke-width="6" stroke-linecap="round" />
+
+  <!-- Join Bar to End Node -->
+  <path d="M 700 610 L 790 610 L 790 395" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+</svg>

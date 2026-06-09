@@ -1,0 +1,137 @@
+@{
+    ViewData["Title"] = "Thêm Học sinh";
+    Layout = "_AdminLayout";
+    int lopId = ViewBag.LopId;
+    string tenLop = ViewBag.TenLop ?? "";
+    string maHocSinhGoi = ViewBag.MaHocSinhGoi ?? "";
+}
+
+<div style="max-width: 620px; margin: 1.5rem auto;">
+    
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3>➕ Thêm học sinh mới – @tenLop</h3>
+        </div>
+        <div class="admin-card-body">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="admin-alert admin-alert-danger">
+                    <span class="admin-alert-icon">⚠️</span>
+                    <div>
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <div>@error.ErrorMessage</div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <form asp-action="TaoHocSinh" method="post">
+                <input type="hidden" name="lopId" value="@lopId" />
+
+                <!-- Họ tên + Mã học sinh -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">Họ và tên <span style="color:#dc2626;">*</span></label>
+                        <input type="text" name="hoTen" class="admin-form-control" placeholder="VD: Nguyễn Văn A" />
+                    </div>
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">Mã học sinh</label>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <input type="text" id="maHocSinh" name="maHocSinhHienThi"
+                                   class="admin-form-control"
+                                   value="@maHocSinhGoi"
+                                   readonly
+                                   style="background:#f8fafc; font-weight:700; letter-spacing:1px; cursor:default;" />
+                            <button type="button" id="btnRefreshMa" title="Làm mới mã"
+                                    onclick="refreshMa()"
+                                    style="padding:8px 10px; background:var(--admin-surface);
+                                           border:1.5px solid var(--admin-border); border-radius:8px;
+                                           cursor:pointer; font-size:15px; flex-shrink:0; transition:0.18s;"
+                                    onmouseover="this.style.background='#e2e8f0';"
+                                    onmouseout="this.style.background='var(--admin-surface)';">↻</button>
+                        </div>
+                        <div style="font-size:0.78rem; color:var(--admin-text-muted); margin-top:5px;">
+                            ℹ️ Mã tự động: <strong id="maBadge" style="color:var(--admin-text-primary);">@maHocSinhGoi</strong>
+                            &nbsp;<span style="color:#aaa;">(Năm + Lớp + STT)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ngày sinh + Giới tính -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">Ngày sinh</label>
+                        <input type="date" name="ngaySinh" class="admin-form-control" />
+                    </div>
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">Giới tính</label>
+                        <select name="gioiTinh" class="admin-form-control">
+                            <option value="">-- Chọn --</option>
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Địa chỉ -->
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Địa chỉ</label>
+                    <input type="text" name="diaChi" class="admin-form-control" placeholder="VD: 123 Lê Lợi, Huế" />
+                </div>
+
+                <!-- Mật khẩu -->
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Mật khẩu <span style="color:#dc2626;">*</span></label>
+                    <input type="text" name="matKhau" id="matKhau" class="admin-form-control"
+                           value="@maHocSinhGoi"
+                           placeholder="Mặc định = mã học sinh" />
+                    <div style="font-size:0.78rem; color:var(--admin-text-muted); margin-top:5px;">
+                        Mật khẩu mặc định theo mã học sinh: <strong id="matKhauHint">@maHocSinhGoi</strong>
+                    </div>
+                </div>
+
+                <div class="admin-card-footer" style="padding:0; background:none; border:none; margin-top:1.5rem; justify-content:flex-start; gap:0.75rem;">
+                    <button type="submit" class="admin-btn admin-btn-primary">Thêm học sinh</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const lopId = @lopId;
+    const mkInput = document.getElementById('matKhau');
+    const mkHint  = document.getElementById('matKhauHint');
+    const maInput = document.getElementById('maHocSinh');
+    const maBadge = document.getElementById('maBadge');
+    let userEditedPassword = false;
+
+    mkInput.addEventListener('input', () => { userEditedPassword = true; });
+
+    function applyMa(ma) {
+        maInput.value = ma;
+        maBadge.textContent = ma;
+        mkHint.textContent = ma;
+        if (!userEditedPassword) { mkInput.value = ma; }
+    }
+
+    async function refreshMa() {
+        const btn = document.getElementById('btnRefreshMa');
+        btn.disabled = true;
+        btn.textContent = '...';
+        try {
+            const res  = await fetch(`/QuanLyHocSinh/GetNextMaHocSinh?lopId=${lopId}`);
+            const data = await res.json();
+            applyMa(data.ma);
+        } catch(e) {
+            console.error('Không thể lấy mã:', e);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '↻';
+        }
+    }
+</script>
+}

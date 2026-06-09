@@ -1,0 +1,260 @@
+@model List<LMS_THPT.Models.LichHoc>
+@{
+    ViewData["Title"] = "Bảng Điều Khiển - Hiệu Trưởng";
+    ViewData["PageTitle"] = "Tổng quan hệ thống";
+    Layout = "_HieuTruongLayout";
+    var thongBaoMoi = ViewBag.ThongBaoMoiNhat as List<LMS_THPT.Models.ThongBao>;
+    var hieuTruong = ViewBag.HieuTruong as LMS_THPT.Models.NguoiDung;
+}
+
+<style>
+    /* Custom styles for Principal Dashboard to match Admin aesthetics */
+    .ht-hero {
+        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        border-radius: 20px;
+        padding: 3rem;
+        color: white;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(30, 27, 75, 0.2);
+    }
+
+    .ht-hero::after {
+        content: "🏫";
+        position: absolute;
+        right: -20px;
+        bottom: -20px;
+        font-size: 15rem;
+        opacity: 0.1;
+        transform: rotate(-15deg);
+    }
+
+    .ht-hero-content { position: relative; z-index: 1; }
+    .ht-hero-title { font-size: 2.25rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+    .ht-hero-subtitle { font-size: 1.1rem; opacity: 0.85; font-weight: 500; }
+
+    .ht-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .ht-stat-card {
+        background: white;
+        padding: 1.75rem;
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none !important;
+        color: inherit !important;
+    }
+
+    .ht-stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+        border-color: var(--accent-light);
+    }
+
+    .ht-stat-icon {
+        width: 56px; height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .ht-stat-value { font-size: 1.75rem; font-weight: 800; color: var(--navy); line-height: 1.2; }
+    .ht-stat-label { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+    /* Colors for stats */
+    .bg-indigo-soft { background: #eef2ff; color: #4338ca; }
+    .bg-emerald-soft { background: #ecfdf5; color: #059669; }
+    .bg-amber-soft { background: #fffbeb; color: #d97706; }
+    .bg-rose-soft { background: #fff1f2; color: #e11d48; }
+
+    .ht-dashboard-row {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 2rem;
+    }
+
+    .ht-link-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .ht-link-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        text-decoration: none !important;
+        color: var(--text-primary) !important;
+        font-weight: 600;
+        font-size: 0.92rem;
+        transition: all 0.2s;
+    }
+
+    .ht-link-item:hover {
+        background: var(--surface);
+        border-color: var(--accent);
+        transform: translateX(6px);
+    }
+
+    .ht-link-icon { font-size: 1.1rem; width: 24px; text-align: center; }
+    .ht-link-arrow { margin-left: auto; font-size: 0.8rem; opacity: 0.5; }
+
+    .tb-item-modern {
+        padding: 1.5rem 1.75rem;
+        border-bottom: 1px solid var(--border);
+        transition: background 0.2s;
+    }
+    .tb-item-modern:last-child { border-bottom: none; }
+    .tb-item-modern:hover { background: #fafafa; }
+
+    .tb-title { font-weight: 700; color: var(--navy); margin-bottom: 4px; font-size: 0.95rem; }
+    .tb-meta { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+
+    @@media (max-width: 992px) {
+        .ht-dashboard-row { grid-template-columns: 1fr; }
+        .ht-hero { padding: 2rem; }
+        .ht-hero-title { font-size: 1.75rem; }
+    }
+</style>
+
+<div class="ht-dashboard">
+
+    <!-- HERO BANNER -->
+    <div class="ht-hero">
+        <div class="ht-hero-content">
+            <h1 class="ht-hero-title">Chào mừng trở lại, @(hieuTruong?.HoTen ?? User.Identity?.Name)!</h1>
+            <p class="ht-hero-subtitle">Hệ thống quản lý trường học trực tuyến • Trung học phổ thông Quốc Học</p>
+        </div>
+        
+        @if ((int)(ViewBag.SoYeuCauChoXuLy ?? 0) > 0)
+        {
+            <div style="margin-top: 1.5rem;">
+                <a asp-controller="QuanLyYeuCau" asp-action="Index" class="admin-btn admin-btn-sm" 
+                   style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px);">
+                    🔔 Có @ViewBag.SoYeuCauChoXuLy yêu cầu đang chờ phê duyệt
+                </a>
+            </div>
+        }
+    </div>
+
+    <!-- STATS GRID -->
+    <div class="ht-stat-grid">
+        <a class="ht-stat-card" asp-action="DanhSachHocSinh">
+            <div class="ht-stat-icon bg-indigo-soft">🎓</div>
+            <div>
+                <div class="ht-stat-value">@ViewBag.SoHocSinh</div>
+                <div class="ht-stat-label">Học sinh</div>
+            </div>
+        </a>
+        <a class="ht-stat-card" asp-action="DanhSachGiaoVien">
+            <div class="ht-stat-icon bg-emerald-soft">👨‍🏫</div>
+            <div>
+                <div class="ht-stat-value">@ViewBag.SoGiaoVien</div>
+                <div class="ht-stat-label">Giáo viên</div>
+            </div>
+        </a>
+        <div class="ht-stat-card">
+            <div class="ht-stat-icon bg-amber-soft">🏫</div>
+            <div>
+                <div class="ht-stat-value">@ViewBag.SoLop</div>
+                <div class="ht-stat-label">Lớp học</div>
+            </div>
+        </div>
+        <a class="ht-stat-card" asp-controller="QuanLyYeuCau" asp-action="Index">
+            <div class="ht-stat-icon bg-rose-soft">✉️</div>
+            <div>
+                <div class="ht-stat-value">@ViewBag.SoYeuCauChoXuLy</div>
+                <div class="ht-stat-label">Yêu cầu mới</div>
+            </div>
+        </a>
+    </div>
+
+    <!-- MAIN ROW -->
+    <div class="ht-dashboard-row">
+        
+        <!-- QUICK LINKS -->
+        <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h3 style="font-size:1.1rem; font-weight:800; color:var(--navy);">⚡ Truy cập nhanh</h3>
+            </div>
+            <div class="ht-link-list">
+                <a class="ht-link-item" asp-action="DanhSachGiaoVien">
+                    <span class="ht-link-icon">👥</span>
+                    <span>Quản lý đội ngũ giáo viên</span>
+                    <span class="ht-link-arrow">→</span>
+                </a>
+                <a class="ht-link-item" asp-action="DanhSachHocSinh">
+                    <span class="ht-link-icon">📚</span>
+                    <span>Quản lý hồ sơ học sinh</span>
+                    <span class="ht-link-arrow">→</span>
+                </a>
+                <a class="ht-link-item" asp-action="QuanLyThongBao">
+                    <span class="ht-link-icon">📢</span>
+                    <span>Bảng tin & Thông báo</span>
+                    <span class="ht-link-arrow">→</span>
+                </a>
+                <a class="ht-link-item" asp-action="ThongKeHocLuc">
+                    <span class="ht-link-icon">📈</span>
+                    <span>Thống kê kết quả học lực</span>
+                    <span class="ht-link-arrow">→</span>
+                </a>
+                <a class="ht-link-item" asp-controller="LichHoc" asp-action="ThoiKhoaBieu">
+                    <span class="ht-link-icon">📅</span>
+                    <span>Thời khóa biểu toàn trường</span>
+                    <span class="ht-link-arrow">→</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- RECENT NOTIFICATIONS -->
+        <div class="admin-card">
+            <div class="admin-card-header" style="justify-content:space-between;">
+                <h3 style="font-size:1.1rem;">📢 Thông báo gần đây</h3>
+                <a asp-action="QuanLyThongBao" class="admin-btn admin-btn-sm admin-btn-secondary" style="font-size:0.75rem;">Xem tất cả</a>
+            </div>
+            <div class="admin-card-body" style="padding:0;">
+                @if (thongBaoMoi != null && thongBaoMoi.Any())
+                {
+                    foreach (var tb in thongBaoMoi)
+                    {
+                        <div class="tb-item-modern">
+                            <div class="tb-title">@tb.TieuDe</div>
+                            <div class="tb-meta">
+                                <span>📅 @tb.NgayDang.ToString("dd/MM/yyyy")</span>
+                                <span>•</span>
+                                <span class="admin-badge @(tb.HienThi ? "admin-badge-success" : "admin-badge-danger")" style="font-size:0.65rem;">
+                                    @(tb.HienThi ? "ĐANG HIỂN THỊ" : "ĐÃ ẨN")
+                                </span>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div style="padding:3rem; text-align:center; color:var(--text-muted);">
+                        <div style="font-size:2rem; margin-bottom:0.5rem;">📭</div>
+                        <div>Chưa có thông báo nào</div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+</div>

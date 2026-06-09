@@ -1,0 +1,197 @@
+@model List<LMS_THPT.Models.YeuCauGiaoVien>
+@{ ViewData["Title"] = "Yêu cầu của tôi"; }
+
+<style>
+@@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+.yc-page{font-family:'Inter',sans-serif;max-width:1200px;margin:0 auto;padding:0 4px}
+.yc-hero{background:linear-gradient(135deg,#ff6b00 0%,#ff8c00 100%);border-radius:20px;padding:2rem 2.5rem;color:#fff;margin-bottom:2rem;position:relative;overflow:hidden;box-shadow:0 10px 30px rgba(255,107,0,0.15)}
+.yc-hero::before{content:'';position:absolute;top:-50%;right:-10%;width:380px;height:380px;background:radial-gradient(circle,rgba(255,255,255,.18) 0%,transparent 70%);border-radius:50%}
+.yc-hero::after{content:'';position:absolute;bottom:-60%;left:5%;width:220px;height:220px;background:radial-gradient(circle,rgba(255,255,255,.12) 0%,transparent 70%);border-radius:50%}
+.yc-hero-inner{position:relative;z-index:1}
+.yc-hero h1{font-size:1.8rem;font-weight:800;margin:0 0 .3rem}
+.yc-hero p{opacity:.75;font-size:.9rem;margin:0}
+.yc-filter{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:1.2rem 1.5rem;margin-bottom:1.5rem;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.yc-filter form{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.yc-filter label{display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.yc-filter select{width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:'Inter',sans-serif;color:#374151;background:#f8fafc;outline:none}
+.yc-filter select:focus{border-color:#ff6b00;background:#fff;box-shadow:0 0 0 3px rgba(255,107,0,.1)}
+.yc-fg{flex:1;min-width:180px}
+.btn-g{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.4rem;border-radius:12px;font-size:.88rem;font-weight:600;text-decoration:none;border:none;cursor:pointer;transition:all .18s;font-family:'Inter',sans-serif}
+.btn-blue{background:linear-gradient(135deg,#ff6b00,#ff8c00);color:#fff;box-shadow:0 4px 12px rgba(255,107,0,.3)}
+.btn-blue:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(255,107,0,.4);color:#fff}
+.btn-dark{background:linear-gradient(135deg,#ea580c,#d97706);color:#fff;box-shadow:0 4px 10px rgba(234,88,12,.3)}
+.btn-dark:hover{transform:translateY(-2px);color:#fff}
+.btn-cl{background:#f1f5f9;color:#64748b;box-shadow:none}
+.btn-cl:hover{background:#e2e8f0;color:#374151}
+.yc-stats{display:flex;gap:12px;margin-bottom:1.8rem;flex-wrap:wrap}
+.yc-sp{flex:1;min-width:120px;background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:1rem 1.2rem;box-shadow:0 2px 8px rgba(0,0,0,.04);display:flex;align-items:center;gap:.8rem}
+.yc-si{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.yc-sv{font-size:1.4rem;font-weight:800;line-height:1}
+.yc-sl{font-size:.74rem;color:#94a3b8;margin-top:2px}
+.yc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:20px}
+.yc-card{background:#fff;border-radius:16px;border:1px solid rgba(0,0,0,.06);box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden;transition:transform .2s,box-shadow .2s;display:flex;flex-direction:column}
+.yc-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.12)}
+.yc-ch{height:100px;display:flex;align-items:flex-end;justify-content:space-between;padding:.9rem 1.2rem;position:relative;overflow:hidden}
+.yc-ch::after{content:'';position:absolute;top:-30%;right:-10%;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.12)}
+.yc-ch::before{content:'';position:absolute;bottom:-40%;left:-5%;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.08)}
+.yc-ti{width:46px;height:46px;border-radius:12px;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:1.2rem;position:relative;z-index:1}
+.yc-sb{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .75rem;border-radius:999px;font-size:.73rem;font-weight:700;background:rgba(255,255,255,.2);color:#fff;position:relative;z-index:1;border:1px solid rgba(255,255,255,.3)}
+.yc-cb{padding:1rem 1.2rem;flex-grow:1}
+.yc-ct{font-size:.95rem;font-weight:700;color:#1e293b;margin:0 0 .4rem;line-height:1.3}
+.yc-cm{font-size:.8rem;color:#94a3b8;display:flex;align-items:center;gap:.3rem;margin-bottom:.3rem}
+.yc-note{background:#f8fafc;border-left:3px solid #e2e8f0;padding:.5rem .75rem;border-radius:0 8px 8px 0;font-size:.8rem;color:#64748b;margin-top:.6rem;line-height:1.4}
+.yc-cf{padding:.8rem 1.2rem;border-top:1px solid #f1f5f9;display:flex;justify-content:flex-end}
+.btn-cancel{display:inline-flex;align-items:center;gap:.3rem;padding:.4rem .9rem;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+.btn-cancel:hover{background:#fecaca;color:#b91c1c}
+.yc-empty{text-align:center;padding:4rem 2rem;background:#fff;border-radius:16px;border:1px dashed #e2e8f0;color:#94a3b8}
+.yc-alert-ok{background:linear-gradient(135deg,#d1fae5,#a7f3d0);border:1px solid #6ee7b7;padding:.9rem 1.2rem;border-radius:12px;margin-bottom:1.2rem;color:#065f46;font-size:.875rem;font-weight:500;display:flex;align-items:center;gap:.5rem}
+</style>
+
+<div class="yc-page">
+  <div class="yc-hero">
+    <div class="yc-hero-inner">
+      <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.5rem">
+        <div style="width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:1.5rem">📋</div>
+        <div>
+          <h1>Yêu cầu của tôi</h1>
+          <p>Theo dõi và quản lý các yêu cầu bạn đã gửi</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (TempData["Success"] != null)
+  {
+    <div class="yc-alert-ok"><span>✅</span> @TempData["Success"]</div>
+  }
+
+  @{
+    int tongTatCa = Model.Count;
+    int choDuyet  = Model.Count(x => x.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy || x.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet);
+    int daDuyet   = Model.Count(x => x.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.DaDuyet);
+    int tuChoi    = Model.Count(x => x.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.TuChoi || x.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.HuyBo);
+  }
+  <div class="yc-stats">
+    <div class="yc-sp"><div class="yc-si" style="background:#eff6ff">📋</div><div><div class="yc-sv" style="color:#1d4ed8">@tongTatCa</div><div class="yc-sl">Tổng yêu cầu</div></div></div>
+    <div class="yc-sp"><div class="yc-si" style="background:#fffbeb">⏳</div><div><div class="yc-sv" style="color:#d97706">@choDuyet</div><div class="yc-sl">Đang chờ duyệt</div></div></div>
+    <div class="yc-sp"><div class="yc-si" style="background:#f0fdf4">✅</div><div><div class="yc-sv" style="color:#15803d">@daDuyet</div><div class="yc-sl">Đã duyệt</div></div></div>
+    <div class="yc-sp"><div class="yc-si" style="background:#fef2f2">❌</div><div><div class="yc-sv" style="color:#dc2626">@tuChoi</div><div class="yc-sl">Từ chối / Hủy</div></div></div>
+  </div>
+
+  <div class="yc-filter">
+    <form method="get" action="@Url.Action("MyRequests")">
+      <div class="yc-fg">
+        <label>Trạng thái</label>
+        <select name="trangThai">
+          <option value="">-- Tất cả --</option>
+          <option value="1" selected="@(ViewBag.Filter == "1")">⏳ Chờ duyệt / xử lý</option>
+          <option value="2" selected="@(ViewBag.Filter == "2")">✅ Đã duyệt</option>
+          <option value="3" selected="@(ViewBag.Filter == "3")">❌ Từ chối</option>
+          <option value="4" selected="@(ViewBag.Filter == "4")">🚫 Hủy bỏ</option>
+        </select>
+      </div>
+      <div class="yc-fg">
+        <label>Loại yêu cầu</label>
+        <select name="loai">
+          <option value="">-- Tất cả --</option>
+          <option value="@LMS_THPT.Models.LoaiYeuCau.NghiPhep">🏖️ Nghỉ phép</option>
+          <option value="@LMS_THPT.Models.LoaiYeuCau.DoiLich">📅 Đổi lịch</option>
+          <option value="@LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen">📦 Yêu cầu tài nguyên</option>
+          <option value="@LMS_THPT.Models.LoaiYeuCau.KhieuNai">⚠️ Khiếu nại</option>
+          <option value="@LMS_THPT.Models.LoaiYeuCau.ThayDoiLopChuNhiem">🔄 Thay đổi lớp chủ nhiệm</option>
+          <option value="@LMS_THPT.Models.LoaiYeuCau.HuyLopChuNhiem">❌ Hủy lớp chủ nhiệm</option>
+          <option value="@LMS_THPT.Models.LoaiYeuCau.TangCapCongChuc">📈 Tăng cấp công chức</option>
+          <option value="@LMS_THPT.Models.LoaiYeuCau.DanhGiaHangNam">⭐ Đánh giá hàng năm</option>
+          <option value="@LMS_THPT.Models.LoaiYeuCau.Khac">❓ Khác</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-end">
+        <button type="submit" class="btn-g btn-dark">🔍 Lọc</button>
+        @if (ViewBag.Filter != null || ViewBag.LoaiFilter != null)
+        { <a href="@Url.Action("MyRequests")" class="btn-g btn-cl">✕ Xóa</a> }
+      </div>
+    </form>
+  </div>
+
+  <div style="margin-bottom:1.8rem">
+    <a href="@Url.Action("CreateRequest")" class="btn-g btn-blue">➕ Tạo yêu cầu mới</a>
+  </div>
+
+  @{
+    string[][] gps = { new[]{"#ff6b00","#ea580c"},new[]{"#f59e0b","#d97706"},new[]{"#f43f5e","#e11d48"},new[]{"#ec4899","#be185d"},new[]{"#fb7185","#f43f5e"},new[]{"#fb923c","#f97316"},new[]{"#fcd34d","#f59e0b"},new[]{"#fca5a5","#f87171"} };
+    int gi=0;
+    string GG(int i){var p=gps[i%gps.Length];return $"linear-gradient(135deg,{p[0]},{p[1]})";}
+  }
+
+  @if (Model.Count > 0)
+  {
+    <div class="yc-grid">
+    @foreach (var yc in Model)
+    {
+      var st = yc.TrangThai switch {
+        LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy  => "⏳ Chờ xử lý",
+        LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet => "⏳ Chờ duyệt",
+        LMS_THPT.Models.TrangThaiYeuCau.DaDuyet  => "✅ Đã duyệt",
+        LMS_THPT.Models.TrangThaiYeuCau.TuChoi   => "❌ Từ chối",
+        LMS_THPT.Models.TrangThaiYeuCau.HuyBo    => "🚫 Hủy bỏ",
+        _ => "❓ Không xác định"
+      };
+      var ico = yc.LoaiYeuCau switch {
+        LMS_THPT.Models.LoaiYeuCau.NghiPhep           => "🏖️",
+        LMS_THPT.Models.LoaiYeuCau.DoiLich             => "📅",
+        LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen     => "📦",
+        LMS_THPT.Models.LoaiYeuCau.KhieuNai            => "⚠️",
+        LMS_THPT.Models.LoaiYeuCau.DangKyLopChuNhiem   => "📚",
+        LMS_THPT.Models.LoaiYeuCau.ThayDoiLopChuNhiem  => "🔄",
+        LMS_THPT.Models.LoaiYeuCau.HuyLopChuNhiem      => "🗑️",
+        LMS_THPT.Models.LoaiYeuCau.TangCapCongChuc      => "📈",
+        LMS_THPT.Models.LoaiYeuCau.DanhGiaHangNam       => "⭐",
+        _ => "❓"
+      };
+      var loaiText = yc.LoaiYeuCau switch {
+        LMS_THPT.Models.LoaiYeuCau.DangKyLopChuNhiem   => "Đăng ký lớp chủ nhiệm",
+        LMS_THPT.Models.LoaiYeuCau.ThayDoiLopChuNhiem   => "Thay đổi lớp",
+        LMS_THPT.Models.LoaiYeuCau.HuyLopChuNhiem       => "Hủy lớp chủ nhiệm",
+        LMS_THPT.Models.LoaiYeuCau.NghiPhep             => "Nghỉ phép",
+        LMS_THPT.Models.LoaiYeuCau.DoiLich              => "Đổi lịch",
+        LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen      => "Yêu cầu tài nguyên",
+        LMS_THPT.Models.LoaiYeuCau.KhieuNai             => "Khiếu nại",
+        LMS_THPT.Models.LoaiYeuCau.TangCapCongChuc       => "Tăng cấp công chức",
+        LMS_THPT.Models.LoaiYeuCau.DanhGiaHangNam        => "Đánh giá hàng năm",
+        _ => "Khác"
+      };
+      var grad = GG(gi++);
+      <div class="yc-card">
+        <div class="yc-ch" style="background:@grad">
+          <div class="yc-ti">@ico</div>
+          <span class="yc-sb">@st</span>
+        </div>
+        <div class="yc-cb">
+          <div class="yc-ct">@yc.TieuDe</div>
+          <div class="yc-cm"><span>🏷️</span><span>@loaiText</span></div>
+          @if (yc.Lop != null) { <div class="yc-cm"><span>🏫</span><span>Lớp @yc.Lop.TenLop</span></div> }
+          <div class="yc-cm"><span>📅</span><span>@yc.NgayGui.ToString("dd/MM/yyyy HH:mm")</span></div>
+          @if (!string.IsNullOrEmpty(yc.GhiChu)) { <div class="yc-note"><strong>Ghi chú:</strong> @yc.GhiChu</div> }
+        </div>
+        @if (yc.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy || yc.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet)
+        {
+          <div class="yc-cf">
+            <form method="post" action="@Url.Action("CancelRequest")" style="display:inline">
+              <input type="hidden" name="id" value="@yc.Id" />
+              <button type="submit" class="btn-cancel">🚫 Hủy yêu cầu</button>
+            </form>
+          </div>
+        }
+      </div>
+    }
+    </div>
+  }
+  else
+  {
+    <div class="yc-empty">
+      <div style="font-size:3.5rem;margin-bottom:1rem">📭</div>
+      <h4 style="font-size:1rem;font-weight:600;color:#64748b;margin-bottom:.3rem">Chưa có yêu cầu nào</h4>
+      <p style="font-size:.875rem">Nhấn <strong>Tạo yêu cầu mới</strong> để bắt đầu</p>
+    </div>
+  }
+</div>

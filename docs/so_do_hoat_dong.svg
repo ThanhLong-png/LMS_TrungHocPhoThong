@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="470" viewBox="0 0 1000 470">
+  <defs>
+    <!-- Arrow marker definition -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#333" />
+    </marker>
+  </defs>
+
+  <!-- Outer frame with rounded corners -->
+  <rect x="10" y="10" width="980" height="450" rx="15" ry="15" fill="#FFFFFF" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Boxed and colored swimlane headers at the top -->
+  <!-- Left Header: Người dùng -->
+  <path d="M 25 10 A 15 15 0 0 0 10 25 L 10 45 L 500 45 L 500 10 Z" fill="#FFF9C4" stroke="#333333" stroke-width="1.5" />
+  <!-- Right Header: Hệ thống -->
+  <path d="M 500 10 L 500 45 L 990 45 L 990 25 A 15 15 0 0 0 975 10 Z" fill="#FFF9C4" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Vertical Divider Line separating User and System (Solid Line) -->
+  <line x1="500" y1="45" x2="500" y2="460" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Swimlane Header Texts -->
+  <text x="250" y="32" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#333333">Người dùng</text>
+  <text x="750" y="32" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#333333">Hệ thống</text>
+
+  <!-- ==================== FLOW LINES / CONNECTIONS ==================== -->
+  
+  <!-- Start to Nhap thong tin dang nhap -->
+  <path d="M 200 68 L 200 90" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Nhap thong tin dang nhap to Kiem tra CSDL -->
+  <path d="M 280 105 L 700 105" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Kiem tra CSDL to Thong tin hop le -->
+  <path d="M 780 120 L 780 150" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Thong tin hop le Sai to Hien thi thong bao loi -->
+  <path d="M 750 165 L 650 165 L 650 190" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="700" y="160" font-family="Arial, sans-serif" font-size="9.5" fill="#C62828" font-weight="bold" text-anchor="middle">Sai</text>
+
+  <!-- Hien thi thong bao loi to Nhap lai thong tin -->
+  <path d="M 580 205 L 180 205" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Nhap lai thong tin to Loop back to input flow -->
+  <path d="M 20 205 L 20 125 L 580 125 L 580 108" fill="none" stroke="#333333" stroke-width="1.2" />
+
+  <!-- Note link line (Dashed) -->
+  <path d="M 430 205 L 580 205" fill="none" stroke="#888888" stroke-width="1" stroke-dasharray="3 3" />
+
+  <!-- Thong tin hop le Dung to Xac dinh vai tro -->
+  <path d="M 810 165 L 895 165 L 895 190" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="850" y="160" font-family="Arial, sans-serif" font-size="9.5" fill="#2E7D32" font-weight="bold" text-anchor="middle">Đúng</text>
+
+  <!-- Xac dinh vai tro to Hien thi Dashboard -->
+  <path d="M 895 220 L 895 245" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Hien thi Dashboard to Fork Bar -->
+  <path d="M 815 260 L 480 260" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Fork Bar to Hoc sinh features -->
+  <path d="M 90 263 L 90 300" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Fork Bar to Giao vien features -->
+  <path d="M 245 263 L 245 300" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Fork Bar to Admin/Hieu truong features -->
+  <path d="M 402 263 L 402 300" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Hoc sinh features to junction -->
+  <path d="M 90 335 L 90 360 L 245 360" fill="none" stroke="#333333" stroke-width="1.2" />
+
+  <!-- Giao vien features to junction -->
+  <path d="M 245 335 L 245 360" fill="none" stroke="#333333" stroke-width="1.2" />
+
+  <!-- Admin/Hieu truong features to junction -->
+  <path d="M 402 335 L 402 360 L 245 360" fill="none" stroke="#333333" stroke-width="1.2" />
+
+  <!-- Junction to End Node -->
+  <path d="M 245 360 L 245 375" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+
+  <!-- ==================== NODES / SHAPES ==================== -->
+
+  <!-- Start Node -->
+  <circle cx="200" cy="60" r="8" fill="#000000" />
+
+  <!-- Box 1: Nhap thong tin dang nhap -->
+  <rect x="120" y="90" width="160" height="30" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="200" y="109" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">Nhập thông tin đăng nhập</text>
+
+  <!-- Box 4: Nhap lai thong tin dang nhap -->
+  <rect x="20" y="190" width="160" height="30" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="100" y="209" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#000000">Nhập lại thông tin đăng nhập</text>
+
+  <!-- Fork Bar (Heavy black horizontal line) -->
+  <line x1="80" y1="260" x2="480" y2="260" stroke="#333333" stroke-width="5" stroke-linecap="round" />
+
+  <!-- Box 7: Hoc sinh features -->
+  <rect x="20" y="300" width="140" height="35" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="90" y="314" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" font-weight="bold" fill="#000000">
+    <tspan x="90" dy="0">Học sinh: Xem bài giảng,</tspan>
+    <tspan x="90" dy="11">Làm và nộp bài tập</tspan>
+  </text>
+
+  <!-- Box 8: Giao vien features -->
+  <rect x="175" y="300" width="140" height="35" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="245" y="314" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" font-weight="bold" fill="#000000">
+    <tspan x="245" dy="0">Giáo viên: Tạo bài tập,</tspan>
+    <tspan x="245" dy="11">Chấm điểm, Đăng tài liệu</tspan>
+  </text>
+
+  <!-- Box 9: Admin/Hieu truong features -->
+  <rect x="330" y="300" width="145" height="35" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="402.5" y="314" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" font-weight="bold" fill="#000000">
+    <tspan x="402.5" dy="0">Admin/Hiệu trưởng: Quản lý</tspan>
+    <tspan x="402.5" dy="11">người dùng, Xem thống kê</tspan>
+  </text>
+
+  <!-- Box 2: Kiem tra co so du lieu -->
+  <rect x="700" y="90" width="160" height="30" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="780" y="109" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">Kiểm tra cơ sở dữ liệu</text>
+
+  <!-- Diamond 1: Thong tin hop le? -->
+  <polygon points="780,150 810,165 780,180 750,165" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="780" y="168" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" font-weight="bold" fill="#0d47a1">Thông tin hợp lệ?</text>
+
+  <!-- Box 3: Hien thi thong bao loi -->
+  <rect x="580" y="190" width="140" height="30" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="650" y="209" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">Hiển thị thông báo lỗi</text>
+
+  <!-- Note Box (Attached to Box 3) -->
+  <g transform="translate(295, 175)">
+    <rect x="0" y="0" width="135" height="60" rx="3" ry="3" fill="#FFFDE7" stroke="#FFF59D" stroke-width="1.5" />
+    <path d="M 0 0 L 10 0 L 0 10 Z" fill="#FFF59D" />
+    <text x="8" y="15" font-family="Arial, sans-serif" font-size="8" fill="#555555">
+      <tspan x="8" dy="0" font-weight="bold" fill="#000">Trường hợp quên mật khẩu:</tspan>
+      <tspan x="8" dy="11">Người dùng tự liên hệ trực</tspan>
+      <tspan x="8" dy="11">tiếp Admin qua kênh ngoài</tspan>
+      <tspan x="8" dy="11">(Zalo / Hotline nhà trường).</tspan>
+    </text>
+  </g>
+
+  <!-- Box 5: Xac dinh vai tro (Role) -->
+  <rect x="830" y="190" width="130" height="30" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="895" y="209" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">Xác định vai trò (Role)</text>
+
+  <!-- Box 6: Hien thi Giao diện Dashboard tuong ung -->
+  <rect x="815" y="245" width="160" height="30" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="895" y="264" text-anchor="middle" font-family="Arial, sans-serif" font-size="9.5" font-weight="bold" fill="#0d47a1">Hiển thị Dashboard tương ứng</text>
+
+  <!-- End Node (Double Circle) relocated to User lane -->
+  <circle cx="245" cy="386" r="6" fill="#000000" />
+  <circle cx="245" cy="386" r="11" fill="none" stroke="#000000" stroke-width="1.5" />
+
+</svg>

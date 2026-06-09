@@ -1,0 +1,60 @@
+@model IEnumerable<dynamic>
+@{
+    ViewData["Title"] = "Môn học của lớp";
+    Layout = "_AdminLayout";
+    var lop = ViewBag.Lop as LMS_THPT.Models.Lop;
+}
+
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">📚 Môn học</h1>
+        <div style="font-size:0.85rem; color:var(--admin-text-muted); margin-top:4px;">
+            Lớp: <strong>@lop?.TenLop</strong>
+        </div>
+    </div>
+
+</div>
+
+<div class="admin-card">
+    <div class="admin-card-body" style="padding:0;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th style="width:45%;">Môn</th>
+                    <th>Giáo viên phụ trách</th>
+                    <th style="width:200px; text-align:center;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var it in Model)
+                    {
+                        <tr>
+                            <td style="font-weight:600;">@it.MonHoc.TenMonHoc</td>
+                            <td style="color:var(--admin-text-muted);">@(it.GiaoVien?.HoTen ?? "Chưa phân công")</td>
+                            <td style="text-align:center;">
+                                <a asp-controller="GiangDay" asp-action="Index"
+                                   asp-route-lopId="@lop?.Id"
+                                   asp-route-monHocId="@it.MonHoc.Id"
+                                   class="admin-btn admin-btn-primary admin-btn-sm">Bài giảng / Bài tập</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3">
+                            <div class="admin-empty">
+                                <div class="admin-empty-icon">📭</div>
+                                <div class="admin-empty-title">Chưa có môn học nào</div>
+                                <div class="admin-empty-text">Lớp này chưa được phân công môn học</div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

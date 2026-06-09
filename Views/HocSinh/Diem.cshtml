@@ -1,0 +1,380 @@
+@model List<LMS_THPT.Models.BaiNop>
+@{
+    ViewData["Title"] = "Kết quả & Điểm số";
+    Layout = "~/Views/Shared/_LayoutHocSinh.cshtml";
+
+    double? diemTBBaiNop = ViewBag.DiemTBBaiNop;
+    double? diemTBHK = ViewBag.DiemTBHK;
+    int soDaCham = (int)ViewBag.SoDaCham;
+    int soChuaCham = (int)ViewBag.SoChuaCham;
+    var monHocs = (List<LMS_THPT.Models.MonHoc>)ViewBag.MonHocs;
+    int? selectedMon = ViewBag.SelectedMonHoc;
+    var dsNamHoc = (List<string>)(ViewBag.DsNamHoc ?? new List<string>());
+    string? selectedNamHoc = ViewBag.SelectedNamHoc;
+    int? selectedHK = ViewBag.SelectedHocKy;
+    string namHocHienTai = ViewBag.NamHocHienTai ?? "";
+    var dataDiemHK = (List<LMS_THPT.Models.DiemHocKy>)(ViewBag.DataDiemHK ?? new List<LMS_THPT.Models.DiemHocKy>());
+    dynamic tbCaNam = ViewBag.TbCaNam ?? new List<object>();
+    bool showCaNam = !selectedHK.HasValue && !string.IsNullOrEmpty(selectedNamHoc);
+    string activeTab = dataDiemHK.Any() || selectedNamHoc != null ? "hocky" : "bainop";
+}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+        border-radius: 18px; padding: 1.8rem 2rem; color: #fff; margin-bottom: 2rem;
+        position: relative; overflow: hidden;
+        box-shadow: 0 10px 30px rgba(255,107,0,0.15);
+    }
+    .page-header::after {
+        content: ''; position: absolute; top: -40%; right: -5%;
+        width: 300px; height: 300px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(129,140,248,.18) 0%, transparent 70%);
+    }
+    .stat-box {
+        background: #fff; border-radius: 16px; padding: 1.4rem 1.2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,.07); text-align: center;
+        border: 1px solid rgba(0,0,0,.05); transition: transform .2s;
+    }
+    .stat-box:hover { transform: translateY(-3px); }
+    .score-big { font-size: 2rem; font-weight: 800; line-height: 1.1; }
+    .tab-bar {
+        display: flex; gap: .5rem; background: #f1f5f9;
+        border-radius: 12px; padding: .35rem; margin-bottom: 1.5rem;
+    }
+    .tab-btn {
+        flex: 1; padding: .55rem 1rem; border-radius: 9px; border: none;
+        font-weight: 600; font-size: .88rem; cursor: pointer;
+        transition: all .18s; background: transparent; color: #64748b;
+    }
+    .tab-btn.active { background: #fff; color: #ff6b00; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    .filter-bar {
+        background: #fff; border-radius: 14px; padding: 1rem 1.4rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 1.4rem;
+    }
+    .filter-chip {
+        padding: .3rem .9rem; border-radius: 999px; font-size: .82rem;
+        font-weight: 500; text-decoration: none; transition: all .18s; display: inline-block;
+    }
+    .filter-chip.active { background: #ff6b00; color: #fff; }
+    .filter-chip:not(.active) { background: #f1f5f9; color: #475569; }
+    .filter-chip:not(.active):hover { background: #e2e8f0; }
+    .result-card {
+        background: #fff; border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,.07); border: 1px solid rgba(0,0,0,.05);
+        margin-bottom: 1.1rem; overflow: hidden; transition: transform .18s;
+    }
+    .result-card:hover { transform: translateY(-2px); }
+    .result-header {
+        padding: 1rem 1.4rem; border-bottom: 1px solid #f1f5f9;
+        display: flex; align-items: flex-start; justify-content: space-between;
+        gap: 1rem; flex-wrap: wrap;
+    }
+    .result-body {
+        padding: 1rem 1.4rem; display: flex; align-items: center;
+        justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .score-circle {
+        width: 68px; height: 68px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; font-weight: 800; border: 4px solid;
+    }
+    .score-excellent { border-color: #22c55e; color: #15803d; background: #f0fdf4; }
+    .score-good { border-color: #3b82f6; color: #1d4ed8; background: #eff6ff; }
+    .score-average { border-color: #f59e0b; color: #d97706; background: #fffbeb; }
+    .score-poor { border-color: #ef4444; color: #dc2626; background: #fef2f2; }
+    .score-pending-circle { border-color: #94a3b8; color: #64748b; background: #f8fafc; }
+    /* HK table */
+    .hk-card {
+        background: #fff; border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,.07); border: 1px solid rgba(0,0,0,.05);
+        margin-bottom: 1.4rem; overflow: hidden;
+    }
+    .hk-header {
+        padding: 1rem 1.4rem; font-weight: 700; font-size: 1rem;
+        display: flex; align-items: center; gap: .6rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .diem-cell { text-align: center; font-weight: 700; font-size: .95rem; }
+    .diem-null { color: #cbd5e1; }
+    .xep-loai-badge {
+        padding: 2px 10px; border-radius: 999px; font-size: .75rem; font-weight: 700;
+    }
+    .xl-gioi { background: #dcfce7; color: #15803d; }
+    .xl-kha { background: #dbeafe; color: #1d4ed8; }
+    .xl-tb { background: #fef9c3; color: #854d0e; }
+    .xl-yeu { background: #fee2e2; color: #dc2626; }
+    .xl-kem { background: #fce7f3; color: #9d174d; }
+    .empty-state { text-align: center; padding: 3.5rem 1rem; color: #94a3b8; }
+    .year-select-btn {
+        padding: .4rem 1rem; border-radius: 10px; border: 1.5px solid #e2e8f0;
+        font-size: .85rem; font-weight: 600; cursor: pointer; background: #fff;
+        color: #374151; transition: all .18s;
+    }
+    .year-select-btn.active {
+        background: #ff6b00; color: #fff; border-color: #ff6b00;
+    }
+</style>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div class="d-flex align-items-center gap-3" style="position:relative;z-index:1">
+        <div style="font-size:2.5rem;">📊</div>
+        <div>
+            <h1 class="fw-bold mb-0" style="font-size:1.6rem;">Kết quả &amp; Điểm số</h1>
+            <p class="mb-0 opacity-75" style="font-size:.9rem;">
+                Theo dõi điểm bài tập và điểm học kỳ chính thức
+            </p>
+        </div>
+        @if (ViewBag.TenKhoi != "Khối 10")
+        {
+            <div class="ms-auto">
+                <a href="@Url.Action("DiemNamHoc","HocSinh")"
+                   style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);
+                          border-radius:10px;padding:.45rem 1.1rem;text-decoration:none;font-size:.85rem;font-weight:600;display:inline-flex;align-items:center;gap:.4rem;">
+                    📅 Xem lịch sử →
+                </a>
+            </div>
+        }
+</div>
+
+<!-- STAT BOXES -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-box">
+            <div class="score-big" style="color:#ff6b00;">@(diemTBBaiNop.HasValue ? diemTBBaiNop!.Value.ToString("F1") : "—")</div>
+            <div class="text-muted mt-1" style="font-size:.8rem;">TB bài nộp</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-box">
+            <div class="score-big" style="color:#22c55e;">@(diemTBHK.HasValue ? diemTBHK!.Value.ToString("F1") : "—")</div>
+            <div class="text-muted mt-1" style="font-size:.8rem;">TB học kỳ</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-box">
+            <div class="score-big" style="color:#94a3b8;">@soDaCham</div>
+            <div class="text-muted mt-1" style="font-size:.8rem;">Đã chấm</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-box">
+            <div class="score-big" style="color:#f59e0b;">@soChuaCham</div>
+            <div class="text-muted mt-1" style="font-size:.8rem;">Chờ chấm</div>
+        </div>
+    </div>
+</div>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+    <button class="tab-btn @(activeTab=="bainop"?"active":"")" onclick="switchTab('bainop',this)">
+        📝 Điểm bài nộp (@Model.Count bài)
+    </button>
+    <button class="tab-btn @(activeTab=="hocky"?"active":"")" onclick="switchTab('hocky',this)">
+        🎓 Điểm học kỳ chính thức (@dataDiemHK.Count môn)
+    </button>
+</div>
+
+<!-- ===== TAB: BÀI NỘP ===== -->
+<div id="tab-bainop" class="@(activeTab=="bainop"?"":"d-none")">
+    @if (monHocs.Any())
+    {
+        <div class="filter-bar">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <span class="text-muted" style="font-size:.82rem;">Lọc theo môn:</span>
+                <a href="@Url.Action("Diem","HocSinh")" class="filter-chip @(!selectedMon.HasValue?"active":"")">Tất cả</a>
+                @foreach (var mon in monHocs)
+                {
+                    <a href="@Url.Action("Diem","HocSinh",new{monHocId=mon.Id})"
+                       class="filter-chip @(selectedMon==mon.Id?"active":"")">@mon.TenMonHoc</a>
+                }
+            </div>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div style="font-size:3rem;margin-bottom:1rem;">📭</div>
+            <h5>Chưa có bài nộp nào</h5>
+            <a href="@Url.Action("BaiTap","HocSinh")" class="btn mt-2" style="background:#ff6b00;color:#fff;border-radius:10px;">Xem bài tập →</a>
+        </div>
+    }
+    else
+    {
+        @foreach (var item in Model)
+        {
+            bool daCham = item.Diem.HasValue;
+            bool nopTre = item.TrangThai == LMS_THPT.Models.TrangThaiBaiNop.NopTre;
+            int diemToiDa = item.BaiTap?.DiemToiDa ?? 10;
+            string scoreClass = "score-pending-circle";
+            if (daCham) {
+                double pct = item.Diem!.Value / diemToiDa * 100;
+                scoreClass = pct >= 80 ? "score-excellent" : pct >= 65 ? "score-good" : pct >= 50 ? "score-average" : "score-poor";
+            }
+            <div class="result-card">
+                <div class="result-header">
+                    <div>
+                        <div class="fw-bold" style="font-size:.95rem;color:#1e293b;">@(item.BaiTap?.TieuDe ?? "Bài tập")</div>
+                        @if (item.BaiTap?.MonHoc != null) {
+                            <span style="background:#fff7ed;color:#ff6b00;padding:2px 10px;border-radius:8px;font-size:.76rem;font-weight:600;display:inline-block;margin-top:4px;">
+                                📚 @item.BaiTap.MonHoc.TenMonHoc
+                            </span>
+                        }
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        @if (daCham) { <span style="background:#fff7ed;color:#ff6b00;padding:2px 10px;border-radius:999px;font-size:.78rem;font-weight:600;">🎯 Đã chấm</span> }
+                        @if (nopTre) { <span style="background:#fee2e2;color:#dc2626;padding:2px 10px;border-radius:999px;font-size:.78rem;font-weight:600;">⚠ Nộp trễ</span> }
+                        else if (!daCham) { <span style="background:#dcfce7;color:#15803d;padding:2px 10px;border-radius:999px;font-size:.78rem;font-weight:600;">✅ Đã nộp</span> }
+                    </div>
+                </div>
+                <div class="result-body">
+                    <div class="score-circle @scoreClass">@(daCham ? item.Diem!.Value.ToString() : "?")</div>
+                    <div style="background:#f8fafc;border-radius:10px;padding:.7rem 1rem;font-size:.86rem;color:#475569;border-left:3px solid @(string.IsNullOrEmpty(item.NhanXet)?"#e2e8f0":"#22c55e");flex-grow:1;min-width:180px;">
+                        @if (!string.IsNullOrEmpty(item.NhanXet)) {
+                            <div style="font-size:.76rem;color:#15803d;font-weight:600;margin-bottom:3px;">💬 Nhận xét:</div>
+                            <div>@item.NhanXet</div>
+                        } else if (daCham) {
+                            <div class="text-muted">Không có nhận xét</div>
+                        } else {
+                            <div class="text-muted">⌛ Đang chờ chấm điểm...</div>
+                        }
+                    </div>
+                    <div class="text-end" style="min-width:120px;">
+                        <div style="font-size:.78rem;color:#94a3b8;">Nộp lúc</div>
+                        <div class="fw-semibold" style="font-size:.86rem;">@item.NgayNop.ToString("dd/MM/yyyy")</div>
+                        <div style="font-size:.8rem;color:#94a3b8;">@item.NgayNop.ToString("HH:mm")</div>
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(item.GhiChu)) {
+                    <div style="padding:.6rem 1.4rem;background:#fffbeb;border-top:1px solid #fef3c7;font-size:.8rem;color:#92400e;">
+                        💬 Ghi chú: @item.GhiChu
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+<!-- ===== TAB: ĐIỂM HỌC KỲ ===== -->
+<div id="tab-hocky" class="@(activeTab=="hocky"?"":"d-none")">
+    <!-- Filter năm học + HK -->
+    <div class="filter-bar d-flex flex-wrap align-items-center gap-3">
+        <div>
+            <span class="text-muted me-2" style="font-size:.82rem;">Năm học:</span>
+            @foreach (var nh in dsNamHoc) {
+                <a href="@Url.Action("Diem","HocSinh",new{namHoc=nh})"
+                   class="filter-chip @(selectedNamHoc==nh?"active":"") me-1">@nh</a>
+            }
+            @if (!dsNamHoc.Any()) {
+                <span class="text-muted" style="font-size:.82rem;">Chưa có điểm học kỳ nào</span>
+            }
+        </div>
+        @if (!string.IsNullOrEmpty(selectedNamHoc)) {
+            <div class="ms-auto">
+                <a href="@Url.Action("Diem","HocSinh",new{namHoc=selectedNamHoc,hocKy=1})"
+                   class="filter-chip @(selectedHK==1?"active":"") me-1">HK1</a>
+                <a href="@Url.Action("Diem","HocSinh",new{namHoc=selectedNamHoc,hocKy=2})"
+                   class="filter-chip @(selectedHK==2?"active":"")">HK2</a>
+            </div>
+        }
+    </div>
+
+    @{
+        dynamic tbCaNamData = ViewBag.TbCaNam ?? new List<object>();
+    }
+    @if (!dataDiemHK.Any())
+    {
+        <div class="empty-state">
+            <div style="font-size:3rem;margin-bottom:1rem;">🎓</div>
+            <h5>Chưa có điểm học kỳ</h5>
+            <p>Điểm học kỳ sẽ được nhập bời giáo viên hoặc quản trị viên.</p>
+            @if (ViewBag.TenKhoi != "Khối 10" && !dsNamHoc.Any()) {
+                <a href="@Url.Action("DiemNamHoc","HocSinh")" class="btn mt-2"
+                   style="background:#ff6b00;color:#fff;border-radius:10px;">Xem lịch sử →</a>
+            }
+        </div>
+    }
+    else
+    {
+        var grouped = dataDiemHK.GroupBy(x => x.HocKy).OrderBy(g => g.Key);
+        @foreach (var grp in grouped)
+        {
+            <div class="hk-card">
+                <div class="hk-header" style="background:linear-gradient(90deg,@(grp.Key==1?"#eff6ff,#fff":"#f0fdf4,#fff"));">
+                    <span>@(grp.Key==1?"📘":"📗")</span>
+                    Học Kỳ @grp.Key &nbsp;<span class="text-muted fw-normal" style="font-size:.85rem;">— @(grp.First().NamHoc)</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table mb-0" style="font-size:.88rem;">
+                        <thead style="background:#f8fafc;">
+                            <tr>
+                                <th class="ps-4">Môn học</th>
+                                <th class="diem-cell">Miệng</th>
+                                <th class="diem-cell">15 phút</th>
+                                <th class="diem-cell">1 tiết</th>
+                                <th class="diem-cell">Giữa kỳ</th>
+                                <th class="diem-cell">Cuối kỳ</th>
+                                <th class="diem-cell" style="color:#ff6b00;">Tổng kết</th>
+                                <th class="diem-cell">Xếp loại</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                             @foreach (var d in grp)
+                             {
+                                 string? xl = d.XepLoai;
+                                 string xlCls = xl == "Giỏi" ? "xl-gioi" : xl == "Khá" ? "xl-kha" : xl == "Trung bình" ? "xl-tb" : xl == "Yếu" ? "xl-yeu" : "xl-kem";
+                                 <tr>
+                                     <td class="ps-4 fw-semibold">@(d.MonHoc?.TenMonHoc ?? "—")</td>
+                                     <td class="diem-cell">
+                                         @{
+                                             var miengs = d.IsChotMieng
+                                                 ? new[]{ d.DiemMieng1, d.DiemMieng2, d.DiemMieng3, d.DiemMieng4 }.Where(x=>x.HasValue).Select(x=>x!.Value.ToString("F1"))
+                                                 : Enumerable.Empty<string>();
+                                         }
+                                         <span class="@(!miengs.Any()?"diem-null":"")">@(miengs.Any() ? string.Join(" | ", miengs) : "—")</span>
+                                     </td>
+                                     <td class="diem-cell">
+                                         <span class="diem-null">—</span>
+                                     </td>
+                                     <td class="diem-cell">
+                                         <span class="diem-null">—</span>
+                                     </td>
+                                     <td class="diem-cell"><span class="@(!d.IsChotGiuaKy || !d.DiemGiuaKy.HasValue?"diem-null":"")">
+                                         @(d.IsChotGiuaKy && d.DiemGiuaKy.HasValue ? d.DiemGiuaKy.Value.ToString("F1") : "—")
+                                     </span></td>
+                                     <td class="diem-cell"><span class="@(!d.IsChotCuoiKy || !d.DiemCuoiKy.HasValue?"diem-null":"")">
+                                         @(d.IsChotCuoiKy && d.DiemCuoiKy.HasValue ? d.DiemCuoiKy.Value.ToString("F1") : "—")
+                                     </span></td>
+                                     <td class="diem-cell">
+                                         <span style="font-size:1.05rem;color:#ff6b00;font-weight:800;">
+                                             @(d.IsChotMieng && d.IsChotGiuaKy && d.IsChotCuoiKy && d.DiemTongKet.HasValue ? d.DiemTongKet.Value.ToString("F1") : "—")
+                                         </span>
+                                     </td>
+                                     <td class="diem-cell">
+                                         @if (d.IsChotMieng && d.IsChotGiuaKy && d.IsChotCuoiKy && !string.IsNullOrEmpty(xl)) {
+                                             <span class="xep-loai-badge @xlCls">@xl</span>
+                                         } else { <span class="diem-null">—</span> }
+                                     </td>
+                                 </tr>
+                             }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+<script>
+    function switchTab(name, btn) {
+        document.getElementById('tab-bainop').classList.add('d-none');
+        document.getElementById('tab-hocky').classList.add('d-none');
+        document.getElementById('tab-' + name).classList.remove('d-none');
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+</script>
+}

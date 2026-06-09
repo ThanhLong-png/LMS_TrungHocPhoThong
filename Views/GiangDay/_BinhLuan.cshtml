@@ -1,0 +1,88 @@
+﻿@model List<LMS_THPT.Models.BinhLuan>
+@{
+    var lopId = ViewBag.LopId;
+    var monHocId = ViewBag.MonHocId;
+    string actionName = ViewData["ActionName"]?.ToString() ?? "ThemBinhLuanBaiGiang";
+    string hiddenName = ViewData["HiddenName"]?.ToString() ?? "baiGiangId";
+    int targetId = (int)(ViewData["TargetId"] ?? 0);
+    string cmtId = ViewData["CmtId"]?.ToString() ?? "";
+}
+
+@foreach (var bl in Model)
+{
+    <div class="comment-item">
+        <div class="comment-avatar-wrap">
+            @if (!string.IsNullOrEmpty(bl.NguoiDung?.AnhDaiDien))
+            {
+                <img src="@bl.NguoiDung.AnhDaiDien" class="comment-avatar-img" />
+            }
+            else
+            {
+                <div class="comment-avatar-txt">@(bl.NguoiDung?.HoTen?.Substring(0,1).ToUpper() ?? "?")</div>
+            }
+        </div>
+        <div style="flex:1; min-width:0;">
+            <div class="comment-bubble">
+                <div class="comment-author">@(bl.NguoiDung?.HoTen ?? "Ẩn danh")</div>
+                <div class="comment-text">@bl.NoiDung</div>
+                <div class="comment-meta">
+                    <span>@bl.NgayTao.ToString("g")</span>
+                    <button class="btn-reply-toggle" onclick="toggleReply('reply-@bl.Id', this)">Trả lời</button>
+                </div>
+            </div>
+
+            @* Form trả lời *@
+            <div id="reply-@bl.Id" style="display:none; margin-top:6px; margin-left:8px;">
+                <form asp-action="TraLoiBinhLuan" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="parentId" value="@bl.Id" />
+                    <input type="hidden" name="lopId" value="@lopId" />
+                    <input type="hidden" name="monHocId" value="@monHocId" />
+                    <div class="comment-input-row">
+                        <input name="noiDung" class="comment-input" placeholder="Trả lời @(bl.NguoiDung?.HoTen)..." required />
+                        <button type="submit" class="comment-submit">Gửi</button>
+                    </div>
+                </form>
+            </div>
+
+            @* Replies *@
+            @if (bl.Replies != null && bl.Replies.Any())
+            {
+                <div style="margin-top:8px; margin-left:8px; border-left:2px solid #eee; padding-left:10px;">
+                    @foreach (var reply in bl.Replies.OrderBy(r => r.NgayTao))
+                    {
+                        <div class="comment-item" style="margin-bottom:8px;">
+                            <div class="comment-avatar-wrap">
+                                @if (!string.IsNullOrEmpty(reply.NguoiDung?.AnhDaiDien))
+                                {
+                                    <img src="@reply.NguoiDung.AnhDaiDien" class="comment-avatar-img" />
+                                }
+                                else
+                                {
+                                    <div class="comment-avatar-txt">@(reply.NguoiDung?.HoTen?.Substring(0,1).ToUpper() ?? "?")</div>
+                                }
+                            </div>
+                            <div class="comment-bubble" style="flex:1;">
+                                <div class="comment-author">@(reply.NguoiDung?.HoTen ?? "Ẩn danh")</div>
+                                <div class="comment-text">@reply.NoiDung</div>
+                                <div class="comment-meta">@reply.NgayTao.ToString("g")</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@* Form bình luận mới *@
+<form asp-action="@actionName" method="post" style="margin-top:10px;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="@hiddenName" value="@targetId" />
+    <input type="hidden" name="lopId" value="@lopId" />
+    <input type="hidden" name="monHocId" value="@monHocId" />
+    <div class="comment-input-row">
+        <input name="noiDung" class="comment-input" placeholder="Viết bình luận..." required />
+        <button type="submit" class="comment-submit">Gửi</button>
+    </div>
+</form>

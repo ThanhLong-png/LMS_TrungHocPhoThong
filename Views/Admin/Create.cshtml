@@ -1,0 +1,145 @@
+@{
+    ViewData["Title"] = "Tạo tài khoản mới";
+    ViewData["PageTitle"] = "Tạo tài khoản";
+    Layout = "_AdminLayout";
+}
+
+@section Styles {
+<style>
+    .ad-form-card {
+        max-width: 500px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 16px;
+        padding: 32px 36px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .ad-form-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 24px;
+        letter-spacing: -0.02em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .ad-form-group {
+        margin-bottom: 16px;
+    }
+
+    .ad-form-label {
+        display: block;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #64748b;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .ad-form-control {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-family: inherit;
+        color: #1e293b;
+        background: #f8fafc;
+        transition: border-color 0.18s, box-shadow 0.18s;
+        outline: none;
+    }
+
+    .ad-form-control:focus {
+        border-color: #6366f1;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+    }
+
+    .ad-form-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 24px;
+    }
+
+    .ad-btn-primary {
+        flex: 1;
+        padding: 11px;
+        background: linear-gradient(135deg, #e53935, #b71c1c);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 0.18s;
+    }
+
+    .ad-btn-primary:hover { opacity: 0.88; }
+
+    .ad-btn-secondary {
+        padding: 11px 18px;
+        background: #f1f5f9;
+        color: #64748b;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        transition: background 0.18s;
+    }
+
+    .ad-btn-secondary:hover { background: #e2e8f0; color: #334155; text-decoration: none; }
+</style>
+}
+
+<div class="ad-form-card">
+    <div class="ad-form-title">➕ Tạo Tài Khoản Mới</div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:0.85rem;color:#dc2626;">
+            @Html.ValidationSummary(false)
+        </div>
+    }
+
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="ad-form-group">
+            <label class="ad-form-label">Họ và tên</label>
+            <input name="hoTen" class="ad-form-control" placeholder="Nhập họ tên đầy đủ" required />
+        </div>
+
+        <div class="ad-form-group">
+            <label class="ad-form-label">Email</label>
+            <input name="email" type="email" class="ad-form-control" placeholder="example@lms.com" required />
+        </div>
+
+        <div class="ad-form-group">
+            <label class="ad-form-label">Mật khẩu</label>
+            <input name="password" type="password" class="ad-form-control" placeholder="Ít nhất 6 ký tự" required />
+        </div>
+
+        <div class="ad-form-group">
+            <label class="ad-form-label">Vai trò</label>
+            <select name="role" class="ad-form-control">
+                @foreach (var r in ViewBag.Roles)
+                {
+                    <option value="@r">@r</option>
+                }
+            </select>
+        </div>
+
+        <div class="ad-form-actions">
+            <button type="submit" class="ad-btn-primary">Tạo tài khoản</button>
+        </div>
+    </form>
+</div>

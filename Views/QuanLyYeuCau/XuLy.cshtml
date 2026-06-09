@@ -1,0 +1,371 @@
+@model LMS_THPT.Models.YeuCauGiaoVien
+@{
+    ViewData["Title"] = "Xử Lý Yêu Cầu";
+    Layout = User.IsInRole("HieuTruong") ? "_HieuTruongLayout" : "_AdminLayout";
+    var daDuyet = Model.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.DaDuyet;
+    var tuChoi = Model.TrangThai == LMS_THPT.Models.TrangThaiYeuCau.TuChoi;
+    var daXuLy = daDuyet || tuChoi;
+}
+
+<style>
+    :root {
+        --navy: #1e2a4a; --navy-light: #2d3f6e;
+        --pastel-bg: #f0f4ff; --pastel-blue: #dce8ff;
+        --pastel-green: #d6f5e3; --pastel-yellow: #fff5cc; --pastel-red: #fde8e8;
+        --text-muted: #6b7a99; --radius: 12px;
+    }
+    .xl-page { padding: 0; }
+    .back-link { display:inline-flex; align-items:center; gap:0.4rem; color:var(--text-muted); font-size:0.85rem; text-decoration:none; margin-bottom:1.25rem; transition:color 0.2s; }
+    .back-link:hover { color:var(--navy); }
+    .xl-grid { display:grid; grid-template-columns:1fr 380px; gap:1.5rem; align-items:start; }
+    .card { background:#fff; border-radius:var(--radius); border:1px solid #e2e8f5; overflow:hidden; }
+    .card-header { background:var(--navy); padding:1.1rem 1.5rem; }
+    .card-header h3 { color:#fff; margin:0; font-size:1rem; font-weight:600; }
+    .card-header p { color:#a8b8d8; margin:0.2rem 0 0; font-size:0.8rem; }
+    .card-header.done-duyet { background:#166534; }
+    .card-header.done-tuchoi { background:#991b1b; }
+    .card-body { padding:1.5rem; }
+    .info-row { display:flex; gap:0.5rem; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid #f0f4ff; align-items:flex-start; }
+    .info-row:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+    .info-label { font-size:0.78rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.04em; min-width:110px; padding-top:0.1rem; }
+    .info-value { font-size:0.88rem; color:#1f2937; flex:1; line-height:1.6; }
+    .noi-dung-box { background:var(--pastel-bg); border-radius:8px; padding:1rem 1.1rem; font-size:0.87rem; color:#374151; line-height:1.75; border-left:3px solid #6c8ebf; }
+    .gv-card { display:flex; align-items:center; gap:1rem; background:var(--pastel-bg); border-radius:10px; padding:1rem; margin-bottom:1.25rem; }
+    .gv-avatar-lg { width:52px; height:52px; border-radius:50%; background:var(--pastel-blue); color:#2563a8; font-weight:700; font-size:1.1rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .gv-name-lg { font-weight:600; color:var(--navy); font-size:1rem; }
+    .gv-ma-lg { font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem; }
+    .badge-loai { display:inline-block; padding:0.25rem 0.8rem; border-radius:50px; font-size:0.78rem; font-weight:600; }
+    .badge-loai.nghiphep{background:#fce7f3;color:#9d174d;} .badge-loai.doilich{background:#ede9fe;color:#5b21b6;} .badge-loai.tailieu{background:#d1fae5;color:#065f46;} .badge-loai.khieunai{background:#fee2e2;color:#991b1b;} .badge-loai.khac{background:#f3f4f6;color:#4b5563;}
+    .badge-tt-lg { display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 1rem; border-radius:50px; font-size:0.82rem; font-weight:600; }
+    .badge-tt-lg::before { content:''; width:8px; height:8px; border-radius:50%; }
+    .badge-cho{background:var(--pastel-yellow);color:#7c5c00;} .badge-cho::before{background:#d4a017;}
+    .badge-duyet{background:var(--pastel-green);color:#166534;} .badge-duyet::before{background:#16a34a;}
+    .badge-tuchoi{background:var(--pastel-red);color:#991b1b;} .badge-tuchoi::before{background:#dc2626;}
+    .action-card { position:sticky; top:1.5rem; }
+    .ghi-chu-input { width:100%; border:1.5px solid #c5d0e8; border-radius:8px; padding:0.75rem; font-size:0.87rem; resize:vertical; min-height:100px; outline:none; font-family:inherit; transition:border-color 0.2s; box-sizing:border-box; }
+    .ghi-chu-input:focus { border-color:#6c8ebf; }
+    .form-label { font-size:0.8rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem; display:block; }
+    .btn-duyet { width:100%; background:#166534; color:#fff; border:none; border-radius:9px; padding:0.8rem; font-size:0.92rem; font-weight:600; cursor:pointer; transition:background 0.2s; margin-bottom:0.6rem; }
+    .btn-duyet:hover { background:#14532d; }
+    .btn-tuchoi { width:100%; background:#fff; color:#991b1b; border:2px solid #fca5a5; border-radius:9px; padding:0.75rem; font-size:0.92rem; font-weight:600; cursor:pointer; transition:all 0.2s; margin-bottom:0.6rem; }
+    .btn-tuchoi:hover { background:#fde8e8; }
+    .btn-disabled { width:100%; background:#e2e8f5; color:var(--text-muted); border:none; border-radius:9px; padding:0.8rem; font-size:0.88rem; font-weight:500; cursor:not-allowed; margin-bottom:0.6rem; }
+    .result-box { border-radius:10px; padding:1rem 1.1rem; margin-bottom:1rem; }
+    .result-box.duyet { background:var(--pastel-green); border:1px solid #a7f3d0; }
+    .result-box.tuchoi { background:var(--pastel-red); border:1px solid #fca5a5; }
+    .result-title { font-weight:600; font-size:0.88rem; margin-bottom:0.4rem; }
+    .result-box.duyet .result-title { color:#065f46; }
+    .result-box.tuchoi .result-title { color:#7f1d1d; }
+    .result-text { font-size:0.83rem; color:#374151; line-height:1.5; }
+    .result-nguoi { font-size:0.78rem; color:var(--text-muted); margin-top:0.5rem; }
+    .divider { border:none; border-top:1px solid #f0f4ff; margin:1rem 0; }
+    .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center; }
+    .overlay.show { display:flex; }
+    .modal-box { background:#fff; border-radius:var(--radius); padding:2rem; max-width:380px; width:90%; text-align:center; }
+    .modal-box h4 { margin:0 0 0.5rem; color:var(--navy); font-size:1.05rem; }
+    .modal-box p { color:var(--text-muted); font-size:0.86rem; margin-bottom:1.5rem; }
+    .modal-actions { display:flex; gap:0.75rem; }
+    .modal-btn { flex:1; padding:0.7rem; border-radius:8px; font-size:0.88rem; font-weight:600; cursor:pointer; border:none; transition:all 0.2s; }
+    .modal-btn.cancel { background:#f3f4f6; color:#374151; }
+    .modal-btn.cancel:hover { background:#e5e7eb; }
+    .modal-btn.ok-duyet { background:#166534; color:#fff; }
+    .modal-btn.ok-duyet:hover { background:#14532d; }
+    .modal-btn.ok-tuchoi { background:#991b1b; color:#fff; }
+    .modal-btn.ok-tuchoi:hover { background:#7f1d1d; }
+    @@media(max-width:800px){ .xl-grid{grid-template-columns:1fr;} .action-card{position:static;} }
+</style>
+
+<div>
+    <div class="xl-grid">
+        <div class="card">
+            <div class="card-header">
+                <h3>&#128196; Chi Tiết Yêu Cầu #@Model.Id</h3>
+                <p>Gửi lúc @Model.NgayGui.ToString("HH:mm - dd/MM/yyyy")</p>
+            </div>
+            <div class="card-body">
+                @{
+                    var initials = Model.GiaoVien?.HoTen != null
+                        ? string.Join("", Model.GiaoVien.HoTen.Split(' ').TakeLast(2).Select(x => x[0]))
+                        : "GV";
+                    var loaiClass = Model.LoaiYeuCau switch {
+                        LMS_THPT.Models.LoaiYeuCau.NghiPhep => "nghiphep",
+                        LMS_THPT.Models.LoaiYeuCau.DoiLich => "doilich",
+                        LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen => "tailieu",
+                        LMS_THPT.Models.LoaiYeuCau.KhieuNai => "khieunai",
+                        LMS_THPT.Models.LoaiYeuCau.HocBu => "doilich",
+                        _ => "khac"
+                    };
+                    var loaiText = Model.LoaiYeuCau switch {
+                        LMS_THPT.Models.LoaiYeuCau.NghiPhep => "Nghỉ phép",
+                        LMS_THPT.Models.LoaiYeuCau.DoiLich => "Đổi lịch",
+                        LMS_THPT.Models.LoaiYeuCau.YeuCauTaiNguyen => "Yêu cầu tài nguyên",
+                        LMS_THPT.Models.LoaiYeuCau.KhieuNai => "Khiếu nại",
+                        LMS_THPT.Models.LoaiYeuCau.HocBu => "Học bù",
+                        LMS_THPT.Models.LoaiYeuCau.DangKyLopChuNhiem => "ĐK Chủ nhiệm",
+                        LMS_THPT.Models.LoaiYeuCau.ThayDoiLopChuNhiem => "Đổi Chủ nhiệm",
+                        LMS_THPT.Models.LoaiYeuCau.HuyLopChuNhiem => "Hủy Chủ nhiệm",
+                        LMS_THPT.Models.LoaiYeuCau.TangCapCongChuc => "Tăng cấp CC",
+                        LMS_THPT.Models.LoaiYeuCau.DanhGiaHangNam => "Đánh giá HN",
+                        _ => "Khác"
+                    };
+                    var ttClass = Model.TrangThai switch {
+                        LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy => "badge-cho",
+                        LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet => "badge-cho",
+                        LMS_THPT.Models.TrangThaiYeuCau.DaDuyet => "badge-duyet",
+                        LMS_THPT.Models.TrangThaiYeuCau.TuChoi => "badge-tuchoi",
+                        _ => ""
+                    };
+                    var ttText = Model.TrangThai switch {
+                        LMS_THPT.Models.TrangThaiYeuCau.ChoXuLy => "Chờ duyệt",
+                        LMS_THPT.Models.TrangThaiYeuCau.ChoDuyet => "Chờ duyệt",
+                        LMS_THPT.Models.TrangThaiYeuCau.DaDuyet => "Đã duyệt",
+                        LMS_THPT.Models.TrangThaiYeuCau.TuChoi => "Từ chối",
+                        _ => ""
+                    };
+                }
+
+                <div class="gv-card">
+                    <div class="gv-avatar-lg">@initials</div>
+                    <div>
+                        <div class="gv-name-lg">@(Model.GiaoVien?.HoTen ?? "Không rõ")</div>
+                        <div class="gv-ma-lg">@(Model.GiaoVien?.UserName ?? Model.MaGiaoVien)</div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Tiêu đề</span>
+                    <span class="info-value" style="font-weight:600;color:var(--navy)">@Model.TieuDe</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Loại yêu cầu</span>
+                    <span class="info-value"><span class="badge-loai @loaiClass">@loaiText</span></span>
+                </div>
+                @if (Model.LoaiYeuCau == LMS_THPT.Models.LoaiYeuCau.NghiPhep && Model.NgayNghi.HasValue)
+                {
+                    <div class="info-row">
+                        <span class="info-label">Thời gian</span>
+                        <span class="info-value" style="font-weight: 500; color: #1f2937;">
+                            Từ ngày @Model.NgayNghi.Value.ToString("dd/MM/yyyy") 
+                            @if (Model.NgayNghiKetThuc.HasValue && Model.NgayNghiKetThuc.Value.Date != Model.NgayNghi.Value.Date)
+                            {
+                                <span> đến ngày @Model.NgayNghiKetThuc.Value.ToString("dd/MM/yyyy")</span>
+                            }
+                        </span>
+                    </div>
+                }
+                else if (Model.LoaiYeuCau == LMS_THPT.Models.LoaiYeuCau.HocBu && Model.NgayNghi.HasValue)
+                {
+                    <div class="info-row">
+                        <span class="info-label">Lịch học bù</span>
+                        <span class="info-value" style="font-weight: 500; color: #1f2937;">
+                            @if (!string.IsNullOrEmpty(Model.DanhSachTiet))
+                            {
+                                <span>Tiết @Model.DanhSachTiet, </span>
+                            }
+                            else if (Model.TuTiet.HasValue)
+                            {
+                                <span>Tiết @Model.TuTiet.Value, </span>
+                            }
+                            Ngày @Model.NgayNghi.Value.ToString("dd/MM/yyyy")
+                        </span>
+                    </div>
+                }
+
+                @if (Model.Lop != null)
+                {
+                    <div class="info-row">
+                        <span class="info-label">Lớp liên quan</span>
+                        <span class="info-value">@Model.Lop.TenLop</span>
+                    </div>
+                }
+
+                @if (Model.MonHoc != null)
+                {
+                    <div class="info-row">
+                        <span class="info-label">Môn học</span>
+                        <span class="info-value">@Model.MonHoc.TenMonHoc</span>
+                    </div>
+                }
+
+                @if (Model.LoaiYeuCau != LMS_THPT.Models.LoaiYeuCau.HocBu && Model.LoaiYeuCau != LMS_THPT.Models.LoaiYeuCau.NghiPhep)
+                {
+                    if (!string.IsNullOrEmpty(Model.DanhSachTiet))
+                    {
+                        <div class="info-row">
+                            <span class="info-label">Các tiết</span>
+                            <span class="info-value">@Model.DanhSachTiet</span>
+                        </div>
+                    }
+                    else if (Model.TuTiet.HasValue)
+                    {
+                        <div class="info-row">
+                            <span class="info-label">Tiết học</span>
+                            <span class="info-value">
+                                Từ tiết @Model.TuTiet.Value
+                                @if (Model.DenTiet.HasValue)
+                                {
+                                    <span> đến tiết @Model.DenTiet.Value</span>
+                                }
+                            </span>
+                        </div>
+                    }
+                }
+
+                @if (!string.IsNullOrEmpty(Model.DuongDanTaiLieu))
+                {
+                    <div class="info-row">
+                        <span class="info-label">Tài liệu</span>
+                        <span class="info-value">
+                            <a href="@Model.DuongDanTaiLieu" target="_blank" style="color:#2563a8; text-decoration:underline; font-weight:500;">
+                                &#128206; Xem đính kèm
+                            </a>
+                        </span>
+                    </div>
+                }
+
+                <div class="info-row">
+                    <span class="info-label">Trạng thái</span>
+                    <span class="info-value"><span class="badge-tt-lg @ttClass">@ttText</span></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Nội dung</span>
+                    <div class="info-value"><div class="noi-dung-box">@Model.NoiDung</div></div>
+                </div>
+                @if (daXuLy)
+                {
+                    @if (!string.IsNullOrEmpty(Model.GhiChuAdmin))
+                    {
+                        <div class="info-row">
+                            <span class="info-label">Ghi chú</span>
+                            <span class="info-value">@Model.GhiChuAdmin</span>
+                        </div>
+                    }
+                    @if (Model.NgayXuLy.HasValue)
+                    {
+                        <div class="info-row">
+                            <span class="info-label">Ngày xử lý</span>
+                            <span class="info-value">@Model.NgayXuLy.Value.ToString("HH:mm - dd/MM/yyyy")</span>
+                        </div>
+                    }
+                    @if (Model.NguoiXuLy != null)
+                    {
+                        <div class="info-row">
+                            <span class="info-label">Người xử lý</span>
+                            <span class="info-value">@(Model.NguoiXuLy.HoTen ?? Model.NguoiXuLy.UserName)</span>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="action-card">
+            <div class="card">
+                @if (!daXuLy)
+                {
+                    <div class="card-header">
+                        <h3>&#9889; Xử Lý Yêu Cầu</h3>
+                        <p>Duyệt hoặc từ chối yêu cầu này</p>
+                    </div>
+                    <div class="card-body">
+                        <label class="form-label">Ghi chú cho giáo viên (tùy chọn)</label>
+                        <textarea class="ghi-chu-input" id="ghiChuInput" placeholder="Nhập lý do hoặc thông tin bổ sung..."></textarea>
+                        <hr class="divider" />
+                        <button class="btn-duyet" onclick="showModal('duyet')">&#10003; Duyệt Yêu Cầu</button>
+                        <button class="btn-tuchoi" onclick="showModal('tuchoi')">&#10007; Từ Chối Yêu Cầu</button>
+                    </div>
+                }
+                else if (daDuyet)
+                {
+                    <div class="card-header done-duyet">
+                        <h3>&#10003; Đã Duyệt</h3>
+                        <p>Yêu cầu đã được chấp thuận</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="result-box duyet">
+                            <div class="result-title">&#10003; Yêu cầu đã được duyệt</div>
+                            @if (!string.IsNullOrEmpty(Model.GhiChuAdmin))
+                            {
+                                <div class="result-text">@Model.GhiChuAdmin</div>
+                            }
+                            <div class="result-nguoi">Bởi: @(Model.NguoiXuLy?.HoTen ?? "Admin") — @(Model.NgayXuLy?.ToString("dd/MM/yyyy HH:mm"))</div>
+                        </div>
+                        <button class="btn-disabled" disabled>Đã xử lý xong</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="card-header done-tuchoi">
+                        <h3>&#10007; Đã Từ Chối</h3>
+                        <p>Yêu cầu đã bị từ chối</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="result-box tuchoi">
+                            <div class="result-title">&#10007; Yêu cầu bị từ chối</div>
+                            @if (!string.IsNullOrEmpty(Model.GhiChuAdmin))
+                            {
+                                <div class="result-text">@Model.GhiChuAdmin</div>
+                            }
+                            <div class="result-nguoi">Bởi: @(Model.NguoiXuLy?.HoTen ?? "Admin") — @(Model.NgayXuLy?.ToString("dd/MM/yyyy HH:mm"))</div>
+                        </div>
+                        <button class="btn-disabled" disabled>Đã xử lý xong</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="overlay" id="modalDuyet">
+    <div class="modal-box">
+        <div style="font-size:2.2rem;margin-bottom:0.75rem;">&#10003;</div>
+        <h4>Xác nhận duyệt yêu cầu?</h4>
+        <p>Giáo viên sẽ được thông báo yêu cầu đã được chấp thuận.</p>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" onclick="hideModal()">Hủy</button>
+            <button class="modal-btn ok-duyet" onclick="submitForm('duyet')">Xác nhận duyệt</button>
+        </div>
+    </div>
+</div>
+
+<div class="overlay" id="modalTuChoi">
+    <div class="modal-box">
+        <div style="font-size:2.2rem;margin-bottom:0.75rem;">&#10007;</div>
+        <h4>Xác nhận từ chối yêu cầu?</h4>
+        <p>Giáo viên sẽ được thông báo yêu cầu bị từ chối.</p>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" onclick="hideModal()">Hủy</button>
+            <button class="modal-btn ok-tuchoi" onclick="submitForm('tuchoi')">Xác nhận từ chối</button>
+        </div>
+    </div>
+</div>
+
+<form id="formDuyet" asp-action="DuyetYeuCau" asp-route-id="@Model.Id" method="post" style="display:none">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="ghiChu" id="hdGhiChuDuyet" />
+</form>
+<form id="formTuChoi" asp-action="TuChoiYeuCau" asp-route-id="@Model.Id" method="post" style="display:none">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="ghiChu" id="hdGhiChuTuChoi" />
+</form>
+
+<script>
+    function showModal(type) {
+        document.getElementById(type === 'duyet' ? 'modalDuyet' : 'modalTuChoi').classList.add('show');
+    }
+    function hideModal() {
+        document.querySelectorAll('.overlay').forEach(m => m.classList.remove('show'));
+    }
+    function submitForm(type) {
+        var ghiChu = document.getElementById('ghiChuInput') ? document.getElementById('ghiChuInput').value : '';
+        if (type === 'duyet') {
+            document.getElementById('hdGhiChuDuyet').value = ghiChu;
+            document.getElementById('formDuyet').submit();
+        } else {
+            document.getElementById('hdGhiChuTuChoi').value = ghiChu;
+            document.getElementById('formTuChoi').submit();
+        }
+    }
+    document.querySelectorAll('.overlay').forEach(m => {
+        m.addEventListener('click', function(e) { if (e.target === this) hideModal(); });
+    });
+</script>

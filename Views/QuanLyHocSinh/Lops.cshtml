@@ -1,0 +1,83 @@
+@model LMS_THPT.Models.Khoi
+@{
+    ViewData["Title"] = "Lớp - Khối " + Model.TenKhoi;
+    Layout = "_AdminLayout";
+}
+
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">@Model.TenKhoi — Danh sách lớp</h1>
+        <div style="font-size:0.85rem; color:var(--admin-text-muted); margin-top:4px;">
+            Tổng số: <strong>@(Model.Lops?.Count ?? 0)</strong> lớp
+        </div>
+    </div>
+    <div class="admin-page-actions">
+        <a asp-action="TaoLop" asp-route-khoiId="@Model.Id" class="admin-btn admin-btn-primary">+ Thêm lớp mới</a>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card-body" style="padding:0;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th style="width:50px; text-align:center;">STT</th>
+                    <th>Tên lớp</th>
+                    <th style="text-align:center;">Sĩ số</th>
+                    <th>Giáo viên chủ nhiệm</th>
+                    <th style="text-align:center; width:240px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Lops != null && Model.Lops.Any())
+                {
+                    int stt = 1;
+                    var sortedLops = Model.Lops.OrderBy(l => l.TenLop).ToList();
+
+                    foreach (var lop in sortedLops)
+                    {
+                        <tr>
+                            <td style="text-align:center; color:var(--admin-text-muted); font-size:0.85rem;">@stt</td>
+                            <td style="font-weight:700; font-size:1rem;">@lop.TenLop</td>
+                            <td style="text-align:center;">
+                                <span class="admin-badge admin-badge-info">@(lop.HocSinhs?.Count ?? 0) HS</span>
+                            </td>
+                            <td style="color:var(--admin-text-muted);">
+                                @(lop.GiaoVienChuNhiem?.HoTen ?? "Chưa phân công")
+                            </td>
+                            <td style="text-align:center;">
+                                <div style="display:inline-flex; gap:4px; flex-wrap:wrap; justify-content:center;">
+                                    <a asp-action="HocSinhs" asp-route-lopId="@lop.Id"
+                                       class="admin-btn admin-btn-primary admin-btn-sm">Xem lớp</a>
+                                    <a asp-action="MonHocs" asp-route-lopId="@lop.Id"
+                                       class="admin-btn admin-btn-secondary admin-btn-sm">Xem môn</a>
+                                    <a asp-action="SuaLop" asp-route-id="@lop.Id"
+                                       class="admin-btn admin-btn-secondary admin-btn-sm">Sửa</a>
+                                    <form asp-action="XoaLop" method="post" style="display:inline;"
+                                          onsubmit="return confirm('Xác nhận xóa lớp @lop.TenLop?')">
+                                        <input type="hidden" name="id" value="@lop.Id" />
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="admin-btn admin-btn-danger admin-btn-sm">Xóa</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        stt++;
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5">
+                            <div class="admin-empty">
+                                <div class="admin-empty-icon">📂</div>
+                                <div class="admin-empty-title">@Model.TenKhoi chưa có lớp nào</div>
+                                <div class="admin-empty-text">Bắt đầu bằng cách thêm lớp học mới</div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

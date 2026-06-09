@@ -1,0 +1,309 @@
+﻿Using launch settings from C:\Users\Long\source\repos\LMS_TrungHocPhoThong\LMS_THPT\Properties\launchSettings.json...
+Building...
+C:\Users\Long\source\repos\LMS_TrungHocPhoThong\LMS_THPT\LMS_THPT.csproj : warning NU1901: Package 'NuGet.Packaging' 6.12.1 has a known low severity vulnerability, https://github.com/advisories/GHSA-g4vj-cjjj-v7hg
+C:\Users\Long\source\repos\LMS_TrungHocPhoThong\LMS_THPT\LMS_THPT.csproj : warning NU1901: Package 'NuGet.Protocol' 6.12.1 has a known low severity vulnerability, https://github.com/advisories/GHSA-g4vj-cjjj-v7hg
+C:\Users\Long\source\repos\LMS_TrungHocPhoThong\LMS_THPT\LMS_THPT.csproj : warning NU1901: Package 'NuGet.Packaging' 6.12.1 has a known low severity vulnerability, https://github.com/advisories/GHSA-g4vj-cjjj-v7hg
+C:\Users\Long\source\repos\LMS_TrungHocPhoThong\LMS_THPT\LMS_THPT.csproj : warning NU1901: Package 'NuGet.Protocol' 6.12.1 has a known low severity vulnerability, https://github.com/advisories/GHSA-g4vj-cjjj-v7hg
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (43ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Khoi] AS [k]) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [n].[Id], [n].[AccessFailedCount], [n].[AnhDaiDien], [n].[ChucVu], [n].[ChuyenMon], [n].[ConcurrencyStamp], [n].[DiaChi], [n].[Email], [n].[EmailConfirmed], [n].[GioiTinh], [n].[HanhKiem], [n].[HoTen], [n].[IsActive], [n].[LockoutEnabled], [n].[LockoutEnd], [n].[LopId], [n].[MaHocSinh], [n].[NgayCapNhat], [n].[NgaySinh], [n].[NgayTao], [n].[NormalizedEmail], [n].[NormalizedUserName], [n].[PasswordHash], [n].[PhoneNumber], [n].[PhoneNumberConfirmed], [n].[SecurityStamp], [n].[TwoFactorEnabled], [n].[UserName]
+      FROM [NguoiDung] AS [n]
+      WHERE [n].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [k].[Id], [k].[TenKhoi]
+      FROM [Khoi] AS [k]
+      WHERE [k].[TenKhoi] = N'Khối 10'
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [k].[Id], [k].[TenKhoi]
+      FROM [Khoi] AS [k]
+      WHERE [k].[TenKhoi] = N'Khối 11'
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [k].[Id], [k].[TenKhoi]
+      FROM [Khoi] AS [k]
+      WHERE [k].[TenKhoi] = N'Khối 12'
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Lop] AS [l]) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [l].[Id], [l].[GiaoVienChuNhiemId], [l].[MaKhoi], [l].[TenLop]
+      FROM [Lop] AS [l]
+      WHERE [l].[TenLop] = N'10A1'
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [l].[Id], [l].[GiaoVienChuNhiemId], [l].[MaKhoi], [l].[TenLop]
+      FROM [Lop] AS [l]
+      WHERE [l].[TenLop] = N'10A2'
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [l].[Id], [l].[GiaoVienChuNhiemId], [l].[MaKhoi], [l].[TenLop]
+      FROM [Lop] AS [l]
+      WHERE [l].[TenLop] = N'11A1'
+dotnet : Unhandled exception. System.InvalidOperationException: Sequence contains no elements
+At line:1 char:1
++ dotnet run 2>&1 | Out-File -FilePath "run_log.txt" -Encoding utf8; Ge ...
++ ~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Unhandled excep...ins no elements:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   at System.Linq.ThrowHelper.ThrowNoElementsException()
+   at lambda_method445(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteCore[TResult](Expression query, Boolean async, 
+CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at LMS_THPT.Data.SeedData.Initialize(IServiceProvider serviceProvider) in 
+C:\Users\Long\source\repos\LMS_TrungHocPhoThong\LMS_THPT\Data\Taikhoan.cs:line 97
+   at Program.<Main>$(String[] args) in C:\Users\Long\source\repos\LMS_TrungHocPhoThong\LMS_THPT\Program.cs:line 61
+   at Program.<Main>(String[] args)

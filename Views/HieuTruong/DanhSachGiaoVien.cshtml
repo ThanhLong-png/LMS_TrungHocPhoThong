@@ -1,0 +1,161 @@
+@using System.Collections
+@{
+    ViewData["Title"] = "Danh Sách Giáo Viên";
+    ViewData["PageTitle"] = "Đội ngũ giáo viên";
+    Layout = "_HieuTruongLayout";
+    var search = ViewBag.Search as string;
+}
+
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">👨‍🏫 Danh Sách Giáo Viên</h1>
+        <div style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">
+            Quản lý và xem thông tin chi tiết đội ngũ giáo viên toàn trường
+        </div>
+    </div>
+
+</div>
+
+<!-- TOOLBAR -->
+<div class="admin-card" style="margin-bottom: 1.5rem;">
+    <div class="admin-card-body" style="padding: 1.25rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+            <form method="get" asp-action="DanhSachGiaoVien" style="display: flex; gap: 0.75rem; flex: 1; min-width: 300px;">
+                <div style="position: relative; flex: 1;">
+                    <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem;">🔍</span>
+                    <input type="text" name="search" value="@search" class="admin-form-control" 
+                           placeholder="Tìm theo tên giáo viên hoặc mã số..." style="padding-left: 40px;" />
+                </div>
+                <button type="submit" class="admin-btn admin-btn-primary">Tìm kiếm</button>
+                @if (!string.IsNullOrEmpty(search))
+                {
+                    <a asp-action="DanhSachGiaoVien" class="admin-btn admin-btn-secondary">✕ Xóa lọc</a>
+                }
+            </form>
+            <div class="admin-badge admin-badge-info" style="font-size: 0.85rem; padding: 0.6rem 1.2rem;">
+                Tổng số: <strong>@ViewBag.SoLuong</strong> giáo viên
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TABLE -->
+<div class="admin-card">
+    <div class="admin-card-body" style="padding: 0;">
+        @{
+            var model = Model as IEnumerable<dynamic>;
+        }
+        @if (model != null && model.Any())
+        {
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">#</th>
+                            <th>Họ và Tên</th>
+                            <th>Mã GV</th>
+                            <th>Giới Tính</th>
+                            <th>Chuyên Môn</th>
+                            <th>Chức Vụ</th>
+                            <th>Lớp Chủ Nhiệm</th>
+                            <th>Môn Phụ Trách</th>
+                            <th style="text-align: right;">Trạng Thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{int stt = 1;}
+                        @foreach (var item in model)
+                        {
+                            var user = item.User as LMS_THPT.Models.NguoiDung;
+                            if (user == null) continue;
+
+                            var tenHienThi = string.IsNullOrEmpty(user.HoTen) ? user.UserName : user.HoTen;
+                            var avatarClaim = user.AnhDaiDien;
+                            var avatarUrl = string.IsNullOrEmpty(avatarClaim)
+                                ? Url.Content("~/images/default-avatar.svg")
+                                : Url.Content(avatarClaim.StartsWith("~") ? avatarClaim : "~/" + avatarClaim.TrimStart('/'));
+
+                            <tr>
+                                <td style="color:var(--text-muted); font-size:0.8rem;">@(stt++)</td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <img src="@avatarUrl" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border);" />
+                                        <div>
+                                            <div style="font-weight: 700; color: #1a1a2e;">@tenHienThi</div>
+                                            <div style="font-size: 0.75rem; color: var(--text-muted);">@user.Email</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code style="background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem;">@user.UserName</code></td>
+                                <td>@user.GioiTinh</td>
+                                <td>@user.ChuyenMon</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(user.ChucVu))
+                                    {
+                                        <span class="admin-badge admin-badge-info" style="font-size: 0.7rem;">@user.ChucVu</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:var(--text-muted);">---</span>
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        var tenLop = (string?)item.TenLop;
+                                        var tenKhoi = (string?)item.TenKhoi;
+                                    }
+                                    @if (!string.IsNullOrEmpty(tenLop) && tenLop != "---")
+                                    {
+                                        <span class="admin-badge admin-badge-success" style="font-size: 0.7rem;">@tenLop</span>
+                                        <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">@tenKhoi</div>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:var(--text-muted); font-style: italic; font-size: 0.85rem;">Chưa có</span>
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        var mons = item.MonPhanCong as IEnumerable<string?>;
+                                    }
+                                    @if (mons != null && mons.Any())
+                                    {
+                                        <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                            @foreach (var mon in mons)
+                                            {
+                                                <span class="admin-badge admin-badge-secondary" style="font-size: 0.65rem;">@mon</span>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:var(--text-muted); font-size: 0.85rem;">Chưa có</span>
+                                    }
+                                </td>
+                                <td style="text-align: right;">
+                                    @if (user.IsActive)
+                                    {
+                                        <span class="admin-badge admin-badge-success" style="font-size: 0.7rem;">● ĐANG HOẠT ĐỘNG</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-badge admin-badge-danger" style="font-size: 0.7rem;">● ĐÃ KHÓA</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div style="padding: 4rem 2rem; text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+                <h3 style="font-weight: 700; color: var(--navy);">Không tìm thấy giáo viên nào</h3>
+                <p style="color: var(--text-muted);">Hãy thử điều chỉnh từ khóa tìm kiếm của bạn.</p>
+
+            </div>
+        }
+    </div>
+</div>

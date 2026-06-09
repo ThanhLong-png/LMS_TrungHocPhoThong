@@ -1,0 +1,405 @@
+@* Views/GiaoVien/QuanLyMonHoc.cshtml *@
+@model LMS_THPT.ViewModels.MonHocManageViewModel
+@{
+    var isIframeVal = Context.Request.Query["isIframe"].ToString();
+    var isIframe = !string.IsNullOrEmpty(isIframeVal) && isIframeVal.Equals("true", StringComparison.OrdinalIgnoreCase);
+    if (isIframe) { Layout = "_IframeLayout"; }
+    
+    ViewData["Title"] = "Môn học";
+    ViewData["ActivePage"] = "MonHoc";
+    ViewData["PageTitle"] = "Quản lý môn học";
+    var monHocIds = ViewBag.MonHocIds as List<int> ?? new();
+    var monHocHienTai = (int)(ViewBag.MonHocHienTai ?? 0);
+    var teacherMonHocs = ViewBag.TeacherMonHocs as List<LMS_THPT.Models.MonHoc> ?? new();
+    var lopMonHocs = ViewBag.LopMonHocs as List<LMS_THPT.Models.LopMonHoc> ?? new();
+}
+
+
+@if (teacherMonHocs.Any())
+{
+    <div class="tab-bar mb-16">
+        @foreach (var m in teacherMonHocs)
+        {
+            <a asp-action="QuanLyMonHoc" asp-route-monHocId="@m.Id"
+               class="tab-item @(m.Id == monHocHienTai ? "active" : "")">
+                @m.TenMonHoc
+            </a>
+        }
+    </div>
+}
+
+@* ── Page Hero ── *@
+<div style="background:linear-gradient(135deg,#ff6b00 0%,#ff8c00 100%);border-radius:16px;padding:1.5rem 2rem;color:#fff;margin-bottom:1.5rem;position:relative;overflow:hidden;box-shadow:0 10px 30px rgba(255,107,0,0.15);">
+    <div style="position:absolute;top:-30%;right:-5%;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06);"></div>
+    <div style="position:relative;z-index:1;">
+        <div style="font-size:0.78rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;opacity:.7;margin-bottom:.4rem;">Quản lý môn học</div>
+        <h1 style="font-size:1.65rem;font-weight:800;letter-spacing:-0.02em;margin:0;">@(Model.MonHoc?.TenMonHoc ?? "Chưa chọn môn học")</h1>
+        <p style="margin:.4rem 0 0;font-size:.9rem;opacity:.8;font-weight:500;">Quản lý bài tập, điểm số và cập nhật nội dung theo từng lớp</p>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success" style="padding:12px 16px; background:#dcfce7; color:#166534; border-radius:8px; margin-bottom:16px;">
+        @TempData["Success"]
+    </div>
+}
+
+<div class="card mb-16">
+    <div class="card-header">
+        <span class="card-title" style="font-size:0.95rem;font-weight:700;color:#1e293b;">Thông tin môn học</span>
+    </div>
+    <div class="card-body">
+        <form asp-action="CapNhatMonHoc" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id" value="@Model.MonHoc?.Id" />
+            <input type="hidden" name="TenMonHoc" value="@Model.MonHoc?.TenMonHoc" />
+            
+            <div class="form-row" style="margin-bottom:12px;">
+                <label class="form-label" style="font-weight:600; display:block; margin-bottom:8px;">Nội dung/Mô tả</label>
+                <textarea name="MoTa" class="form-control" rows="3" placeholder="Nhập mô tả môn học..." style="width:100%;">@Model.MonHoc?.MoTa</textarea>
+            </div>
+            <div class="form-row" style="margin-bottom:16px;">
+                <label class="form-label" style="font-weight:600; display:block; margin-bottom:8px;">Mục tiêu khóa học</label>
+                <textarea name="MucTieu" class="form-control" rows="3" placeholder="Nhập mục tiêu khóa học..." style="width:100%;">@Model.MonHoc?.MucTieu</textarea>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary" style="padding:9px 20px;border:none;border-radius:8px;background:#ff6b00;color:#fff;cursor:pointer;font-weight:600;font-size:0.9rem;letter-spacing:-0.01em;box-shadow:0 4px 12px rgba(255,107,0,0.25);">
+                    Lưu nội dung môn học
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="two-col mb-16">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title" style="font-size:0.95rem;font-weight:700;color:#1e293b;">Lớp đang dạy môn này</span>
+            <span style="font-size:12px;color:#64748b;">Điều hướng nhanh theo lớp</span>
+        </div>
+        <div class="card-body">
+            <div class="class-list-container">
+                @if (lopMonHocs.Any())
+                {
+                    @foreach (var lmh in lopMonHocs)
+                    {
+                        <div class="class-card-item">
+                            <div class="class-card-badge">Lớp @lmh.Lop?.TenLop</div>
+                            <div class="class-card-sub">Môn @Model.MonHoc?.TenMonHoc</div>
+                            <div class="class-card-actions">
+                                <a href="@Url.Action("QuanLyBaiTap", "GiaoVien", new { area = "GiaoVien", lopId = lmh.LopId, monHocId = lmh.MonHocId })"
+                                   class="class-action-btn btn-baitap">Bài tập</a>
+                                <a href="@Url.Action("QuanLyDiemSo", "GiaoVien", new { area = "GiaoVien", lopId = lmh.LopId, monHocId = lmh.MonHocId })"
+                                   class="class-action-btn btn-diemsoo">Điểm số</a>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-muted p-12" style="font-size:13px">Chưa có lớp nào được gán cho môn này.</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Yêu cầu thay đổi trạng thái</span>
+        </div>
+        <div class="card-body">
+            @Html.AntiForgeryToken()
+            <div class="form-row">
+                <label class="form-label">Học sinh</label>
+                <select id="ycHocSinhId" class="form-control">
+                    @foreach (var hs in Model.DanhSachHocSinh)
+                    {
+                        <option value="@hs.Id">@hs.HoTen (@hs.TenLop)</option>
+                    }
+                </select>
+            </div>
+            <div class="form-row">
+                <label class="form-label">Loại yêu cầu</label>
+                <select id="ycTrangThai" class="form-control">
+                    @foreach (var opt in Model.TuyChonTrangThai)
+                    {
+                        <option value="@opt">@opt</option>
+                    }
+                </select>
+            </div>
+            <div class="form-row">
+                <label class="form-label">Lý do cụ thể</label>
+                <textarea id="ycLyDo" class="form-control" rows="2" placeholder="Nêu lý do chi tiết..."></textarea>
+            </div>
+            <button class="btn btn-secondary w-full mt-4" onclick="guiYeuCau()">Gửi yêu cầu</button>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Bảng điểm môn @Model.MonHoc?.TenMonHoc</span>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Học sinh</th>
+                    <th width="80">Miệng 1</th>
+                    <th width="80">Miệng 2</th>
+                    <th width="80">Miệng 3</th>
+                    <th width="80">Miệng 4</th>
+                    <th width="160">Điểm giữa kỳ (40%)</th>
+                    <th width="160">Điểm cuối kỳ (60%)</th>
+                    <th width="140">Tổng kết</th>
+                    <th>Xếp loại</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var g in Model.DanhSachDiem)
+                {
+                    <tr data-hs-id="@g.HocSinhId" data-mon-hoc-id="@monHocHienTai">
+                        <td class="fw-medium">@g.TenHocSinh</td>
+                        <td>
+                            <input type="number" class="input-inline dm1-input" value="@g.DiemMieng" min="0" max="10" step="0.1" placeholder="--" onchange="tinhTongKet(this)"/>
+                        </td>
+                        <td>
+                            <input type="number" class="input-inline dm2-input" value="@g.DiemMieng2" min="0" max="10" step="0.1" placeholder="--" onchange="tinhTongKet(this)"/>
+                        </td>
+                        <td>
+                            <input type="number" class="input-inline dm3-input" value="@g.DiemMieng3" min="0" max="10" step="0.1" placeholder="--" onchange="tinhTongKet(this)"/>
+                        </td>
+                        <td>
+                            <input type="number" class="input-inline dm4-input" value="@g.DiemMieng4" min="0" max="10" step="0.1" placeholder="--" onchange="tinhTongKet(this)"/>
+                        </td>
+                        <td>
+                            <input type="number" class="input-inline gk-input"
+                                   value="@g.DiemGiuaKy" min="0" max="10" step="0.1"
+                                   placeholder="--" onchange="tinhTongKet(this)" />
+                        </td>
+                        <td>
+                            <input type="number" class="input-inline ck-input"
+                                   value="@g.DiemCuoiKy" min="0" max="10" step="0.1"
+                                   placeholder="--" onchange="tinhTongKet(this)" />
+                        </td>
+                        <td class="td-tongket fw-bold" style="color:var(--blue)">
+                            @(g.DiemTongKet?.ToString("0.#") ?? "--")
+                        </td>
+                        <td>
+                            <span class="badge td-xeploai @(g.DiemTongKet >= 5 ? "badge-green" : g.DiemTongKet != null ? "badge-red" : "badge-amber")">
+                                @g.XepLoai
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const monHocId = @monHocHienTai;
+
+        function getToken() {
+            return document.querySelector('input[name="__RequestVerificationToken"]').value;
+        }
+
+        function openUpdateClassModal(lopId, monHocId, tenLop) {
+            showToast('Mở trình cập nhật nội dung lớp ' + tenLop, 'info');
+            // Logic: Có thể Redirect hoặc mở Modal để giáo viên sửa thông tin MonHoc riêng cho lớp này
+        }
+
+        function tinhTongKet(input) {
+            const row = input.closest('tr');
+            const dm1 = parseFloat(row.querySelector('.dm1-input').value);
+            const dm2 = parseFloat(row.querySelector('.dm2-input').value);
+            const dm3 = parseFloat(row.querySelector('.dm3-input').value);
+            const dm4 = parseFloat(row.querySelector('.dm4-input').value);
+            const gk = parseFloat(row.querySelector('.gk-input').value);
+            const ck = parseFloat(row.querySelector('.ck-input').value);
+            const badge = row.querySelector('.td-xeploai');
+
+            if (!isNaN(gk) && !isNaN(ck)) {
+                let dms = [];
+                if (!isNaN(dm1)) dms.push(dm1);
+                if (!isNaN(dm2)) dms.push(dm2);
+                if (!isNaN(dm3)) dms.push(dm3);
+                if (!isNaN(dm4)) dms.push(dm4);
+
+                let tong = 0;
+                if (dms.length > 0) {
+                    const avgDm = dms.reduce((a, b) => a + b, 0) / dms.length;
+                    tong = (avgDm + gk * 2 + ck * 3) / 6;
+                } else {
+                    tong = (gk * 0.4 + ck * 0.6);
+                }
+                tong = tong.toFixed(1);
+                row.querySelector('.td-tongket').textContent = tong;
+
+                let xl = 'Yếu', cls = 'badge-red';
+                const d = parseFloat(tong);
+                if (d >= 9.0) { xl = 'Xuất sắc'; cls = 'badge-green'; }
+                else if (d >= 8.0) { xl = 'Giỏi'; cls = 'badge-green'; }
+                else if (d >= 6.5) { xl = 'Khá'; cls = 'badge-blue'; }
+                else if (d >= 5.0) { xl = 'Trung bình'; cls = 'badge-amber'; }
+
+                badge.textContent = xl;
+                badge.className = 'badge td-xeploai ' + cls;
+            }
+        }
+
+        function luuDiem(btn) {
+            const row = btn.closest('tr');
+            const payload = {
+                HocSinhId : row.dataset.hsId,
+                MonHocId  : parseInt(row.dataset.monHocId),
+                DiemMieng : parseFloat(row.querySelector('.dm1-input').value) || null,
+                DiemMieng2: parseFloat(row.querySelector('.dm2-input').value) || null,
+                DiemMieng3: parseFloat(row.querySelector('.dm3-input').value) || null,
+                DiemMieng4: parseFloat(row.querySelector('.dm4-input').value) || null,
+                DiemGiuaKy: parseFloat(row.querySelector('.gk-input').value) || null,
+                DiemCuoiKy: parseFloat(row.querySelector('.ck-input').value) || null
+            };
+            fetch('@Url.Action("LuuDiem", "GiaoVien", new { area = "GiaoVien" })',{
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() },
+                body: JSON.stringify(payload)
+            }).then(r => r.json()).then(d => showToast(d.message, d.success ? 'success' : 'error'));
+        }
+
+        function luuTatCaDiem() {
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const dm1 = row.querySelector('.dm1-input')?.value;
+                const dm2 = row.querySelector('.dm2-input')?.value;
+                const dm3 = row.querySelector('.dm3-input')?.value;
+                const dm4 = row.querySelector('.dm4-input')?.value;
+                const gk = row.querySelector('.gk-input')?.value;
+                const ck = row.querySelector('.ck-input')?.value;
+                if (dm1 || dm2 || dm3 || dm4 || gk || ck) {
+                    fetch('@Url.Action("LuuDiem", "GiaoVien", new { area = "GiaoVien" })',{
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() },
+                        body: JSON.stringify({
+                            HocSinhId : row.dataset.hsId,
+                            MonHocId  : parseInt(row.dataset.monHocId),
+                            DiemMieng : parseFloat(dm1) || null,
+                            DiemMieng2: parseFloat(dm2) || null,
+                            DiemMieng3: parseFloat(dm3) || null,
+                            DiemMieng4: parseFloat(dm4) || null,
+                            DiemGiuaKy: parseFloat(gk) || null,
+                            DiemCuoiKy: parseFloat(ck) || null
+                        })
+                    });
+                }
+            });
+            showToast('Đã gửi yêu cầu lưu toàn bộ điểm!', 'success');
+        }
+
+        function guiYeuCau() {
+            const payload = {
+                HocSinhId: document.getElementById('ycHocSinhId').value,
+                TrangThai: document.getElementById('ycTrangThai').value,
+                LyDo     : document.getElementById('ycLyDo').value
+            };
+            if (!payload.LyDo.trim()) { showToast('Vui lòng nhập lý do!', 'error'); return; }
+            fetch('@Url.Action("GuiYeuCauTrangThai", "GiaoVien", new { area = "GiaoVien" })',{
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() },
+                body: JSON.stringify(payload)
+            }).then(r => r.json()).then(d => {
+                showToast(d.message, d.success ? 'success' : 'error');
+                if (d.success) document.getElementById('ycLyDo').value = '';
+            });
+        }
+    </script>
+}
+
+<style>
+    .class-list-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 8px;
+    }
+
+    .class-card-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 18px;
+        background: #fff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        transition: all 0.18s ease;
+        flex-wrap: wrap;
+    }
+
+    .class-card-item:hover {
+        border-color: #ff6b00;
+        box-shadow: 0 4px 16px rgba(255, 107, 0, 0.1);
+        background: #fff7ed;
+    }
+
+    .class-card-badge {
+        font-size: 0.96rem;
+        font-weight: 700;
+        color: #1e293b;
+        letter-spacing: -0.01em;
+    }
+
+    .class-card-sub {
+        font-size: 0.78rem;
+        color: #64748b;
+        margin-top: 2px;
+        font-weight: 500;
+    }
+
+    .class-card-actions {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .class-action-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 18px;
+        border-radius: 8px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        text-decoration: none;
+        letter-spacing: -0.01em;
+        transition: all 0.15s;
+        border: 1.5px solid transparent;
+    }
+
+    .btn-baitap {
+        background: #fff7ed;
+        color: #ff6b00;
+        border-color: #ffedd5;
+    }
+    .btn-baitap:hover {
+        background: #ff6b00;
+        color: #fff;
+        border-color: #ff6b00;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(255,107,0,0.25);
+    }
+    
+    .btn-diemsoo {
+        background: #fffbeb;
+        color: #d97706;
+        border-color: #fef3c7;
+    }
+    .btn-diemsoo:hover {
+        background: #d97706;
+        color: #fff;
+        border-color: #d97706;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(217,119,6,0.25);
+    }
+</style>

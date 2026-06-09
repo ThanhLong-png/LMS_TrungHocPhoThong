@@ -1,0 +1,107 @@
+@model LMS_THPT.Models.LichHoc
+
+@{
+    ViewData["Title"] = "Thêm lịch học";
+    Layout = User.IsInRole("HieuTruong") ? "_HieuTruongLayout" : "_AdminLayout";
+    var lops = ViewBag.Lops as List<LMS_THPT.Models.Lop>;
+}
+
+<div style="max-width: 600px; margin: 2rem auto;">
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3>📅 Thêm Lịch Học Mới</h3>
+        </div>
+        <div class="admin-card-body">
+            <form asp-action="Create" asp-controller="LichHoc" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="date" value="@Context.Request.Query["date"]" />
+
+                <div class="admin-form-group">
+                    <label class="admin-form-label" asp-for="LopId">Lớp</label>
+                    <select id="lopSelect" name="LopId" class="admin-form-control" required>
+                        <option value="">-- Chọn lớp --</option>
+                        @foreach (var lop in lops)
+                        {
+                            <option value="@lop.Id" selected="@(Model.LopId == lop.Id)">@lop.TenLop</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="admin-form-group">
+                    <label class="admin-form-label" asp-for="MonHocId">Môn Học</label>
+                    <select id="monSelect" name="MonHocId" class="admin-form-control" required>
+                        <option value="">-- Chọn môn --</option>
+                    </select>
+                </div>
+
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Giáo Viên</label>
+                    <input id="gvInput" class="admin-form-control" readonly placeholder="Chọn môn để hiển thị giáo viên" />
+                    <input type="hidden" id="gvId" name="GiaoVienId" />
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">Thứ</label>
+                        <div class="admin-form-control" style="background: var(--admin-surface); padding: 0.7rem 1rem; display: flex; align-items: center;">
+                            Thứ @Model.Thu
+                        </div>
+                        <input type="hidden" name="Thu" value="@Model.Thu" />
+                    </div>
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">Tiết Học</label>
+                        <div class="admin-form-control" style="background: var(--admin-surface); padding: 0.7rem 1rem; display: flex; align-items: center;">
+                            Tiết @Model.TietHoc
+                        </div>
+                        <input type="hidden" name="TietHoc" value="@Model.TietHoc" />
+                    </div>
+                </div>
+
+                <div class="admin-form-group">
+                    <label class="admin-form-label" asp-for="PhongHoc">Phòng Học</label>
+                    <input class="admin-form-control" asp-for="PhongHoc" placeholder="Ví dụ: P.201" required />
+                </div>
+
+                <div asp-validation-summary="All" class="admin-alert admin-alert-danger" style="display: none;"></div>
+
+                <div class="admin-card-footer">
+                    <a href="@Url.Action("Index")" class="admin-btn admin-btn-secondary">Hủy</a>
+                    <button type="submit" class="admin-btn admin-btn-primary">Lưu Lịch Học</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function loadMon(lopId) {
+        $("#monSelect").html('<option value="">-- Chọn môn --</option>');
+        $("#gvInput").val("");
+        $("#gvId").val("");
+        if (!lopId) return;
+        $.get("/LichHoc/GetMonByLop", { lopId: lopId }, function (data) {
+            data.forEach(x => {
+                $("#monSelect").append(`<option value="${x.monHocId}">${x.tenMonHoc}</option>`);
+            });
+        });
+    }
+
+    $("#lopSelect").change(function () {
+        loadMon($(this).val());
+    });
+
+    $("#monSelect").change(function () {
+        var monId = $(this).val();
+        var lopId = $("#lopSelect").val();
+        $("#gvInput").val("");
+        $("#gvId").val("");
+        if (!monId || !lopId) return;
+        $.get("/LichHoc/GetGiaoVienByMonHoc", { lopId: lopId, monHocId: monId }, function (data) {
+            if (data.length > 0) {
+                $("#gvInput").val(data[0].hoTen);
+                $("#gvId").val(data[0].giaoVienId);
+            }
+        });
+    });
+</script>

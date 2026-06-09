@@ -1,0 +1,419 @@
+@{
+    ViewData["Title"] = "Đăng nhập – LMS Quốc Học";
+    Layout = null; // Full-page control
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy:        #fafafb;
+            --navy-mid:    #ffffff;
+            --navy-light:  #fff7ed;
+            --accent:      #ff6b00;
+            --accent-glow: rgba(255,107,0,0.25);
+            --white:       #ffffff;
+            --text-muted:  #64748b;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+            background: var(--navy);
+            overflow: hidden;
+            color: #1e293b;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== BACKGROUND BLOBS ===== */
+        .bg-scene {
+            position: fixed; inset: 0; z-index: 0; overflow: hidden;
+        }
+
+        .blob {
+            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6;
+            animation: drift 12s ease-in-out infinite alternate;
+        }
+        .blob-1 { width: 520px; height: 520px; background: #ffe3d1; top: -160px; left: -120px; animation-delay: 0s; }
+        .blob-2 { width: 400px; height: 400px; background: #ffedd5; bottom: -100px; right: -80px; animation-delay: -4s; }
+        .blob-3 { width: 280px; height: 280px; background: #ffeedd; top: 40%; left: 35%; animation-delay: -8s; }
+
+        @@keyframes drift {
+            from { transform: translate(0,0) scale(1); }
+            to   { transform: translate(30px,20px) scale(1.06); }
+        }
+
+        /* ===== GRID LAYOUT ===== */
+        .page {
+            position: relative; z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 100vh;
+        }
+
+        /* ===== LEFT PANEL ===== */
+        .left-panel {
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: flex-start;
+            padding: 4rem 5rem;
+            gap: 2rem;
+        }
+
+        .brand-badge {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: rgba(255,107,0,0.1);
+            border: 1px solid rgba(255,107,0,0.25);
+            border-radius: 999px;
+            padding: 0.35rem 1rem;
+            font-size: 0.78rem; font-weight: 600;
+            color: #ff6b00; letter-spacing: 0.04em;
+        }
+
+        .brand-logo {
+            font-size: 2.8rem; font-weight: 900;
+            color: #1e293b; line-height: 1.1; letter-spacing: -0.04em;
+        }
+
+        .brand-logo span {
+            background: linear-gradient(90deg, #ff6b00, #ff8c00);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .brand-desc {
+            font-size: 1.05rem; font-weight: 400;
+            color: #475569; line-height: 1.7; max-width: 380px;
+        }
+
+        .feature-list {
+            display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem;
+        }
+
+        .feature-item {
+            display: flex; align-items: center; gap: 0.75rem;
+            font-size: 0.9rem; font-weight: 500; color: #334155;
+        }
+
+        .feature-icon {
+            width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+        }
+        .fi-blue   { background: rgba(255,107,0,0.15); color: #ff6b00; }
+        .fi-purple { background: rgba(245,158,11,0.15); color: #d97706; }
+        .fi-green  { background: rgba(16,185,129,0.15); color: #059669; }
+        .fi-amber  { background: rgba(239,68,68,0.15); color: #dc2626; }
+
+        /* Floating illustration */
+        .illus-wrap {
+            margin-top: 1.5rem;
+            animation: floatY 5s ease-in-out infinite;
+        }
+
+        .illus-wrap img { width: 100%; max-width: 340px; opacity: 0.92; }
+
+        @@keyframes floatY {
+            0%,100% { transform: translateY(0); }
+            50%      { transform: translateY(-14px); }
+        }
+
+        /* ===== RIGHT PANEL – LOGIN CARD ===== */
+        .right-panel {
+            display: flex; justify-content: center; align-items: center;
+            padding: 2.5rem;
+        }
+
+        .login-card {
+            width: 100%; max-width: 420px;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,107,0,0.15);
+            border-radius: 24px;
+            padding: 2.5rem 2.25rem;
+            box-shadow: 0 30px 60px rgba(255,107,0,0.08),
+                        0 0 0 1px rgba(255,255,255,0.5);
+            animation: slideUp 0.55s cubic-bezier(.22,.68,0,1.2);
+        }
+
+        @@keyframes slideUp {
+            from { opacity:0; transform: translateY(32px) scale(0.97); }
+            to   { opacity:1; transform: translateY(0) scale(1); }
+        }
+
+        .card-eyebrow {
+            font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: #ff6b00; margin-bottom: 0.6rem;
+        }
+
+        .card-title {
+            font-size: 1.7rem; font-weight: 800; color: #1e293b;
+            letter-spacing: -0.03em; margin-bottom: 0.4rem;
+        }
+
+        .card-sub {
+            font-size: 0.88rem; color: #64748b;
+            margin-bottom: 1.8rem; font-weight: 400;
+        }
+
+        /* Error box */
+        .error-box {
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.25);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.2rem;
+            color: #b91c1c; font-size: 0.85rem; font-weight: 500;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        /* Form group */
+        .fg { margin-bottom: 1rem; }
+
+        .fg label {
+            display: block; font-size: 0.78rem; font-weight: 600;
+            color: #475569; margin-bottom: 0.45rem;
+            letter-spacing: 0.02em;
+        }
+
+        .fg .inp-wrap { position: relative; }
+
+        .fg .inp-icon {
+            position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+            font-size: 0.95rem; opacity: 0.45; pointer-events: none;
+        }
+
+        .fg input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.4rem;
+            background: rgba(255,255,255,0.8);
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            color: #1e293b; font-size: 0.92rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+
+        .fg input::placeholder { color: #94a3b8; }
+
+        .fg input:focus {
+            border-color: var(--accent);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        /* Password toggle */
+        .pwd-toggle {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: #94a3b8;
+            cursor: pointer; font-size: 0.9rem; padding: 4px;
+            transition: color 0.2s;
+        }
+        .pwd-toggle:hover { color: #475569; }
+
+        /* Remember row */
+        .remember-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1.4rem;
+        }
+
+        .remember-row label {
+            display: flex; align-items: center; gap: 0.45rem;
+            font-size: 0.82rem; color: #64748b; cursor: pointer;
+        }
+
+        .remember-row input[type="checkbox"] {
+            accent-color: var(--accent); width: 14px; height: 14px;
+        }
+
+        .remember-row a {
+            font-size: 0.82rem; color: #ff6b00; text-decoration: none;
+            font-weight: 500; transition: color 0.2s;
+        }
+        .remember-row a:hover { color: #e05e00; }
+
+        /* Login button */
+        .btn-login {
+            width: 100%;
+            padding: 0.85rem;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #ff6b00, #ff8c00);
+            color: #fff; border: none; font-size: 0.95rem; font-weight: 700;
+            font-family: inherit; letter-spacing: 0.01em;
+            cursor: pointer;
+            box-shadow: 0 6px 24px rgba(255,107,0,0.3);
+            transition: transform 0.18s, box-shadow 0.18s, opacity 0.18s;
+            position: relative; overflow: hidden;
+        }
+
+        .btn-login::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(255,107,0,0.4);
+        }
+
+        .btn-login:active { transform: translateY(0); }
+
+        /* Divider */
+        .divider {
+            display: flex; align-items: center; gap: 0.75rem;
+            margin: 1.4rem 0;
+            font-size: 0.75rem; color: #cbd5e1;
+            font-weight: 500;
+        }
+        .divider::before, .divider::after {
+            content: ''; flex: 1;
+            height: 1px; background: #e2e8f0;
+        }
+
+        /* Footer note */
+        .card-footer-note {
+            margin-top: 1.5rem; text-align: center;
+            font-size: 0.76rem; color: #94a3b8;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @@media (max-width: 860px) {
+            .page { grid-template-columns: 1fr; }
+            .left-panel { display: none; }
+            .right-panel { padding: 1.5rem; }
+            html, body { overflow: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Animated blobs -->
+    <div class="bg-scene">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="page">
+
+        <!-- ========= LEFT ========= -->
+        <div class="left-panel">
+            <div class="brand-badge">🎓 Trường THPT Quốc Học Huế</div>
+
+            <div>
+                <div class="brand-logo">LMS <span>Quốc Học</span></div>
+            </div>
+
+            <p class="brand-desc">
+                Nền tảng quản lý học tập thông minh – kết nối giáo viên, học sinh và ban quản trị trong một hệ thống thống nhất.
+            </p>
+
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon fi-blue">📊</div>
+                    Theo dõi điểm số và tiến trình học tập
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon fi-purple">📅</div>
+                    Thời khóa biểu tự động và thông minh
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon fi-green">✉️</div>
+                    Thông báo và yêu cầu xử lý nhanh chóng
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon fi-amber">🔒</div>
+                    Bảo mật nhiều lớp, phân quyền rõ ràng
+                </div>
+            </div>
+
+            <div class="illus-wrap">
+                <img src="~/images/graduation.svg" alt="LMS illustration" id="illus" />
+            </div>
+        </div>
+
+        <!-- ========= RIGHT ========= -->
+        <div class="right-panel">
+            <div class="login-card">
+
+                <div class="card-eyebrow">Hệ thống LMS</div>
+                <div class="card-title">Đăng nhập</div>
+                <div class="card-sub">Nhập thông tin tài khoản để tiếp tục</div>
+
+                @if (TempData["LoginError"] != null)
+                {
+                    <div class="error-box">
+                        <span>⚠️</span> @TempData["LoginError"]
+                    </div>
+                }
+
+                <form method="post" action="/Home/Login">
+                    @Html.AntiForgeryToken()
+
+                    <div class="fg">
+                        <label for="userName">Tên đăng nhập</label>
+                        <div class="inp-wrap">
+                            <span class="inp-icon">👤</span>
+                            <input type="text" id="userName" name="userName"
+                                   placeholder="Nhập tên đăng nhập" autocomplete="username" />
+                        </div>
+                    </div>
+
+                    <div class="fg">
+                        <label for="pwdInput">Mật khẩu</label>
+                        <div class="inp-wrap">
+                            <span class="inp-icon">🔑</span>
+                            <input type="password" id="pwdInput" name="password"
+                                   placeholder="Nhập mật khẩu" autocomplete="current-password" />
+                            <button type="button" class="pwd-toggle" onclick="togglePwd()" title="Hiện/ẩn mật khẩu">👁</button>
+                        </div>
+                    </div>
+
+                    <div class="remember-row">
+                        <label>
+                            <input type="checkbox" name="rememberMe" />
+                            Nhớ đăng nhập
+                        </label>
+                        <a href="/Identity/Account/ForgotPassword">Quên mật khẩu?</a>
+                    </div>
+
+                    <button type="submit" class="btn-login">Đăng nhập →</button>
+                </form>
+
+                <div class="card-footer-note">
+                    © 2026 LMS Quốc Học Huế · Hệ thống quản lý học tập
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function togglePwd() {
+            var x = document.getElementById("pwdInput");
+            x.type = x.type === "password" ? "text" : "password";
+        }
+
+        // Subtle parallax on illustration
+        const illus = document.getElementById("illus");
+        if (illus) {
+            document.addEventListener("mousemove", (e) => {
+                let x = (e.clientX / window.innerWidth  - 0.5) * 8;
+                let y = (e.clientY / window.innerHeight - 0.5) * 8;
+                illus.style.transform = `translate(${x}px,${y}px)`;
+            });
+        }
+    </script>
+
+</body>
+</html>

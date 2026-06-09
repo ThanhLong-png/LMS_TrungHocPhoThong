@@ -1,0 +1,131 @@
+@model List<LMS_THPT.Models.LichSuHocSinh>
+@{
+    ViewData["Title"] = "Lịch sử học sinh đã nghỉ";
+    Layout = "_AdminLayout";
+    int total = (int)ViewBag.Total;
+    int page = (int)ViewBag.Page;
+    int pageSize = (int)ViewBag.PageSize;
+    string? q = ViewBag.Q;
+    int totalPages = (int)Math.Ceiling((double)total / pageSize);
+}
+
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">📚 Lịch sử học sinh đã nghỉ</h1>
+        <div style="font-size:.85rem;color:var(--admin-text-muted);margin-top:4px;">
+            Dữ liệu học sinh đã bị xóa / ra trường — @total hồ sơ
+        </div>
+    </div>
+
+</div>
+
+<!-- TÌM KIẾM -->
+<div class="admin-card mb-4">
+    <div class="admin-card-body">
+        <form method="get" asp-action="LichSuHocSinhs" class="d-flex gap-2">
+            <input type="text" name="q" value="@q" class="admin-form-control" placeholder="Tìm theo họ tên hoặc mã học sinh..." style="max-width:320px;" />
+            <button type="submit" class="admin-btn admin-btn-primary">🔍 Tìm</button>
+            @if (!string.IsNullOrEmpty(q)) {
+                <a asp-action="LichSuHocSinhs" class="admin-btn admin-btn-secondary">✕ Xóa lọc</a>
+            }
+        </form>
+    </div>
+</div>
+
+<!-- DANH SÁCH -->
+<div class="admin-card">
+    <div class="admin-card-body" style="padding:0;overflow-x:auto;">
+        <table class="admin-table" style="min-width:900px;">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Họ và Tên</th>
+                    <th>Mã HS</th>
+                    <th>Lớp cuối</th>
+                    <th>Năm học cuối</th>
+                    <th>Ngày xóa</th>
+                    <th>Lý do</th>
+                    <th>Người xóa</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="9">
+                            <div class="admin-empty">
+                                <div class="admin-empty-icon">📭</div>
+                                <div class="admin-empty-title">Chưa có hồ sơ nào</div>
+                                <div class="admin-empty-text">Khi xóa học sinh, hồ sơ sẽ được lưu lại tại đây</div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    int stt = (page - 1) * pageSize + 1;
+                    @foreach (var hs in Model)
+                    {
+                        <tr>
+                            <td style="color:var(--admin-text-muted);font-size:.85rem;">@stt</td>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:.7rem;">
+                                    @if (!string.IsNullOrEmpty(hs.AnhDaiDien)) {
+                                        <img src="@hs.AnhDaiDien" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" />
+                                    } else {
+                                        <div style="width:32px;height:32px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:.9rem;">👤</div>
+                                    }
+                                    <div>
+                                        <div style="font-weight:700;">@hs.HoTen</div>
+                                        @if (hs.NgaySinh.HasValue) {
+                                            <div style="font-size:.78rem;color:var(--admin-text-muted);">@hs.NgaySinh.Value.ToString("dd/MM/yyyy")</div>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <code style="color:var(--admin-accent);font-weight:700;font-size:.85rem;">@(hs.MaHocSinh ?? "—")</code>
+                            </td>
+                            <td>
+                                <span class="admin-badge admin-badge-info">@(hs.TenLop ?? "—")</span>
+                                @if (!string.IsNullOrEmpty(hs.TenKhoi)) {
+                                    <span class="admin-badge admin-badge-secondary ms-1">@hs.TenKhoi</span>
+                                }
+                            </td>
+                            <td style="font-weight:600;color:#4f46e5;">@(hs.NamHocCuoi ?? "—")</td>
+                            <td style="color:var(--admin-text-muted);font-size:.85rem;">
+                                @hs.NgayXoa.ToString("dd/MM/yyyy HH:mm")
+                            </td>
+                            <td style="font-size:.82rem;color:#475569;max-width:160px;">
+                                @if (!string.IsNullOrEmpty(hs.LyDoXoa)) {
+                                    <span title="@hs.LyDoXoa">@(hs.LyDoXoa.Length > 30 ? hs.LyDoXoa[..30] + "..." : hs.LyDoXoa)</span>
+                                } else {
+                                    <span style="color:#cbd5e1;">—</span>
+                                }
+                            </td>
+                            <td style="font-size:.82rem;color:var(--admin-text-muted);">@(hs.NguoiXoaHoTen ?? "—")</td>
+                            <td class="text-center">
+                                <a asp-action="XemDiemLichSu" asp-route-lichSuId="@hs.Id"
+                                   class="admin-btn admin-btn-secondary admin-btn-sm">📊 Xem điểm</a>
+                            </td>
+                        </tr>
+                        stt++;
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- PHÂN TRANG -->
+@if (totalPages > 1)
+{
+    <div class="d-flex justify-content-center gap-2 mt-3">
+        @for (int i = 1; i <= totalPages; i++)
+        {
+            <a asp-action="LichSuHocSinhs" asp-route-page="@i" asp-route-q="@q"
+               class="admin-btn @(i==page?"admin-btn-primary":"admin-btn-secondary")" style="min-width:40px;">@i</a>
+        }
+    </div>
+}

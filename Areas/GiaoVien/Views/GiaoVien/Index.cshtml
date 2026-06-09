@@ -1,0 +1,398 @@
+@* Views/GiaoVien/Index.cshtml *@
+@model LMS_THPT.ViewModels.TeacherDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["ActivePage"] = "Dashboard";
+    ViewData["PageTitle"] = "Tổng quan";
+}
+
+<style>
+    .gv-hero {
+        background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+        border-radius: 20px;
+        padding: 2rem 2.5rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(255,107,0,0.15);
+    }
+
+    .gv-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(99,179,237,0.15) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .gv-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -40%;
+        left: 5%;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(167,139,250,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .gv-quick-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        padding: 0.85rem 1.2rem;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 2px solid transparent;
+        margin-bottom: 0.6rem;
+    }
+
+    .gv-quick-btn:hover { transform: translateX(4px); }
+
+    .gv-quick-btn-blue   { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .gv-quick-btn-blue:hover   { background: #dbeafe; color: #1d4ed8; }
+    .gv-quick-btn-green  { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+    .gv-quick-btn-green:hover  { background: #dcfce7; color: #15803d; }
+    .gv-quick-btn-orange { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+    .gv-quick-btn-orange:hover { background: #ffedd5; color: #c2410c; }
+    .gv-quick-btn-purple { background: #faf5ff; color: #7e22ce; border-color: #e9d5ff; }
+    .gv-quick-btn-purple:hover { background: #f3e8ff; color: #7e22ce; }
+    .gv-quick-btn-indigo { background: #eef2ff; color: #3730a3; border-color: #c7d2fe; }
+    .gv-quick-btn-indigo:hover { background: #e0e7ff; color: #3730a3; }
+
+    .gv-section-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+        border: 1px solid rgba(0,0,0,0.05);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .gv-section-header {
+        padding: 1.2rem 1.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .gv-deadline-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.8rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.9rem;
+        transition: background 0.15s;
+    }
+
+    .gv-deadline-item:hover { background: #f8fafc; }
+    .gv-deadline-item:last-child { border-bottom: none; }
+
+    .gv-empty-state {
+        text-align: center;
+        padding: 2.5rem 1rem;
+        color: #94a3b8;
+    }
+    .gv-empty-state .emoji { font-size: 2.5rem; margin-bottom: 0.5rem; }
+
+    .gv-schedule-table td, .gv-schedule-table th {
+        vertical-align: middle;
+        font-size: 0.9rem;
+    }
+
+    .gv-badge-ngay {
+        background: #fff7ed;
+        color: #ff6b00;
+        padding: 0.3rem 0.8rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.82rem;
+        white-space: nowrap;
+        border: 1px solid #fed7aa;
+    }
+</style>
+
+<!-- HERO BANNER -->
+<div class="gv-hero">
+    <div class="row align-items-center">
+        <div class="col-md-7" style="position:relative;z-index:1;">
+            <p class="mb-1 opacity-75" style="font-size:0.9rem; font-weight:500; letter-spacing:0.03em; text-transform:uppercase;">Xin chào</p>
+            <h2 class="fw-bold mb-1" style="font-size:2rem; letter-spacing:-0.03em; font-weight:800;">
+                @Model.GiaoVien?.HoTen
+            </h2>
+            <p class="opacity-75 mb-0" style="font-size:0.92rem; font-weight:500;">
+                 Giáo viên · LMS Quốc Học Huế
+            </p>
+        </div>
+        <div class="col-md-5 mt-3 mt-md-0 text-md-end" style="position:relative;z-index:1;">
+            <div style="font-size:0.85rem; opacity:0.8;">Bài tập chờ chấm</div>
+            <div class="d-flex align-items-center gap-2 justify-content-md-end mt-1">
+                <div style="flex:1; max-width:200px;">
+                    <div style="background:rgba(255,255,255,0.2); border-radius:999px; height:10px;">
+                        <div style="background:@(Model.BaiNopChamPending > 0 ? "#f59e0b" : "#34d399"); width:@(Model.BaiNopChamPending > 0 ? Math.Min(100, Model.BaiNopChamPending * 5) : 100)%; height:10px; border-radius:999px; transition:width 1s;"></div>
+                    </div>
+                </div>
+                <span class="fw-bold" style="font-size:1.3rem;">@Model.BaiNopChamPending</span>
+            </div>
+            <small class="opacity-75">bài tập đang chờ chấm điểm</small>
+        </div>
+    </div>
+</div>
+
+<!-- STAT CARDS -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fff7ed; color:#ff6b00; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">HS</div>
+            <div class="fw-bold" style="font-size:1.6rem; color:#ff6b00;">@Model.TongHocSinh</div>
+            <div class="text-muted" style="font-size:0.85rem;">Học sinh đang dạy</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#f0fdf4; color:#15803d; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">MH</div>
+            <div class="fw-bold" style="font-size:1.6rem; color:#15803d;">@Model.TongMonHoc</div>
+            <div class="text-muted" style="font-size:0.85rem;">Môn học phụ trách</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fff7ed; color:#c2410c; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">BT</div>
+            <div class="fw-bold" style="font-size:1.6rem; color:#c2410c;">@Model.BaiNopChamPending</div>
+            <div class="text-muted" style="font-size:0.85rem;">Bài tập chờ chấm</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#faf5ff; color:#7e22ce; font-size:0.7rem; font-weight:800; letter-spacing:0.03em;">TL</div>
+            <div class="fw-bold" style="font-size:1.6rem; color:#7e22ce;">@Model.TongTaiLieu</div>
+            <div class="text-muted" style="font-size:0.85rem;">Tài liệu đã tải lên</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- LEFT: Quick actions + tiến độ lớp -->
+    <div class="col-lg-4">
+
+        <!-- Vào lớp dạy - hub card -->
+        <a href="@Url.Action("Index", "GiangDay", new { area = "GiaoVien" })" class="text-decoration-none d-block mb-3">
+            <div style="background:linear-gradient(135deg,#ff6b00 0%,#ff8c00 100%);border-radius:16px;padding:1.4rem 1.6rem;color:#fff;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;box-shadow:0 10px 30px rgba(255,107,0,0.15);"
+                 onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 36px rgba(255,107,0,.3)'"
+                 onmouseout="this.style.transform='';this.style.boxShadow='0 10px 30px rgba(255,107,0,0.15)'">
+                <div style="position:absolute;top:-20%;right:-8%;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.07)"></div>
+                <div style="position:absolute;bottom:-30%;left:5%;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.05)"></div>
+                <div style="position:relative;z-index:1">
+                    <div style="font-size:1.8rem;margin-bottom:.5rem"></div>
+                    <div style="font-weight:700;font-size:1.1rem;margin-bottom:.25rem">Vào lớp dạy</div>
+                    <div style="font-size:.82rem;opacity:.75">Đăng bài giảng, tạo bài tập và chấm điểm</div>
+                    <div style="margin-top:1rem;display:inline-flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.2);border-radius:8px;padding:.35rem .9rem;font-size:.82rem;font-weight:600">
+                        Vào lớp học <span>→</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <!-- Thao tác nhanh -->
+        <div class="gv-section-card">
+            <div class="gv-section-header" style="background:linear-gradient(90deg,#fff7ed,#fff)">
+                <span></span> Thao tác nhanh
+            </div>
+            <div class="p-3">
+                <a href="@Url.Action("QuanLyBaiTap", "GiaoVien", new { area = "GiaoVien" })" class="gv-quick-btn gv-quick-btn-orange">
+                    <span></span> Quản lý bài tập
+                </a>
+                <a href="@Url.Action("QuanLyDiemSo", "GiaoVien", new { area = "GiaoVien" })" class="gv-quick-btn gv-quick-btn-purple">
+                    <span></span> Nhập điểm số
+                </a>
+                <a href="@Url.Action("TienDo", "GiaoVien", new { area = "GiaoVien" })" class="gv-quick-btn gv-quick-btn-blue">
+                    <span></span> Theo dõi tiến độ
+                </a>
+                <a href="@Url.Action("QuanLyMonHoc", "GiaoVien", new { area = "GiaoVien" })" class="gv-quick-btn gv-quick-btn-green">
+                    <span></span> Quản lý môn học
+                </a>
+                @if (Model.BaiNopChamPending > 0)
+                {
+                    <a href="@Url.Action("QuanLyBaiTap", "GiaoVien", new { area = "GiaoVien" })" class="gv-quick-btn gv-quick-btn-indigo">
+                        <span></span> Chấm @Model.BaiNopChamPending bài đang chờ
+                    </a>
+                }
+            </div>
+        </div>
+
+        <!-- Tiến độ lớp -->
+        @if (Model.TienDoLop.Any())
+        {
+            <div class="gv-section-card">
+                <div class="gv-section-header" style="background:linear-gradient(90deg,#f0fdf4,#fff)">
+                    <span></span> Tiến độ lớp học
+                    <a href="@Url.Action("TienDo", "GiaoVien", new { area = "GiaoVien" })" class="ms-auto text-decoration-none" style="font-size:0.82rem; color:#15803d;">Chi tiết →</a>
+                </div>
+                <div class="p-3">
+                    @foreach (var td in Model.TienDoLop.Take(5))
+                    {
+                        var color = td.PhanTram >= 80 ? "#1D4ED8" : td.PhanTram >= 60 ? "#166534" : td.PhanTram >= 40 ? "#92400E" : "#991B1B";
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between" style="font-size:0.82rem;margin-bottom:4px;">
+                                <span class="text-muted">@td.TenLop – @td.TenMonHoc</span>
+                                <span style="color:@color;font-weight:600;">@td.PhanTram%</span>
+                            </div>
+                            <div style="height:6px;border-radius:4px;background:#e2e8f0;overflow:hidden;">
+                                <div style="width:@(td.PhanTram)%;height:100%;background:@color;border-radius:4px;transition:width .5s;"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+    </div>
+
+    <!-- RIGHT: Bài nộp gần đây + Lịch dạy -->
+    <div class="col-lg-8">
+
+        <!-- Bài nộp gần đây -->
+        <div class="gv-section-card mb-4">
+            <div class="gv-section-header" style="background:linear-gradient(90deg,#fff7ed,#fff)">
+                <span></span> Bài nộp gần đây
+                @if (Model.BaiNopChamPending > 0)
+                {
+                    <span class="ms-auto badge" style="background:#f59e0b;border-radius:6px;">@Model.BaiNopChamPending chờ chấm</span>
+                }
+                <a href="@Url.Action("QuanLyBaiTap", "GiaoVien", new { area = "GiaoVien" })"
+                   class="@(Model.BaiNopChamPending > 0 ? "ms-2" : "ms-auto") text-decoration-none"
+                   style="font-size:0.82rem; color:#c2410c;">Xem tất cả →</a>
+            </div>
+
+            @if (!Model.BaiNopGanDay.Any())
+            {
+                <div class="gv-empty-state">
+                    <div class="emoji"></div>
+                    <div>Chưa có bài nộp nào từ học sinh.</div>
+                </div>
+            }
+            else
+            {
+                @foreach (var bn in Model.BaiNopGanDay)
+                {
+                    <div class="gv-deadline-item">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width:36px;height:36px;border-radius:50%;background:#fff7ed;color:#ff6b00;font-size:0.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                @bn.TenVietTat
+                            </div>
+                            <div>
+                                <div class="fw-semibold" style="font-size:0.92rem;">@bn.TenHocSinh</div>
+                                <small class="text-muted">@bn.TenBaiTap · @bn.ThoiGianNop</small>
+                            </div>
+                        </div>
+                        @if (bn.TrangThai == "pending")
+                        {
+                            <span class="badge" style="background:#fef3c7;color:#92400e;border-radius:8px;">Chờ chấm</span>
+                        }
+                        else
+                        {
+                            <span class="badge" style="background:#dcfce7;color:#166534;border-radius:8px;">Đã chấm</span>
+                        }
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- Lịch dạy hôm nay -->
+        <div class="gv-section-card mb-4">
+            <div class="gv-section-header" style="background:linear-gradient(90deg,#f0fdf4,#fff)">
+                <span></span> Lịch dạy hôm nay — @DateTime.Today.ToString("dd/MM/yyyy")
+            </div>
+
+            @if (!Model.LichHomNay.Any() && Model.BaiNopChamPending == 0)
+            {
+                <div class="gv-empty-state">
+                    <div class="emoji"></div>
+                    <div>Không có lịch dạy hôm nay.</div>
+                </div>
+            }
+            else
+            {
+                <div class="p-3">
+                    <div class="row g-3">
+                        @foreach (var l in Model.LichHomNay)
+                        {
+                            <div class="col-md-4">
+                                <div style="background:linear-gradient(135deg,#fff7ed,#fffbeb);border-radius:12px;padding:1rem;border:1px solid #fed7aa;">
+                                    <div style="font-size:0.75rem;color:#64748b;margin-bottom:0.3rem;"> @l.ThoiGian</div>
+                                    <div style="font-weight:700;font-size:0.95rem;color:#ff6b00;margin-bottom:0.2rem;">@l.TenMon</div>
+                                    <div style="font-size:0.82rem;color:#64748b;">📍 @l.PhongLop</div>
+                                </div>
+                            </div>
+                        }
+                        @if (Model.BaiNopChamPending > 0)
+                        {
+                            <div class="col-md-4">
+                                <div style="background:linear-gradient(135deg,#fff7ed,#fef2f2);border-radius:12px;padding:1rem;border:1px solid #fed7aa;">
+                                    <div style="font-size:0.75rem;color:#c2410c;margin-bottom:0.3rem;"> Hôm nay</div>
+                                    <div style="font-weight:700;font-size:0.95rem;color:#c2410c;margin-bottom:0.2rem;">Chấm bài nộp</div>
+                                    <div style="font-size:0.82rem;color:#64748b;"> @Model.BaiNopChamPending bài đang chờ</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Lịch các ngày tiếp theo -->
+        @if (Model.LichCacNgayTiepTheo.Any())
+        {
+            <div class="gv-section-card">
+                <div class="gv-section-header" style="background:linear-gradient(90deg,#faf5ff,#fff)">
+                    <span></span> Lịch dạy các ngày tiếp theo trong tuần
+                </div>
+                <div class="table-responsive">
+                    <table class="table mb-0 gv-schedule-table">
+                        <thead style="background:#f8fafc;">
+                            <tr>
+                                <th class="ps-4">Ngày</th>
+                                <th>Thời gian</th>
+                                <th>Môn học</th>
+                                <th>Phòng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ngay in Model.LichCacNgayTiepTheo)
+                            {
+                                @foreach (var tiet in ngay.CacTietHoc)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <span class="gv-badge-ngay">@ngay.Ngay</span>
+                                        </td>
+                                        <td>@tiet.ThoiGian</td>
+                                        <td class="fw-medium">@tiet.TenMon</td>
+                                        <td>
+                                            <span style="background:#f1f5f9; padding:2px 10px; border-radius:6px; font-size:0.85rem;">
+                                                @tiet.PhongLop
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>

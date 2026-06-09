@@ -1,0 +1,212 @@
+@model LMS_THPT.Models.BaiGiang
+@{
+    ViewData["Title"] = Model.TieuDe;
+    Layout = "~/Views/Shared/_LayoutHocSinh.cshtml";
+    var binhLuans = ViewBag.BinhLuans as List<LMS_THPT.Models.BinhLuan> ?? new List<LMS_THPT.Models.BinhLuan>();
+}
+
+<style>
+    .bg-back-btn {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        color: #475569; text-decoration: none; font-size: 0.88rem;
+        margin-bottom: 1.2rem; transition: color 0.2s;
+    }
+    .bg-back-btn:hover { color: #ff6b00; }
+    .detail-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; }
+    .detail-banner { background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%); padding: 2rem 2.5rem; color: #fff; box-shadow: 0 10px 30px rgba(255,107,0,0.15); }
+    .detail-body { padding: 2rem 2.5rem; }
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .info-item { background: #f8fafc; border-radius: 12px; padding: 1rem; }
+    .info-label { font-size: 0.78rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; margin-bottom: 0.3rem; }
+    .info-value { font-size: 0.95rem; color: #1e293b; font-weight: 600; }
+    .tl-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid #f1f5f9; }
+    .tl-item:last-child { border-bottom: none; }
+    .tl-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+    .btn-download { background: linear-gradient(135deg, #059669, #065f46); color: #fff; border: none; border-radius: 10px; padding: 0.4rem 1rem; font-size: 0.85rem; text-decoration: none; transition: opacity 0.2s; display: inline-flex; align-items: center; gap: 0.3rem; }
+    .btn-download:hover { opacity: 0.85; color: #fff; }
+    .comment-section { background: #f8fafc; border-radius: 14px; padding: 1.4rem; margin-top: 2rem; }
+    .comment-section-title { font-size: 0.95rem; font-weight: 700; color: #334155; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.4rem; }
+    .comment-item { display: flex; gap: 10px; margin-bottom: 14px; }
+    .comment-avatar-wrap { flex-shrink: 0; }
+    .comment-avatar-img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+    .comment-avatar-txt { width: 36px; height: 36px; border-radius: 50%; background: #334155; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; }
+    .comment-bubble { background: #fff; border-radius: 12px; padding: 0.7rem 1rem; border: 1px solid #e2e8f0; flex: 1; }
+    .comment-author { font-weight: 700; font-size: 0.87rem; color: #1e293b; }
+    .comment-text { font-size: 0.9rem; color: #334155; margin: 3px 0 5px; }
+    .comment-meta { font-size: 0.76rem; color: #94a3b8; display: flex; align-items: center; gap: 10px; }
+    .btn-reply-toggle { background: none; border: none; color: #ff6b00; font-size: 0.76rem; font-weight: 600; cursor: pointer; padding: 0; }
+    .comment-input-row { display: flex; gap: 8px; margin-top: 10px; }
+    .comment-input { flex: 1; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 0.55rem 1rem; font-size: 0.88rem; outline: none; background: #fff; transition: border-color 0.2s; }
+    .comment-input:focus { border-color: #ff6b00; }
+    .comment-submit { background: linear-gradient(135deg,#ff6b00,#ff8c00); color:#fff; border:none; border-radius:10px; padding: 0.55rem 1.3rem; font-size:0.88rem; font-weight:600; cursor:pointer; transition:opacity 0.2s; }
+    .comment-submit:hover { opacity: 0.85; }
+</style>
+
+<a href="@Url.Action("BaiGiang","HocSinh")" class="bg-back-btn">← Quay lại danh sách bài giảng</a>
+
+<div class="detail-card">
+    <div class="detail-banner">
+        <div class="mb-2">
+            <span style="background:rgba(255,255,255,0.2); color:#fff; padding:3px 12px; border-radius:8px; font-size:0.8rem;">
+                📚 @(Model.MonHoc?.TenMonHoc ?? "Chung")
+            </span>
+        </div>
+        <h1 style="font-size:1.6rem; font-weight:700; margin-bottom:0.5rem;">@Model.TieuDe</h1>
+        @if (!string.IsNullOrEmpty(Model.MoTa))
+        {
+            <p class="opacity-75 mb-0" style="font-size:0.95rem;">@Model.MoTa</p>
+        }
+    </div>
+
+    <div class="detail-body">
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Môn học</div>
+                <div class="info-value">@(Model.MonHoc?.TenMonHoc ?? "—")</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Giáo viên</div>
+                <div class="info-value">@(Model.NguoiDung?.HoTen ?? "—")</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Ngày tạo</div>
+                <div class="info-value">@Model.NgayTao.ToString("dd/MM/yyyy")</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Thứ tự bài</div>
+                <div class="info-value">Bài số @Model.ThuTu</div>
+            </div>
+        </div>
+
+        @if (Model.TaiLieus != null && Model.TaiLieus.Any())
+        {
+            <h5 class="fw-bold mb-3" style="color:#1e293b;">📎 Tài liệu đính kèm</h5>
+            @foreach (var tl in Model.TaiLieus)
+            {
+                string icon = tl.LoaiTaiLieu switch {
+                    LMS_THPT.Models.LoaiTaiLieu.PDF   => "📄",
+                    LMS_THPT.Models.LoaiTaiLieu.Video => "🎬",
+                    LMS_THPT.Models.LoaiTaiLieu.Slide => "📊",
+                    _ => "📁"
+                };
+                string iconBg = tl.LoaiTaiLieu switch {
+                    LMS_THPT.Models.LoaiTaiLieu.PDF   => "#fef2f2",
+                    LMS_THPT.Models.LoaiTaiLieu.Video => "#faf5ff",
+                    LMS_THPT.Models.LoaiTaiLieu.Slide => "#eff6ff",
+                    _ => "#f8fafc"
+                };
+                double sizeMb = Math.Round(tl.KichThuocFile / 1024.0 / 1024.0, 2);
+                <div class="tl-item">
+                    <div class="tl-icon" style="background:@iconBg;">@icon</div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold" style="font-size:0.95rem;">@tl.TenTaiLieu</div>
+                        <div class="text-muted" style="font-size:0.8rem;">
+                            @(tl.LoaiTaiLieu switch {
+                                LMS_THPT.Models.LoaiTaiLieu.PDF   => "PDF",
+                                LMS_THPT.Models.LoaiTaiLieu.Video => "Video",
+                                LMS_THPT.Models.LoaiTaiLieu.Slide => "Slide",
+                                _ => "Tài liệu khác"
+                            }) &bull; @(tl.KichThuocFile > 0 ? $"{sizeMb} MB" : "—")
+                        </div>
+                    </div>
+                    <a href="@Url.Action("DownloadTaiLieu", "GiangDay", new { area = "", id = tl.Id })" class="btn-download">📥 Tải về</a>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center py-4 text-muted">
+                <div style="font-size:2rem;">📭</div>
+                <p class="mb-0 mt-2">Bài giảng này chưa có tài liệu đính kèm.</p>
+            </div>
+        }
+
+        <!-- BÌNH LUẬN -->
+        <div class="comment-section">
+            <div class="comment-section-title">💬 Bình luận (@binhLuans.Count)</div>
+
+            @foreach (var bl in binhLuans)
+            {
+                <div class="comment-item">
+                    <div class="comment-avatar-wrap">
+                        @if (!string.IsNullOrEmpty(bl.NguoiDung?.AnhDaiDien))
+                        { <img src="@bl.NguoiDung.AnhDaiDien" class="comment-avatar-img" /> }
+                        else
+                        { <div class="comment-avatar-txt">@(bl.NguoiDung?.HoTen?.Substring(0,1).ToUpper() ?? "?")</div> }
+                    </div>
+                    <div style="flex:1; min-width:0;">
+                        <div class="comment-bubble">
+                            <div class="comment-author">@(bl.NguoiDung?.HoTen ?? "Ẩn danh")</div>
+                            <div class="comment-text">@bl.NoiDung</div>
+                            <div class="comment-meta">
+                                <span>@bl.NgayTao.ToString("g")</span>
+                                <button class="btn-reply-toggle" onclick="toggleReply('reply-@bl.Id', this)">Trả lời</button>
+                            </div>
+                        </div>
+                        <div id="reply-@bl.Id" style="display:none; margin-top:6px; margin-left:8px;">
+                            <form asp-controller="HocSinh" asp-action="TraLoiBinhLuan" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="parentId"   value="@bl.Id" />
+                                <input type="hidden" name="baiGiangId" value="@Model.Id" />
+                                <div class="comment-input-row">
+                                    <input name="noiDung" class="comment-input" placeholder="Trả lời @(bl.NguoiDung?.HoTen)..." required />
+                                    <button type="submit" class="comment-submit">Gửi</button>
+                                </div>
+                            </form>
+                        </div>
+                        @if (bl.Replies != null && bl.Replies.Any())
+                        {
+                            <div style="margin-top:8px; margin-left:8px; border-left:2px solid #e2e8f0; padding-left:10px;">
+                                @foreach (var reply in bl.Replies.OrderBy(r => r.NgayTao))
+                                {
+                                    <div class="comment-item" style="margin-bottom:8px;">
+                                        <div class="comment-avatar-wrap">
+                                            @if (!string.IsNullOrEmpty(reply.NguoiDung?.AnhDaiDien))
+                                            { <img src="@reply.NguoiDung.AnhDaiDien" class="comment-avatar-img" /> }
+                                            else
+                                            { <div class="comment-avatar-txt">@(reply.NguoiDung?.HoTen?.Substring(0,1).ToUpper() ?? "?")</div> }
+                                        </div>
+                                        <div class="comment-bubble" style="flex:1;">
+                                            <div class="comment-author">@(reply.NguoiDung?.HoTen ?? "Ẩn danh")</div>
+                                            <div class="comment-text">@reply.NoiDung</div>
+                                            <div class="comment-meta">@reply.NgayTao.ToString("g")</div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (!binhLuans.Any())
+            {
+                <div style="text-align:center; color:#94a3b8; padding: 1rem 0; font-size:0.9rem;">
+                    Chưa có bình luận nào. Hãy là người đầu tiên!
+                </div>
+            }
+
+            <form asp-controller="HocSinh" asp-action="ThemBinhLuanBaiGiang" method="post" style="margin-top:12px;">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="baiGiangId" value="@Model.Id" />
+                <div class="comment-input-row">
+                    <input name="noiDung" class="comment-input" placeholder="Viết bình luận..." required />
+                    <button type="submit" class="comment-submit">Gửi</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="mt-4">
+            <a href="@Url.Action("BaiGiang","HocSinh")" class="btn btn-outline-secondary" style="border-radius:10px;">← Quay lại</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleReply(id, btn) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    btn.textContent = el.style.display === 'none' ? 'Trả lời' : 'Huỷ';
+}
+</script>

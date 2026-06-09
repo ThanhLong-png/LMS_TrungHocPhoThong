@@ -1,0 +1,559 @@
+@model List<LMS_THPT.ViewModels.NhapDiemItem>
+@{
+    ViewData["Title"] = "Quản lý điểm số";
+    ViewData["PageTitle"] = "Điểm số theo lớp";
+    ViewData["ActivePage"] = "DiemSo";
+    
+    var lopMonHocs    = ViewBag.LopMonHocs as List<LMS_THPT.Models.LopMonHoc> ?? new List<LMS_THPT.Models.LopMonHoc>();
+    var allLopMonHocs = ViewBag.AllLopMonHocs as List<LMS_THPT.Models.LopMonHoc> ?? lopMonHocs;
+    var danhSachKhoi  = ViewBag.DanhSachKhoi as List<LMS_THPT.Models.Khoi>     ?? new List<LMS_THPT.Models.Khoi>();
+    var khoiId        = (int)(ViewBag.KhoiHienTai  ?? 0);
+    var lopId         = (int)(ViewBag.LopHienTai   ?? 0);
+    var monHocId      = (int)(ViewBag.MonHocHienTai ?? 0);
+    var dsNamHoc      = ViewBag.DsNamHoc as List<string> ?? new List<string>();
+    string? selNam    = ViewBag.SelectedNamHoc;
+    int? selHK        = ViewBag.SelectedHocKy;
+    bool isLichSu     = (bool)(ViewBag.IsLichSu ?? false);
+    string namHienTai = ViewBag.NamHocHienTai ?? "";
+}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+        border-radius: 16px; padding: 1.6rem 2rem;
+        color: #fff; margin-bottom: 1.5rem;
+        position: relative; overflow: hidden;
+        box-shadow: 0 10px 30px rgba(255,107,0,0.15);
+    }
+    .page-header::after {
+        content: ''; position: absolute;
+        top: -30%; right: -5%; width: 200px; height: 200px;
+        border-radius: 50%; background: rgba(255,255,255,.06);
+    }
+    /* ── Khối tabs ── */
+    .khoi-tab-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; }
+    .khoi-tab {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 8px 20px; border-radius: 999px;
+        font-size: 0.88rem; font-weight: 600;
+        text-decoration: none; transition: all .18s;
+        border: 2px solid #e2e8f0; color: #475569; background: #fff;
+    }
+    .khoi-tab:hover { border-color: #ff6b00; color: #ff6b00; background: #fff7ed; }
+    .khoi-tab.active {
+        background: linear-gradient(135deg, #ff6b00, #ff8c00);
+        color: #fff; border-color: transparent;
+        box-shadow: 0 4px 12px rgba(255,107,0,0.3);
+    }
+    /* ── Lớp tabs ── */
+    .lop-khoi-bar {
+        display: flex; gap: 6px; flex-wrap: wrap;
+        padding: 12px 16px; background: #f8fafc;
+        border-radius: 12px; margin-bottom: 1.2rem;
+    }
+    .lop-khoi-tab {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 6px 16px; border-radius: 8px;
+        font-size: 0.85rem; font-weight: 500;
+        text-decoration: none; transition: all .15s;
+        color: #475569; border: 1.5px solid #e2e8f0; background: #fff;
+    }
+    .lop-khoi-tab:hover { border-color: #ff6b00; color: #ff6b00; }
+    .lop-khoi-tab.active { background: #ff6b00; color: #fff; border-color: #ff6b00; font-weight: 600; }
+
+    /* ── Năm học tabs ── */
+    .nam-hoc-bar {
+        display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+        background: #fff; border: 1px solid #e2e8f0;
+        border-radius: 14px; padding: 12px 16px; margin-bottom: 1.2rem;
+    }
+    .nam-hoc-label { font-size:.82rem; font-weight:700; color:#ff6b00; margin-right:.3rem; white-space:nowrap; }
+    .nam-chip {
+        padding: 5px 14px; border-radius: 999px; font-size:.83rem; font-weight:600;
+        text-decoration:none; transition:all .15s;
+        border: 2px solid #e5e7eb; color: #374151; background: #fff;
+    }
+    .nam-chip:hover { border-color:#ff6b00; color:#ff6b00; }
+    .nam-chip.active { background:#ff6b00; color:#fff; border-color:#ff6b00; box-shadow:0 3px 10px rgba(255,107,0,.25); }
+    .nam-chip.current { border-color:#ea580c; color:#ea580c; }
+    .nam-chip.current.active { background:#ea580c; color:#fff; border-color:#ea580c; box-shadow:0 3px 10px rgba(234,88,12,.25); }
+
+    /* ── Học kỳ tabs ── */
+    .hk-bar {
+        display: flex; align-items: center; gap: 6px;
+        background: #fff7ed; border-radius: 10px; padding: 8px 14px; margin-bottom: 1rem;
+    }
+    .hk-chip {
+        padding:4px 16px; border-radius:8px; font-size:.83rem; font-weight:600;
+        text-decoration:none; transition:all .14s;
+        border:1.5px solid #fed7aa; color:#ff6b00; background:#fff;
+    }
+    .hk-chip:hover { background:#ffedd5; }
+    .hk-chip.active { background:#ff6b00; color:#fff; border-color:#ff6b00; }
+
+    /* ── Readonly banner ── */
+    .readonly-banner {
+        display: flex; align-items: center; gap: .8rem;
+        background: linear-gradient(90deg, #fef3c7, #fff);
+        border: 1.5px solid #fde68a; border-radius: 12px;
+        padding: .8rem 1.2rem; margin-bottom: 1rem; font-size: .87rem;
+    }
+    .readonly-banner-icon { font-size: 1.4rem; }
+    .readonly-banner strong { color: #92400e; }
+    .readonly-banner span { color: #78350f; }
+</style>
+
+<div class="page-header">
+    <div class="d-flex align-items-center gap-3" style="position:relative;z-index:1;">
+        <div style="font-size:2.2rem;"></div>
+        <div>
+            <h1 class="fw-bold mb-0" style="font-size:1.5rem;">Quản lý điểm số</h1>
+            <p class="mb-0 opacity-75" style="font-size:.88rem;">
+                @if (!string.IsNullOrEmpty(ViewBag.TenLopHienTai as string))
+                {
+                    <text>Lớp <strong>@ViewBag.TenLopHienTai</strong> &middot; Môn <strong>@ViewBag.TenMonHienTai</strong>
+                    @if (isLichSu) { <text>&middot; Năm <strong>@selNam</strong> @(selHK.HasValue ? $"(HK{selHK})" : "(Cả năm)")</text> }</text>
+                }
+                else { <text>Chọn lớp và môn học để xem bảng điểm</text> }
+            </p>
+        </div>
+    </div>
+</div>
+
+@* ── Bộ lọc Khối ── *@
+@if (danhSachKhoi.Any())
+{
+    <div class="khoi-tab-bar">
+        @foreach (var khoi in danhSachKhoi)
+        {
+            <a asp-action="QuanLyDiemSo" asp-route-khoiId="@khoi.Id"
+               class="khoi-tab @(khoi.Id == khoiId ? "active" : "")">
+                 @khoi.TenKhoi
+            </a>
+        }
+    </div>
+}
+
+@* ── Bộ lọc Lớp trong khối ── *@
+@{
+    var lopsOfKhoi = lopMonHocs
+        .Where(x => x.Lop != null)
+        .Select(x => x.Lop!)
+        .DistinctBy(l => l.Id)
+        .OrderBy(l => l.TenLop)
+        .ToList();
+}
+@if (lopsOfKhoi.Any())
+{
+    <div class="lop-khoi-bar">
+        <span style="font-size:0.82rem;font-weight:600;color:#64748b;align-self:center;"> Lớp:</span>
+        @foreach (var lop in lopsOfKhoi)
+        {
+            var firstMon = lopMonHocs.FirstOrDefault(x => x.LopId == lop.Id);
+            <a asp-action="QuanLyDiemSo"
+               asp-route-khoiId="@khoiId"
+               asp-route-lopId="@lop.Id"
+               asp-route-monHocId="@(lop.Id == lopId ? monHocId : firstMon?.MonHocId ?? 0)"
+               class="lop-khoi-tab @(lop.Id == lopId ? "active" : "")">
+                @lop.TenLop
+            </a>
+        }
+    </div>
+}
+
+@* ── Tab chọn môn ── *@
+@{
+    var monsOfLopDs = lopMonHocs
+        .Where(x => x.LopId == lopId && x.MonHoc != null)
+        .Select(x => x.MonHoc!)
+        .ToList();
+}
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.2rem;padding:10px 14px;background:#fff7ed;border-radius:12px;">
+        <span style="font-size:0.82rem;font-weight:600;color:#ff6b00;align-self:center;"> Môn:</span>
+        @foreach (var mon in monsOfLopDs)
+        {
+            <a asp-action="QuanLyDiemSo"
+               asp-route-khoiId="@khoiId"
+               asp-route-lopId="@lopId"
+               asp-route-monHocId="@mon.Id"
+               asp-route-namHoc="@selNam"
+               asp-route-hocKy="@selHK"
+               style="display:inline-flex;align-items:center;padding:5px 14px;border-radius:8px;font-size:0.85rem;font-weight:500;text-decoration:none;transition:all .15s;border:1.5px solid @(mon.Id == monHocId ? "transparent" : "#fed7aa");background:@(mon.Id == monHocId ? "#ff6b00" : "#fff");color:@(mon.Id == monHocId ? "#fff" : "#ff6b00");">
+                @mon.TenMonHoc
+            </a>
+        }
+    </div>
+
+@* ── Bộ lọc Học kỳ (luôn hiển thị) ── *@
+<div class="hk-bar">
+    <span style="font-size:.82rem;font-weight:700;color:#1d4ed8;">📘 Học kỳ:</span>
+    <a asp-action="QuanLyDiemSo"
+       asp-route-khoiId="@khoiId" asp-route-lopId="@lopId" asp-route-monHocId="@monHocId"
+       asp-route-namHoc="@(isLichSu ? selNam : null)" asp-route-hocKy="1"
+       class="hk-chip @(selHK == 1 ? "active" : "")">Học kỳ 1</a>
+    <a asp-action="QuanLyDiemSo"
+       asp-route-khoiId="@khoiId" asp-route-lopId="@lopId" asp-route-monHocId="@monHocId"
+       asp-route-namHoc="@(isLichSu ? selNam : null)" asp-route-hocKy="2"
+       class="hk-chip @(selHK == 2 ? "active" : "")">Học kỳ 2</a>
+</div>
+
+@if (isLichSu)
+{
+    <div class="readonly-banner">
+        <div class="readonly-banner-icon">🔒</div>
+        <div>
+            <strong>Chế độ xem lịch sử — Năm học @selNam @(selHK.HasValue ? $"Học kỳ {selHK}" : "cả năm")</strong><br/>
+            <span>Dữ liệu lịch sử chỉ xem, không thể chỉnh sửa. Chọn "<strong>@namHienTai (Hiện tại)</strong>" để nhập điểm.</span>
+        </div>
+    </div>
+}
+
+
+@if (isLichSu && !selHK.HasValue)
+{
+    @* Bảng tổng kết cả năm theo từng học sinh *@
+    var tbHSSummary = ViewBag.TbHSSummary as IEnumerable<dynamic>;
+    <div class="card mb-16">
+        <div class="card-header">
+            <span class="card-title">
+                🏆 Tổng kết cả năm — Lớp @ViewBag.TenLopHienTai · Môn @ViewBag.TenMonHienTai
+                <span style="color:#d97706;font-size:.8rem;font-weight:600;margin-left:.5rem;">[Năm @selNam]</span>
+            </span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Học sinh</th>
+                        <th class="text-center" style="width:130px;">TK Học Kỳ 1</th>
+                        <th class="text-center" style="width:130px;">TK Học Kỳ 2</th>
+                        <th class="text-center" style="width:130px;color:#ff6b00;">TB Cả Năm</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (tbHSSummary != null)
+                    {
+                        @foreach (dynamic row in tbHSSummary)
+                        {
+                            <tr>
+                                <td class="fw-medium">@row.TenHocSinh</td>
+                                <td class="text-center" style="font-weight:600;color:#475569;">
+                                    @(row.TkHK1 != null ? ((double)row.TkHK1).ToString("F1") : "—")
+                                </td>
+                                <td class="text-center" style="font-weight:600;color:#475569;">
+                                    @(row.TkHK2 != null ? ((double)row.TkHK2).ToString("F1") : "—")
+                                </td>
+                                <td class="text-center">
+                                    <span style="font-size:1.05rem;font-weight:800;color:#ff6b00;">
+                                        @(row.TbNam != null ? ((double)row.TbNam).ToString("F1") : "—")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    @if (tbHSSummary == null || !((IEnumerable<dynamic>)tbHSSummary).Any())
+                    {
+                        <tr><td colspan="4" class="text-center">Chưa có dữ liệu điểm cho năm này.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card mb-16">
+        <div class="card-header">
+            <span class="card-title">
+                Bảng điểm lớp @ViewBag.TenLopHienTai - Môn @ViewBag.TenMonHienTai
+                @if (isLichSu) { <span style="color:#d97706;font-size:.8rem;font-weight:600;margin-left:.5rem;">[Năm @selNam @(selHK.HasValue ? $"HK{selHK}" : "")]</span> }
+            </span>
+        </div>
+        @if (!isLichSu && Model.Any())
+        {
+            var isChotMieng = (bool)(ViewBag.IsChotMieng ?? false);
+            var isChotGiuaKy = (bool)(ViewBag.IsChotGiuaKy ?? false);
+            var isChotCuoiKy = (bool)(ViewBag.IsChotCuoiKy ?? false);
+
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:12px 20px; background:#fff8e6; border-bottom:1px solid #ffeeba;">
+                <span style="font-size:0.88rem; font-weight:700; color:#b45309;"><span style="font-size:1rem;">🔒</span> Chốt điểm học kỳ:</span>
+                
+                @if (isChotMieng)
+                {
+                    <span style="display:inline-flex; align-items:center; gap:4px; font-size:0.83rem; font-weight:700; color:#15803d; background:#dcfce7; padding:4px 12px; border-radius:6px; border:1px solid #bbf7d0;">
+                        🔒 Đã chốt miệng
+                    </span>
+                }
+                else
+                {
+                    <button type="button" class="btn-chot-diem" onclick="confirmChotDiem('Mieng')" 
+                            style="cursor:pointer; font-size:0.83rem; font-weight:700; color:#b45309; background:#fff; border:1.5px solid #d97706; padding:4px 12px; border-radius:6px; transition:all 0.15s;"
+                            onmouseover="this.style.background='#fff3cd'" onmouseout="this.style.background='#fff'">
+                        🔓 Chốt điểm miệng
+                    </button>
+                }
+
+                @if (isChotGiuaKy)
+                {
+                    <span style="display:inline-flex; align-items:center; gap:4px; font-size:0.83rem; font-weight:700; color:#15803d; background:#dcfce7; padding:4px 12px; border-radius:6px; border:1px solid #bbf7d0;">
+                        🔒 Đã chốt giữa kỳ
+                    </span>
+                }
+                else
+                {
+                    <button type="button" class="btn-chot-diem" onclick="confirmChotDiem('GiuaKy')" 
+                            style="cursor:pointer; font-size:0.83rem; font-weight:700; color:#b45309; background:#fff; border:1.5px solid #d97706; padding:4px 12px; border-radius:6px; transition:all 0.15s;"
+                            onmouseover="this.style.background='#fff3cd'" onmouseout="this.style.background='#fff'">
+                        🔓 Chốt điểm giữa kỳ
+                    </button>
+                }
+
+                @if (isChotCuoiKy)
+                {
+                    <span style="display:inline-flex; align-items:center; gap:4px; font-size:0.83rem; font-weight:700; color:#15803d; background:#dcfce7; padding:4px 12px; border-radius:6px; border:1px solid #bbf7d0;">
+                        🔒 Đã chốt cuối kỳ
+                    </span>
+                }
+                else
+                {
+                    <button type="button" class="btn-chot-diem" onclick="confirmChotDiem('CuoiKy')" 
+                            style="cursor:pointer; font-size:0.83rem; font-weight:700; color:#b45309; background:#fff; border:1.5px solid #d97706; padding:4px 12px; border-radius:6px; transition:all 0.15s;"
+                            onmouseover="this.style.background='#fff3cd'" onmouseout="this.style.background='#fff'">
+                        🔓 Chốt điểm cuối kỳ
+                    </button>
+                }
+            </div>
+        }
+        <div class="table-wrap">
+            @Html.AntiForgeryToken()
+            <table>
+                <thead>
+                    <tr>
+                        <th>Học sinh</th>
+                        <th width="80">Miệng 1</th>
+                        <th width="80">Miệng 2</th>
+                        <th width="80">Miệng 3</th>
+                        <th width="80">Miệng 4</th>
+                        <th width="120">Giữa kỳ(40%)</th>
+                        <th width="120">Cuối kỳ(60%)</th>
+                        <th width="120">Tổng kết</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var g in Model)
+                    {
+                        bool ro = g.IsReadOnly || isLichSu;
+                        bool roMieng = ro || g.IsChotMieng;
+                        bool roGiuaKy = ro || g.IsChotGiuaKy;
+                        bool roCuoiKy = ro || g.IsChotCuoiKy;
+                        <tr data-hs-id="@g.HocSinhId" data-mon-hoc-id="@monHocId">
+                            <td class="fw-medium">
+                                <div>@g.TenHocSinh</div>
+                            </td>
+                            <td>
+                                <input type="text" inputmode="decimal" class="input-inline dm1-input" value="@(g.DiemMieng?.ToString("0.#") ?? "")"
+                                       placeholder="--"
+                                       @Html.Raw(roMieng ? "readonly" : "onchange='tinhTongKet(this)' onblur='autoLuuDiem(this)' onkeydown='if(event.key===\"Enter\"){this.blur();}'")
+                                       style="@(roMieng ? "background:#f8fafc;cursor:default;color:#64748b;" : "")" />
+                            </td>
+                            <td>
+                                <input type="text" inputmode="decimal" class="input-inline dm2-input" value="@(g.DiemMieng2?.ToString("0.#") ?? "")"
+                                       placeholder="--"
+                                       @Html.Raw(roMieng ? "readonly" : "onchange='tinhTongKet(this)' onblur='autoLuuDiem(this)' onkeydown='if(event.key===\"Enter\"){this.blur();}'")
+                                       style="@(roMieng ? "background:#f8fafc;cursor:default;color:#64748b;" : "")" />
+                            </td>
+                            <td>
+                                <input type="text" inputmode="decimal" class="input-inline dm3-input" value="@(g.DiemMieng3?.ToString("0.#") ?? "")"
+                                       placeholder="--"
+                                       @Html.Raw(roMieng ? "readonly" : "onchange='tinhTongKet(this)' onblur='autoLuuDiem(this)' onkeydown='if(event.key===\"Enter\"){this.blur();}'")
+                                       style="@(roMieng ? "background:#f8fafc;cursor:default;color:#64748b;" : "")" />
+                            </td>
+                            <td>
+                                <input type="text" inputmode="decimal" class="input-inline dm4-input" value="@(g.DiemMieng4?.ToString("0.#") ?? "")"
+                                       placeholder="--"
+                                       @Html.Raw(roMieng ? "readonly" : "onchange='tinhTongKet(this)' onblur='autoLuuDiem(this)' onkeydown='if(event.key===\"Enter\"){this.blur();}'")
+                                       style="@(roMieng ? "background:#f8fafc;cursor:default;color:#64748b;" : "")" />
+                            </td>
+                            <td>
+                                <input type="text" inputmode="decimal" class="input-inline gk-input" value="@(g.DiemGiuaKy?.ToString("0.#") ?? "")"
+                                       placeholder="--"
+                                       @Html.Raw(roGiuaKy ? "readonly" : "onchange='tinhTongKet(this)' onblur='autoLuuDiem(this)' onkeydown='if(event.key===\"Enter\"){this.blur();}'")
+                                       style="@(roGiuaKy ? "background:#f8fafc;cursor:default;color:#64748b;" : "")" />
+                            </td>
+                            <td>
+                                <input type="text" inputmode="decimal" class="input-inline ck-input" value="@(g.DiemCuoiKy?.ToString("0.#") ?? "")"
+                                       placeholder="--"
+                                       @Html.Raw(roCuoiKy ? "readonly" : "onchange='tinhTongKet(this)' onblur='autoLuuDiem(this)' onkeydown='if(event.key===\"Enter\"){this.blur();}'")
+                                       style="@(roCuoiKy ? "background:#f8fafc;cursor:default;color:#64748b;" : "")" />
+                            </td>
+                            <td class="td-tongket fw-bold" style="color:var(--blue)">
+                                @(g.DiemTongKet?.ToString("0.#") ?? "--")
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="8" class="text-center">Chưa có dữ liệu học sinh trong lớp này.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        @if (!isLichSu)
+        {
+            <text>
+         window.onerror = function(message, source, lineno, colno, error) {
+             const errorMsg = `Msg: ${message}, Src: ${source}, Line: ${lineno}, Col: ${colno}, Error: ${error ? error.stack : ''}`;
+             fetch('/GiaoVien/GiaoVien/LogJSError', {
+                 method: 'POST',
+                 headers: { 'Content-Type': 'application/json' },
+                 body: JSON.stringify({ message: errorMsg })
+             });
+         };
+         console.error = (function(oldError) {
+             return function(message) {
+                 oldError.apply(console, arguments);
+                 fetch('/GiaoVien/GiaoVien/LogJSError', {
+                     method: 'POST',
+                     headers: { 'Content-Type': 'application/json' },
+                     body: JSON.stringify({ message: message })
+                 });
+             };
+         })(console.error);
+
+        function getToken() {
+            const tokenEl = document.querySelector('input[name="__RequestVerificationToken"]');
+            return tokenEl ? tokenEl.value : '';
+        }
+
+        function parseGrade(val) {
+            if (val === undefined || val === null || val.toString().trim() === '') return null;
+            const cleanVal = val.toString().replace(',', '.').trim();
+            const parsed = parseFloat(cleanVal);
+            if (isNaN(parsed) || parsed < 0 || parsed > 10) {
+                return NaN;
+            }
+            return parsed;
+        }
+
+        function tinhTongKet(input) {
+            const row = input.closest('tr');
+            const dm1 = parseGrade(row.querySelector('.dm1-input').value);
+            const dm2 = parseGrade(row.querySelector('.dm2-input').value);
+            const dm3 = parseGrade(row.querySelector('.dm3-input').value);
+            const dm4 = parseGrade(row.querySelector('.dm4-input').value);
+            const gk = parseGrade(row.querySelector('.gk-input').value);
+            const ck = parseGrade(row.querySelector('.ck-input').value);
+
+            if (gk !== null && !isNaN(gk) && ck !== null && !isNaN(ck)) {
+                let dms = [];
+                if (dm1 !== null && !isNaN(dm1)) dms.push(dm1);
+                if (dm2 !== null && !isNaN(dm2)) dms.push(dm2);
+                if (dm3 !== null && !isNaN(dm3)) dms.push(dm3);
+                if (dm4 !== null && !isNaN(dm4)) dms.push(dm4);
+
+                let tong = 0;
+                if (dms.length > 0) {
+                    const avgDm = dms.reduce((a, b) => a + b, 0) / dms.length;
+                    tong = (avgDm + gk * 2 + ck * 3) / 6;
+                } else {
+                    tong = (gk * 0.4 + ck * 0.6);
+                }
+                tong = tong.toFixed(1);
+                row.querySelector('.td-tongket').textContent = tong;
+            } else {
+                row.querySelector('.td-tongket').textContent = "--";
+            }
+        }
+
+        function buildPayload(row) {
+            return {
+                HocSinhId : row.dataset.hsId,
+                MonHocId  : parseInt(row.dataset.monHocId),
+                HocKy     : @Html.Raw(selHK.HasValue ? selHK.Value.ToString() : "null"),
+                NamHoc    : '@(string.IsNullOrEmpty(selNam) ? namHienTai : selNam)',
+                DiemMieng : parseGrade(row.querySelector('.dm1-input').value),
+                DiemMieng2: parseGrade(row.querySelector('.dm2-input').value),
+                DiemMieng3: parseGrade(row.querySelector('.dm3-input').value),
+                DiemMieng4: parseGrade(row.querySelector('.dm4-input').value),
+                DiemGiuaKy: parseGrade(row.querySelector('.gk-input').value),
+                DiemCuoiKy: parseGrade(row.querySelector('.ck-input').value)
+            };
+        }
+
+        function autoLuuDiem(input) {
+            const row = input.closest('tr');
+            const val = input.value.trim();
+            const parsed = parseGrade(val);
+            if (val !== '' && isNaN(parsed)) {
+                alert("Điểm nhập vào không hợp lệ. Vui lòng nhập số từ 0 đến 10.");
+                input.style.borderColor = '#ef4444';
+                setTimeout(() => { input.focus(); }, 50);
+                return;
+            }
+
+            if (val !== '' && !isNaN(parsed)) {
+                input.value = parsed.toString().replace('.', ',');
+            }
+
+            const payload = buildPayload(row);
+            fetch('@Url.Action("LuuDiem", "GiaoVien", new { area = "GiaoVien" })',{
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() },
+                body: JSON.stringify(payload)
+            }).then(r => {
+                if (!r.ok) {
+                    throw new Error("HTTP error " + r.status);
+                }
+                return r.json();
+            }).then(d => {
+                if (d.success) {
+                    input.style.borderColor = '#22c55e';
+                    setTimeout(() => { input.style.borderColor = ''; }, 1200);
+                } else {
+                    alert(d.message);
+                    location.reload();
+                }
+            }).catch((err) => {
+                console.error(err);
+                alert("Lỗi kết nối hoặc hệ thống khi lưu điểm: " + err.message);
+            });
+        }
+
+        function confirmChotDiem(loaiDiem) {
+            let message = "";
+            if (loaiDiem === 'Mieng') message = "Bạn có chắc chắn muốn chốt điểm miệng? Sau khi chốt sẽ không thể chỉnh sửa điểm miệng của học kỳ này nữa.";
+            else if (loaiDiem === 'GiuaKy') message = "Bạn có chắc chắn muốn chốt điểm giữa kỳ? Sau khi chốt sẽ không thể chỉnh sửa điểm giữa kỳ của học kỳ này nữa.";
+            else if (loaiDiem === 'CuoiKy') message = "Bạn có chắc chắn muốn chốt điểm cuối kỳ? Sau khi chốt sẽ không thể chỉnh sửa điểm cuối kỳ của học kỳ này nữa.";
+
+            if (confirm(message)) {
+                fetch('@Url.Action("ChotDiem", "GiaoVien", new { area = "GiaoVien" })', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() },
+                    body: JSON.stringify({
+                        LopId: @lopId,
+                        MonHocId: @monHocId,
+                        HocKy: @(selHK ?? 1),
+                        NamHoc: '@namHienTai',
+                        LoaiDiem: loaiDiem
+                    })
+                }).then(r => r.json()).then(d => {
+                    if (d.success) {
+                        alert(d.message);
+                        location.reload();
+                    } else {
+                        alert(d.message);
+                    }
+                }).catch(() => {
+                    alert("Có lỗi xảy ra khi chốt điểm!");
+                });
+            }
+        }
+            </text>
+        }
+    </script>
+}

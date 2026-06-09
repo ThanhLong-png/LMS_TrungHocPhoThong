@@ -1,0 +1,256 @@
+@model List<LMS_THPT.Models.TaiLieu>
+@{
+    ViewData["Title"] = "Tài liệu học tập";
+    Layout = "~/Views/Shared/_LayoutHocSinh.cshtml";
+    var monHocs = (List<LMS_THPT.Models.MonHoc>)ViewBag.MonHocs;
+    int? selectedMon = ViewBag.SelectedMonHoc;
+    LMS_THPT.Models.LoaiTaiLieu? selectedLoai = ViewBag.SelectedLoai;
+    string? q = ViewBag.SearchQuery;
+}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+        border-radius: 16px;
+        padding: 1.8rem 2rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(255,107,0,0.15);
+    }
+
+    .filter-bar {
+        background: #fff;
+        border-radius: 14px;
+        padding: 1.2rem 1.5rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-chip {
+        padding: 0.35rem 1rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border: 2px solid transparent;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-block;
+    }
+
+    .filter-chip.active { background: #ff6b00; color: #fff; }
+    .filter-chip:not(.active) { background: #f1f5f9; color: #475569; }
+    .filter-chip:not(.active):hover { background: #fff7ed; color: #ff6b00; }
+
+    .tl-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+        border: 1px solid rgba(0,0,0,0.05);
+        padding: 1.2rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+        margin-bottom: 1rem;
+    }
+
+    .tl-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .tl-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        flex-shrink: 0;
+    }
+
+    .btn-dl {
+        background: linear-gradient(135deg, #ff6b00, #ff8c00);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 0.5rem 1.2rem;
+        font-size: 0.88rem;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: opacity 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .btn-dl:hover { opacity: 0.85; color: #fff; box-shadow: 0 4px 15px rgba(255,107,0,0.25); }
+
+    .loai-badge {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        font-weight: 600;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 1rem;
+        color: #94a3b8;
+    }
+</style>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+        <div style="font-size:2.5rem;">📥</div>
+        <div>
+            <h1 class="fw-bold mb-0" style="font-size:1.6rem;">Tài liệu học tập</h1>
+            <p class="mb-0 opacity-75" style="font-size:0.9rem;">
+                @Model.Count tài liệu &bull; Tải về và học bất cứ lúc nào
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+    <div class="row g-3 align-items-center">
+        <!-- Search -->
+        <div class="col-md-5">
+            <form method="get" class="d-flex gap-2">
+                @if (selectedMon.HasValue)
+                {
+                    <input type="hidden" name="monHocId" value="@selectedMon" />
+                }
+                @if (selectedLoai.HasValue)
+                {
+                    <input type="hidden" name="loai" value="@selectedLoai" />
+                }
+                <input type="text" name="q" value="@q"
+                       class="form-control" style="border-radius:10px;"
+                       placeholder="🔍 Tìm tài liệu..." />
+                <button type="submit" class="btn btn-primary" style="background:#ff6b00; border-color:#ff6b00; border-radius:10px; white-space:nowrap;">Tìm</button>
+            </form>
+        </div>
+
+        <!-- Loại tài liệu -->
+        <div class="col-md-7">
+            <div class="d-flex flex-wrap gap-2">
+                <a href="@Url.Action("TaiLieu","HocSinh", new { monHocId = selectedMon, q })"
+                   class="filter-chip @(!selectedLoai.HasValue ? "active" : "")">Tất cả</a>
+                @foreach (var loai in Enum.GetValues<LMS_THPT.Models.LoaiTaiLieu>())
+                {
+                    string icon = loai switch
+                    {
+                        LMS_THPT.Models.LoaiTaiLieu.PDF => "📄",
+                        LMS_THPT.Models.LoaiTaiLieu.Video => "🎬",
+                        LMS_THPT.Models.LoaiTaiLieu.Slide => "📊",
+                        _ => "📁"
+                    };
+                    <a href="@Url.Action("TaiLieu","HocSinh", new { monHocId = selectedMon, loai, q })"
+                       class="filter-chip @(selectedLoai == loai ? "active" : "")">
+                        @icon @loai.ToString()
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Môn học chips -->
+    @if (monHocs.Any())
+    {
+        <div class="d-flex flex-wrap gap-2 mt-3 pt-3 border-top">
+            <span class="text-muted" style="font-size:0.82rem; align-self:center; margin-right:4px;">Môn:</span>
+            <a href="@Url.Action("TaiLieu","HocSinh", new { loai = selectedLoai, q })"
+               class="filter-chip @(!selectedMon.HasValue ? "active" : "")">Tất cả</a>
+            @foreach (var mon in monHocs)
+            {
+                <a href="@Url.Action("TaiLieu","HocSinh", new { monHocId = mon.Id, loai = selectedLoai, q })"
+                   class="filter-chip @(selectedMon == mon.Id ? "active" : "")">
+                    @mon.TenMonHoc
+                </a>
+            }
+        </div>
+    }
+</div>
+
+<!-- DANH SÁCH TÀI LIỆU -->
+@if (Model.Count == 0)
+{
+    <div class="empty-state">
+        <div style="font-size:3.5rem; margin-bottom:1rem;">📭</div>
+        <h5>Không có tài liệu nào</h5>
+        <p>Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm.</p>
+    </div>
+}
+else
+{
+    @foreach (var item in Model)
+    {
+        string icon = item.LoaiTaiLieu switch
+        {
+            LMS_THPT.Models.LoaiTaiLieu.PDF => "📄",
+            LMS_THPT.Models.LoaiTaiLieu.Video => "🎬",
+            LMS_THPT.Models.LoaiTaiLieu.Slide => "📊",
+            _ => "📁"
+        };
+
+        string iconBg = item.LoaiTaiLieu switch
+        {
+            LMS_THPT.Models.LoaiTaiLieu.PDF => "#fef2f2",
+            LMS_THPT.Models.LoaiTaiLieu.Video => "#faf5ff",
+            LMS_THPT.Models.LoaiTaiLieu.Slide => "#eff6ff",
+            _ => "#f8fafc"
+        };
+
+        string badgeBg = item.LoaiTaiLieu switch
+        {
+            LMS_THPT.Models.LoaiTaiLieu.PDF => "#fee2e2",
+            LMS_THPT.Models.LoaiTaiLieu.Video => "#f3e8ff",
+            LMS_THPT.Models.LoaiTaiLieu.Slide => "#dbeafe",
+            _ => "#f1f5f9"
+        };
+
+        string badgeColor = item.LoaiTaiLieu switch
+        {
+            LMS_THPT.Models.LoaiTaiLieu.PDF => "#dc2626",
+            LMS_THPT.Models.LoaiTaiLieu.Video => "#7e22ce",
+            LMS_THPT.Models.LoaiTaiLieu.Slide => "#1d4ed8",
+            _ => "#475569"
+        };
+
+        double sizeMb = item.KichThuocFile > 0
+            ? Math.Round(item.KichThuocFile / 1024.0 / 1024.0, 2)
+            : 0;
+
+        <div class="tl-card">
+            <div class="tl-icon" style="background:@iconBg;">@icon</div>
+            <div class="flex-grow-1">
+                <div class="fw-semibold" style="color:#1e293b; font-size:0.97rem;">@item.TenTaiLieu</div>
+                <div class="d-flex flex-wrap gap-2 mt-1 align-items-center">
+                    <span class="loai-badge" style="background:@badgeBg; color:@badgeColor;">
+                        @item.LoaiTaiLieu
+                    </span>
+                    @if (item.MonHoc != null)
+                    {
+                        <span class="text-muted" style="font-size:0.8rem;">📚 @item.MonHoc.TenMonHoc</span>
+                    }
+                    @if (item.BaiGiang != null)
+                    {
+                        <span class="text-muted" style="font-size:0.8rem;">📖 @item.BaiGiang.TieuDe</span>
+                    }
+                    @if (sizeMb > 0)
+                    {
+                        <span class="text-muted" style="font-size:0.8rem;">💾 @sizeMb MB</span>
+                    }
+                </div>
+            </div>
+            <a href="@Url.Action("DownloadTaiLieu", "GiangDay", new { area = "", id = item.Id })" class="btn-dl">
+                📥 Tải về
+            </a>
+        </div>
+    }
+}

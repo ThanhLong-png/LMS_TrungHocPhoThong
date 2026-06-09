@@ -1,0 +1,358 @@
+@model LMS_THPT.Models.BaiTap
+@{
+    ViewData["Title"] = "Nộp bài: " + Model.TieuDe;
+    Layout = "~/Views/Shared/_LayoutHocSinh.cshtml";
+    var baiNopCu = ViewBag.BaiNopCu as LMS_THPT.Models.BaiNop;
+    bool isNopLai = baiNopCu != null;
+    var now = DateTime.Now;
+    bool hetHan = Model.HanNop < now;
+    var conLaiTs = Model.HanNop - now;
+}
+
+<style>
+    .bg-back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: #475569;
+        text-decoration: none;
+        font-size: 0.88rem;
+        margin-bottom: 1.2rem;
+        transition: color 0.2s;
+    }
+    .bg-back-btn:hover { color: #ff6b00; }
+
+    .submit-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .submit-banner {
+        background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+        padding: 2rem 2.5rem;
+        color: #fff;
+        box-shadow: 0 10px 30px rgba(255,107,0,0.15);
+    }
+
+    .submit-body { padding: 2rem 2.5rem; }
+
+    .info-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 1rem 1.2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-strip-item {
+        font-size: 0.88rem;
+        color: #475569;
+    }
+    .info-strip-item strong { color: #1e293b; }
+
+    .form-label-custom {
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.9rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .form-control-custom {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-size: 0.92rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control-custom:focus {
+        border-color: #ff6b00;
+        box-shadow: 0 0 0 3px rgba(255,107,0,0.15);
+        outline: none;
+    }
+
+    .file-drop {
+        border: 2px dashed #fed7aa;
+        border-radius: 14px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: #fffcf9;
+    }
+    .file-drop:hover { border-color: #ff6b00; background: #fff7ed; }
+    .file-drop input[type=file] { display: none; }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #ff6b00, #ff8c00);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.1s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .btn-submit:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255,107,0,0.25); }
+    .btn-submit:active { transform: translateY(0); }
+
+    .previous-submission {
+        background: #f0fdf4;
+        border: 1.5px solid #bbf7d0;
+        border-radius: 14px;
+        padding: 1.2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .warning-box {
+        background: #fff7ed;
+        border: 1.5px solid #fed7aa;
+        border-radius: 12px;
+        padding: 1rem 1.2rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.88rem;
+        color: #9a3412;
+    }
+
+    .char-counter {
+        font-size: 0.78rem;
+        color: #94a3b8;
+        text-align: right;
+        margin-top: 4px;
+    }
+</style>
+
+<a href="@Url.Action("BaiTap","HocSinh")" class="bg-back-btn">← Quay lại danh sách bài tập</a>
+
+@if (TempData["error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert" style="border-radius:12px; border:none;">
+        @TempData["error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="submit-card">
+    <!-- BANNER -->
+    <div class="submit-banner">
+        <div class="mb-2">
+            <span style="background:rgba(255,255,255,0.2); color:#fff; padding:3px 12px; border-radius:8px; font-size:0.8rem;">
+                📚 @(Model.MonHoc?.TenMonHoc ?? "Bài tập")
+            </span>
+            @if (isNopLai)
+            {
+                <span style="background:#fbbf24; color:#1c1917; padding:3px 12px; border-radius:8px; font-size:0.8rem; margin-left:6px;">
+                    🔄 Nộp lại
+                </span>
+            }
+        </div>
+        <h1 style="font-size:1.5rem; font-weight:700; margin-bottom:0.5rem;">@Model.TieuDe</h1>
+        @if (!string.IsNullOrEmpty(Model.MoTa))
+        {
+            <p class="opacity-75 mb-0" style="font-size:0.9rem;">@Model.MoTa</p>
+        }
+    </div>
+
+    <div class="submit-body">
+        <!-- INFO STRIP -->
+        <div class="info-strip">
+            <div class="info-strip-item">
+                🏆 Điểm tối đa: <strong>@Model.DiemToiDa</strong>
+            </div>
+            <div class="info-strip-item">
+                📅 Hạn nộp:
+                <strong style="color:@(hetHan ? "#dc2626" : conLaiTs.TotalHours < 24 ? "#d97706" : "#15803d")">
+                    @Model.HanNop.ToString("dd/MM/yyyy HH:mm")
+                </strong>
+            </div>
+            @if (!hetHan)
+            {
+                <div class="info-strip-item">
+                    ⏳ Còn lại:
+                    <strong style="color:#ff6b00;">
+                        @if (conLaiTs.TotalDays >= 1)
+                        {
+                            <text>@((int)conLaiTs.TotalDays) ngày @conLaiTs.Hours giờ</text>
+                        }
+                        else if (conLaiTs.TotalHours >= 1)
+                        {
+                            <text>@((int)conLaiTs.TotalHours) giờ @conLaiTs.Minutes phút</text>
+                        }
+                        else
+                        {
+                            <text>@conLaiTs.Minutes phút</text>
+                        }
+                    </strong>
+                </div>
+            }
+        </div>
+
+        @if (hetHan && !isNopLai)
+        {
+            <div class="warning-box">
+                ⚠️ <strong>Bài tập đã hết hạn.</strong> Bài nộp sẽ bị đánh dấu là <strong>nộp trễ</strong>.
+            </div>
+        }
+
+        @if (isNopLai)
+        {
+            <div class="previous-submission">
+                <div class="fw-semibold mb-2" style="color:#166534;">✅ Bài nộp trước đó</div>
+                <div class="row g-2">
+                    @if (!string.IsNullOrEmpty(baiNopCu!.NoiDung))
+                    {
+                        <div class="col-12">
+                            <div style="font-size:0.82rem; color:#6b7280;">Nội dung cũ:</div>
+                            <div style="background:#fff; border-radius:8px; padding:0.6rem 1rem; font-size:0.88rem; color:#374151; border:1px solid #d1fae5; margin-top:4px;">
+                                @baiNopCu.NoiDung
+                            </div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(baiNopCu!.DuongDanFile))
+                    {
+                        <div class="col-12">
+                            <div style="font-size:0.82rem; color:#6b7280;">File đã nộp:</div>
+                            <a href="@baiNopCu.DuongDanFile" target="_blank"
+                               style="font-size:0.88rem; color:#ff6b00;">
+                                📎 Xem file đã nộp
+                            </a>
+                        </div>
+                    }
+                    <div class="col-12">
+                        <small class="text-muted">
+                            Nộp lúc @baiNopCu!.NgayNop.ToString("dd/MM/yyyy HH:mm") &bull;
+                            Trạng thái: <strong>@(baiNopCu.TrangThai switch {
+                                LMS_THPT.Models.TrangThaiBaiNop.DaNop    => "✅ Đã nộp",
+                                LMS_THPT.Models.TrangThaiBaiNop.NopTre   => "⚠️ Nộp trễ",
+                                LMS_THPT.Models.TrangThaiBaiNop.ChamXong => "🎯 Đã chấm điểm",
+                                _ => baiNopCu.TrangThai.ToString()
+                            })</strong>
+                            @if (baiNopCu.Diem.HasValue)
+                            {
+                                <text> &bull; Điểm: <strong style="color:#d97706;">@baiNopCu.Diem</strong></text>
+                            }
+                        </small>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- FORM NỘP BÀI -->
+        <form asp-action="NopBai" method="post" enctype="multipart/form-data" id="submitForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="BaiTapId" value="@Model.Id" />
+
+            <!-- Nội dung bài làm -->
+            <div class="mb-4">
+                <label class="form-label-custom">✍️ Nội dung bài làm</label>
+                <textarea name="NoiDung" id="noiDung"
+                          class="form-control form-control-custom"
+                          rows="6"
+                          maxlength="5000"
+                          placeholder="Nhập nội dung bài làm của bạn tại đây...">@(isNopLai ? baiNopCu!.NoiDung : "")</textarea>
+                <div class="char-counter"><span id="charCount">0</span> / 5000 ký tự</div>
+            </div>
+
+            <!-- Upload file -->
+            <div class="mb-4">
+                <label class="form-label-custom">📎 Đính kèm file bài làm</label>
+                <div class="file-drop" id="fileDrop" onclick="document.getElementById('fileInput').click()">
+                    <input type="file" name="file" id="fileInput"
+                           accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.zip,.txt" />
+                    <div id="fileLabel">
+                        <div style="font-size:2rem; margin-bottom:0.5rem;">📁</div>
+                        <div class="fw-semibold" style="color:#ff6b00; font-size:0.95rem;">Chọn file hoặc kéo thả vào đây</div>
+                        <div class="text-muted mt-1" style="font-size:0.8rem;">
+                            PDF, DOC, DOCX, PNG, JPG, ZIP, TXT &bull; Tối đa 20MB
+                        </div>
+                    </div>
+                </div>
+                @if (isNopLai && !string.IsNullOrEmpty(baiNopCu!.DuongDanFile))
+                {
+                    <small class="text-muted mt-1 d-block">
+                        ℹ️ Nếu không chọn file mới, file cũ sẽ được giữ nguyên.
+                    </small>
+                }
+            </div>
+
+            <!-- Ghi chú -->
+            @if (isNopLai)
+            {
+                <div class="mb-4">
+                    <label class="form-label-custom">💬 Ghi chú khi nộp lại <span class="text-muted fw-normal">(tùy chọn)</span></label>
+                    <input type="text" name="GhiChu"
+                           class="form-control form-control-custom"
+                           placeholder="Ví dụ: Đã sửa lỗi ở phần 2, thêm ví dụ minh họa..."
+                           maxlength="300" />
+                </div>
+            }
+
+            <!-- BUTTONS -->
+            <div class="d-flex gap-3 align-items-center flex-wrap">
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    @(isNopLai ? "🔄 Nộp lại bài" : "🚀 Nộp bài")
+                </button>
+                <a href="@Url.Action("BaiTap","HocSinh")"
+                   class="btn btn-outline-secondary" style="border-radius:12px; padding:0.7rem 1.5rem;">
+                    Hủy
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Char counter
+    const textarea = document.getElementById('noiDung');
+    const charCount = document.getElementById('charCount');
+    function updateCount() {
+        charCount.textContent = textarea.value.length;
+    }
+    textarea.addEventListener('input', updateCount);
+    updateCount();
+
+    // File drop display
+    document.getElementById('fileInput').addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+            const mb = (file.size / 1024 / 1024).toFixed(2);
+            document.getElementById('fileLabel').innerHTML = `
+                <div style="font-size:1.5rem; margin-bottom:0.3rem;">✅</div>
+                <div class="fw-semibold" style="color:#15803d;">${file.name}</div>
+                <div class="text-muted" style="font-size:0.8rem;">${mb} MB</div>
+                <div style="font-size:0.78rem; color:#ff6b00; margin-top:4px;">Bấm để đổi file</div>
+            `;
+        }
+    });
+
+    // Drag & drop
+    const dropZone = document.getElementById('fileDrop');
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = '#ff6b00'; });
+    dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = '#fed7aa'; });
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.style.borderColor = '#fed7aa';
+        const fileInput = document.getElementById('fileInput');
+        fileInput.files = e.dataTransfer.files;
+        fileInput.dispatchEvent(new Event('change'));
+    });
+
+    // Submit loading state
+    document.getElementById('submitForm').addEventListener('submit', function () {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '⌛ Đang nộp bài...';
+    });
+</script>
+}

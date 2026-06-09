@@ -1,0 +1,517 @@
+@{
+    ViewData["Title"] = "Bảng Điều Khiển Admin";
+    ViewData["PageTitle"] = "Quản trị hệ thống";
+    Layout = "_AdminLayout";
+}
+
+@section Styles {
+<style>
+    .ad-dashboard { padding: 0 0 40px 0; }
+
+    /* ===== WELCOME HEADER ===== */
+    .ad-welcome {
+        background: linear-gradient(135deg, #1a1f36 0%, #2d1b69 100%);
+        border-radius: 16px;
+        padding: 28px 32px;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        box-shadow: 0 4px 24px rgba(26,31,54,0.18);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ad-welcome::before {
+        content: '';
+        position: absolute;
+        top: -40px; right: -40px;
+        width: 200px; height: 200px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.04);
+    }
+
+    .ad-welcome-title {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 6px;
+        letter-spacing: -0.02em;
+    }
+
+    .ad-welcome-sub {
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.6);
+        font-weight: 400;
+    }
+
+    .ad-welcome-badge {
+        background: rgba(99,102,241,0.85);
+        color: #fff;
+        border-radius: 999px;
+        padding: 0.4rem 1.1rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+        white-space: nowrap;
+        letter-spacing: 0.02em;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* ===== STAT CARDS ===== */
+    .ad-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .ad-stat-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 22px 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: transform 0.2s, box-shadow 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .ad-stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 28px rgba(0,0,0,0.11);
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .ad-stat-icon {
+        width: 48px; height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .ad-stat-icon.red    { background: #eef2ff; }
+    .ad-stat-icon.blue   { background: #eff6ff; }
+    .ad-stat-icon.green  { background: #f0fdf4; }
+    .ad-stat-icon.purple { background: #f5f3ff; }
+
+    .ad-stat-num {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #1e293b;
+        line-height: 1;
+        letter-spacing: -0.03em;
+    }
+
+    .ad-stat-label {
+        font-size: 0.78rem;
+        color: #64748b;
+        font-weight: 500;
+        margin-top: 4px;
+    }
+
+    /* ===== BOTTOM GRID ===== */
+    .ad-bottom-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .ad-panel {
+        background: #fff;
+        border-radius: 14px;
+        padding: 22px 24px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .ad-panel-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* ===== QUICK LINKS ===== */
+    .ad-quick-links {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .ad-quick-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 11px 14px;
+        border-radius: 10px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        text-decoration: none;
+        color: #334155;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.18s;
+    }
+
+    .ad-quick-link:hover {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        color: #1d4ed8;
+        text-decoration: none;
+        transform: translateX(3px);
+    }
+
+    .ad-quick-link-icon {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+        transition: background 0.18s;
+    }
+
+    .ad-quick-link:hover .ad-quick-link-icon { background: #bfdbfe; }
+
+    .ad-quick-link-arrow {
+        margin-left: auto;
+        color: #94a3b8;
+        font-size: 1rem;
+        transition: transform 0.18s;
+    }
+
+    .ad-quick-link:hover .ad-quick-link-arrow { transform: translateX(3px); color: #1d4ed8; }
+
+    /* ===== USER LIST TABLE ===== */
+    .ad-user-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+
+    .ad-user-table th {
+        text-align: left;
+        padding: 8px 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .ad-user-table td {
+        padding: 10px 10px;
+        color: #334155;
+        border-bottom: 1px solid #f8fafc;
+        vertical-align: middle;
+    }
+
+    .ad-user-table tr:last-child td { border-bottom: none; }
+
+    .ad-role-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 10px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+    }
+
+    .ad-role-badge.admin    { background: #fef2f2; color: #dc2626; }
+    .ad-role-badge.teacher  { background: #f0fdf4; color: #16a34a; }
+    .ad-role-badge.student  { background: #eff6ff; color: #2563eb; }
+    .ad-role-badge.hieut    { background: #f5f3ff; color: #7c3aed; }
+    .ad-role-badge.other    { background: #f8fafc; color: #64748b; }
+
+    .ad-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.76rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: 1px solid transparent;
+        transition: all 0.15s;
+        cursor: pointer;
+        background: none;
+    }
+
+    .ad-action-btn.edit  { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+    .ad-action-btn.edit:hover  { background: #dcfce7; }
+    .ad-action-btn.create { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; text-decoration: none; }
+    .ad-action-btn.create:hover { background: #dbeafe; color: #2563eb; text-decoration: none; }
+    .ad-action-btn.danger { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+    .ad-action-btn.danger:hover { background: #fee2e2; }
+    
+    /* ===== HERO BANNER ===== */
+    .ad-hero-banner {
+        background: linear-gradient(135deg, #4338ca 0%, #7c3aed 100%);
+        border-radius: 16px;
+        padding: 40px;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(67,56,202,0.25);
+    }
+
+    .ad-hero-content { position: relative; z-index: 2; max-width: 60%; }
+    .ad-hero-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.02em; }
+    .ad-hero-text { font-size: 0.95rem; opacity: 0.9; margin-bottom: 24px; line-height: 1.6; }
+
+    .ad-hero-search {
+        display: flex;
+        background: #fff;
+        border-radius: 12px;
+        padding: 5px;
+        max-width: 500px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .ad-hero-input {
+        border: none;
+        padding: 10px 15px;
+        flex: 1;
+        outline: none;
+        font-size: 0.9rem;
+        color: #1e293b;
+        background: transparent;
+    }
+
+    .ad-hero-btn {
+        background: #4338ca;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 9px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .ad-hero-btn:hover { background: #3730a3; }
+
+    .ad-hero-illustration {
+        position: absolute;
+        right: -20px;
+        top: -20px;
+        bottom: -20px;
+        width: 40%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+    }
+
+    .ad-hero-blob {
+        position: absolute;
+        width: 300px; height: 300px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        filter: blur(40px);
+    }
+
+    .ad-hero-icon-float {
+        position: absolute;
+        animation: floatAnim 6s ease-in-out infinite;
+        opacity: 0.25;
+    }
+
+    @@keyframes floatAnim {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(10deg); }
+    }
+
+    @@media (max-width: 900px) {
+        .ad-hero-banner { padding: 30px; flex-direction: column; text-align: center; }
+        .ad-hero-content { max-width: 100%; margin-bottom: 30px; }
+        .ad-hero-search { margin: 0 auto; }
+        .ad-hero-illustration { display: none; }
+    }
+
+    @@media (max-width: 900px) {
+        .ad-bottom-grid { grid-template-columns: 1fr; }
+        .ad-stat-grid   { grid-template-columns: repeat(2, 1fr); }
+    }
+</style>
+}
+
+<div class="ad-dashboard">
+
+    <!-- WELCOME -->
+    <div class="ad-welcome">
+        <div>
+            <div class="ad-welcome-title">Xin chào, @User.Identity!.Name 👋</div>
+            <div class="ad-welcome-sub">Hệ thống quản lý LMS – Phân hệ Quản Trị Viên</div>
+        </div>
+        <span class="ad-welcome-badge">🛡️ Admin</span>
+    </div>
+
+    <!-- HERO BANNER -->
+    <div class="ad-hero-banner">
+        <div class="ad-hero-content">
+            <h2 class="ad-hero-title">Trung tâm Quản trị Hệ thống</h2>
+            <p class="ad-hero-text">Chào mừng bạn trở lại! Hệ thống đang hoạt động ổn định. Hãy theo dõi các thông tin và hoạt động giáo dục trong nhà trường phía dưới.</p>
+            
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <span style="background:rgba(255,255,255,0.15); padding:8px 16px; border-radius:10px; font-size:0.8rem; font-weight:600; border:1px solid rgba(255,255,255,0.2);">✨ Hoạt động ổn định</span>
+                <span style="background:rgba(255,255,255,0.15); padding:8px 16px; border-radius:10px; font-size:0.8rem; font-weight:600; border:1px solid rgba(255,255,255,0.2);">🛡️ Bảo mật cao</span>
+            </div>
+        </div>
+        <div class="ad-hero-illustration">
+            <div class="ad-hero-blob"></div>
+            <div class="ad-hero-icon-float" style="top:10%; right:30%; font-size:4.5rem;">🎓</div>
+            <div class="ad-hero-icon-float" style="bottom:15%; right:50%; font-size:3.5rem; animation-delay: -2s;">📚</div>
+            <div class="ad-hero-icon-float" style="top:40%; right:15%; font-size:2.8rem; animation-delay: -4s;">🛡️</div>
+            <div class="ad-hero-icon-float" style="top:60%; right:40%; font-size:2rem; animation-delay: -1s; opacity:0.15;">⚙️</div>
+            <div class="ad-hero-icon-float" style="bottom:5%; right:10%; font-size:3.2rem; animation-delay: -3s;">💡</div>
+        </div>
+    </div>
+
+    <!-- BOTTOM GRID -->
+    <div class="ad-bottom-grid">
+
+        <!-- QUICK LINKS -->
+        <div class="ad-panel">
+            <div class="ad-panel-title">⚡ Truy Cập Nhanh</div>
+            <div class="ad-quick-links">
+                <a class="ad-quick-link" asp-controller="QuanLyHocSinh" asp-action="Index">
+                    <div class="ad-quick-link-icon">🎓</div>
+                    <span>Quản lý Học Sinh</span>
+                    <span class="ad-quick-link-arrow">›</span>
+                </a>
+                <a class="ad-quick-link" asp-controller="QuanLyGiaoVien" asp-action="Index">
+                    <div class="ad-quick-link-icon">👨‍🏫</div>
+                    <span>Quản lý Giáo Viên</span>
+                    <span class="ad-quick-link-arrow">›</span>
+                </a>
+                <a class="ad-quick-link" asp-controller="MonHoc" asp-action="Index">
+                    <div class="ad-quick-link-icon">📚</div>
+                    <span>Quản lý Môn Học</span>
+                    <span class="ad-quick-link-arrow">›</span>
+                </a>
+                <a class="ad-quick-link" asp-controller="QuanLyYeuCau" asp-action="Index">
+                    <div class="ad-quick-link-icon">✉️</div>
+                    <span>Quản lý Yêu Cầu</span>
+                    <span class="ad-quick-link-arrow">›</span>
+                </a>
+                <a class="ad-quick-link" asp-controller="ThongBao" asp-action="Index">
+                    <div class="ad-quick-link-icon">📢</div>
+                    <span>Thông Báo</span>
+                    <span class="ad-quick-link-arrow">›</span>
+                </a>
+                <a class="ad-quick-link" asp-controller="Lichhoc" asp-action="ThoiKhoaBieu">
+                    <div class="ad-quick-link-icon">📅</div>
+                    <span>Lịch Học</span>
+                    <span class="ad-quick-link-arrow">›</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- USER LIST -->
+        <div class="ad-panel">
+            <div class="ad-panel-title">
+                <span>👥 Danh Sách Tài Khoản
+                    <span style="font-size:0.75rem; color:#94a3b8; font-weight:400;">(@ViewBag.Total tài khoản)</span>
+                </span>
+            </div>
+            <table class="ad-user-table">
+                <thead>
+                    <tr>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Vai trò</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var userRolesDict = ViewBag.UserRoles as Dictionary<string, string>;
+                    }
+                    @foreach (var user in Model)
+                    {
+                        var role = userRolesDict != null && userRolesDict.ContainsKey(user.Id) ? userRolesDict[user.Id] : "";
+                        var (roleBadgeClass, roleLabel) = role switch {
+                            "Admin"      => ("admin",   "Admin"),
+                            "GiaoVien"   => ("teacher", "Giáo viên"),
+                            "HocSinh"    => ("student", "Học sinh"),
+                            "HieuTruong" => ("hieut",   "Hiệu trưởng"),
+                            _            => ("other",   string.IsNullOrEmpty(role) ? "Chưa có" : role)
+                        };
+                        <tr>
+                            <td style="font-weight:600;">@user.HoTen</td>
+                            <td style="color:#64748b;font-size:0.8rem;">@user.Email</td>
+                            <td>
+                                <span class="ad-role-badge @roleBadgeClass">@roleLabel</span>
+                            </td>
+                            <td style="white-space:nowrap; display:flex; gap:4px;">
+                                <a asp-action="EditRole" asp-route-id="@user.Id" class="ad-action-btn edit">Sửa role</a>
+                                <form asp-action="Delete" asp-route-id="@user.Id" method="post" style="margin:0;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="ad-action-btn danger"
+                                            onclick="return confirm('Xóa tài khoản @user.HoTen?')">Xóa</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <!-- PHÂN TRANG -->
+            @{
+                int curPage   = (int)(ViewBag.Page ?? 1);
+                int totalPages = (int)(ViewBag.TotalPages ?? 1);
+            }
+            @if (totalPages > 1)
+            {
+                <div style="display:flex; align-items:center; justify-content:space-between;
+                            padding-top:12px; margin-top:12px; border-top:1px solid #f1f5f9;">
+                    <span style="font-size:0.78rem; color:#94a3b8;">
+                        Trang @curPage / @totalPages
+                    </span>
+                    <div style="display:flex; gap:4px;">
+                        @if (curPage > 1)
+                        {
+                            <a asp-action="Index" asp-route-page="@(curPage - 1)"
+                               class="ad-action-btn edit" style="padding:4px 12px;">← Trước</a>
+                        }
+                        @for (int p = Math.Max(1, curPage - 2); p <= Math.Min(totalPages, curPage + 2); p++)
+                        {
+                            <a asp-action="Index" asp-route-page="@p"
+                               class="ad-action-btn @(p == curPage ? "create" : "edit")"
+                               style="padding:4px 10px; min-width:34px; justify-content:center;">@p</a>
+                        }
+                        @if (curPage < totalPages)
+                        {
+                            <a asp-action="Index" asp-route-page="@(curPage + 1)"
+                               class="ad-action-btn edit" style="padding:4px 12px;">Tiếp →</a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>

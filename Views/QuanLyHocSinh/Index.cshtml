@@ -1,0 +1,84 @@
+@model List<LMS_THPT.Models.Khoi>
+@{
+    ViewData["Title"] = "Quản lý Khối";
+    Layout = "_AdminLayout";
+}
+
+<div class="admin-page-header">
+    <h1 class="admin-page-title">🎓 Danh Sách Khối Học</h1>
+
+</div>
+
+<div class="admin-grid admin-grid-3" style="gap: 2rem;">
+    @foreach (var khoi in Model)
+    {
+        string bgColor, iconColor, subText, icon;
+        int totalLops = khoi.Lops.Count;
+        int totalHocSinhs = khoi.Lops.Sum(l => l.HocSinhs.Count);
+
+        if (khoi.TenKhoi.Contains("10"))
+        {
+            bgColor   = "linear-gradient(135deg, #6366f1 0%, #4338ca 100%)";
+            iconColor = "rgba(255,255,255,0.2)";
+            subText   = "Giai đoạn nền tảng";
+            icon      = "📖";
+        }
+        else if (khoi.TenKhoi.Contains("11"))
+        {
+            bgColor   = "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)";
+            iconColor = "rgba(255,255,255,0.2)";
+            subText   = "Giai đoạn tăng tốc";
+            icon      = "🚀";
+        }
+        else if (khoi.TenKhoi.Contains("12"))
+        {
+            bgColor   = "linear-gradient(135deg, #ec4899 0%, #be185d 100%)";
+            iconColor = "rgba(255,255,255,0.2)";
+            subText   = "Giai đoạn về đích";
+            icon      = "🎓";
+        }
+        else
+        {
+            bgColor   = "linear-gradient(135deg, #64748b 0%, #334155 100%)";
+            iconColor = "rgba(255,255,255,0.2)";
+            subText   = "Khối chức năng";
+            icon      = "📁";
+        }
+
+        <a href="@Url.Action("Lops", "QuanLyHocSinh", new { khoiId = khoi.Id })"
+           class="admin-card"
+           style="background: @bgColor; color: #fff; padding: 2.5rem 2rem;
+                  text-align: left; text-decoration: none; cursor: pointer;
+                  display: flex; flex-direction: column; justify-content: space-between;
+                  min-height: 220px; position: relative; overflow: hidden; border: none;
+                  box-shadow: 0 12px 24px rgba(0,0,0,0.1); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+           onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 20px 40px rgba(0,0,0,0.18)';"
+           onmouseout="this.style.transform=''; this.style.boxShadow='';">
+            
+            <div style="position: absolute; top: -20px; right: -10px; font-size: 8rem; color: @iconColor; pointer-events: none; transform: rotate(15deg);">
+                @icon
+            </div>
+
+            <div style="z-index: 1;">
+                <div style="font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1;">@khoi.TenKhoi</div>
+                <div style="font-size: 0.9rem; font-weight: 500; opacity: 0.9; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.05em;">@subText</div>
+            </div>
+
+            <div style="z-index: 1; display:flex; gap:1.5rem; margin-top: 2rem; background: rgba(0,0,0,0.15); padding: 12px 18px; border-radius: 12px; width: fit-content;">
+                <div style="display:flex; flex-direction:column;">
+                    <span style="font-size: 1.1rem; font-weight: 800;">@totalLops</span>
+                    <span style="font-size: 0.65rem; opacity: 0.8; text-transform: uppercase; font-weight: 700;">Số lớp</span>
+                </div>
+                <div style="width:1px; background: rgba(255,255,255,0.2);"></div>
+                <div style="display:flex; flex-direction:column;">
+                    <span style="font-size: 1.1rem; font-weight: 800;">@totalHocSinhs</span>
+                    <span style="font-size: 0.65rem; opacity: 0.8; text-transform: uppercase; font-weight: 700;">Học sinh</span>
+                </div>
+            </div>
+            
+            <div style="position: absolute; bottom: 1.5rem; right: 1.5rem; width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                →
+            </div>
+        </a>
+    }
+</div>

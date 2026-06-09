@@ -1,0 +1,183 @@
+@model LMS_THPT.Models.BaiTap
+@{
+    ViewData["Title"] = "Cập nhật bài tập";
+}
+
+<script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+        border-radius: 16px;
+        padding: 1.8rem 2rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(255,107,0,0.15);
+    }
+    
+    .form-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.05);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        padding: 0.6rem 1rem;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #ff6b00;
+        box-shadow: 0 0 0 3px rgba(255,107,0,0.1);
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #ff6b00, #ea580c);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 0.6rem 1.8rem;
+        font-weight: 600;
+        transition: opacity 0.2s;
+    }
+
+    .btn-submit:hover { opacity: 0.9; color: #fff; }
+
+    .btn-cancel {
+        background: #f1f5f9;
+        color: #475569;
+        border: none;
+        border-radius: 10px;
+        padding: 0.6rem 1.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+
+    .btn-cancel:hover { background: #e2e8f0; color: #1e293b; }
+</style>
+
+<div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+        <div style="font-size:2.5rem;">📝</div>
+        <div>
+            <h1 class="fw-bold mb-0" style="font-size:1.6rem;">Cập nhật bài tập</h1>
+            <p class="mb-0 opacity-75" style="font-size:0.9rem;">Chỉnh sửa thông tin bài tập đã tạo</p>
+        </div>
+    </div>
+</div>
+
+<div class="form-card">
+    <form asp-action="EditBaiTap" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
+        <input type="hidden" name="lopId" value="@ViewBag.LopId" />
+        <input type="hidden" name="monHocId" value="@Model.MonHocId" />
+        
+        <div class="mb-4">
+            <label class="form-label">Tiêu đề bài tập <span class="text-danger">*</span></label>
+            <input name="title" class="form-control" required value="@Model.TieuDe" placeholder="Nhập tiêu đề bài tập..." />
+        </div>
+        
+        <div class="mb-4">
+            <label class="form-label">Nội dung / Yêu cầu chi tiết</label>
+            <textarea name="content" id="editor" rows="8" class="form-control">@Model.MoTa</textarea>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <label class="form-label">Hạn nộp - Ngày</label>
+                <input type="date" name="dueDate" class="form-control" value="@Model.HanNop.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-4 mb-3 mb-md-0">
+                <label class="form-label">Hạn nộp - Giờ</label>
+                <input type="time" name="dueTime" class="form-control" value="@Model.HanNop.ToString("HH:mm")" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Loại điểm (Ghi sổ)</label>
+                <select name="loaiDiem" class="form-select form-control">
+                    @if (Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.BaiTap)
+                    {
+                        <option value="BaiTap" selected>Khác (Không ghi sổ)</option>
+                    }
+                    else
+                    {
+                        <option value="BaiTap">Khác (Không ghi sổ)</option>
+                    }
+                    @if (Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.MiengKiemTra)
+                    {
+                        <option value="MiengKiemTra" selected>Điểm miệng / 15 phút</option>
+                    }
+                    else
+                    {
+                        <option value="MiengKiemTra">Điểm miệng / 15 phút</option>
+                    }
+                    @if (Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.GiuaKy)
+                    {
+                        <option value="GiuaKy" selected>Điểm giữa kỳ (40%)</option>
+                    }
+                    else
+                    {
+                        <option value="GiuaKy">Điểm giữa kỳ (40%)</option>
+                    }
+                    @if (Model.LoaiDiem == LMS_THPT.Models.LoaiDiem.CuoiKy)
+                    {
+                        <option value="CuoiKy" selected>Điểm cuối kỳ (60%)</option>
+                    }
+                    else
+                    {
+                        <option value="CuoiKy">Điểm cuối kỳ (60%)</option>
+                    }
+                </select>
+            </div>
+        </div>
+        
+        <div class="d-flex gap-3 pt-2">
+            <button type="submit" class="btn-submit">
+                <i class="fa fa-save me-1"></i> Lưu thay đổi
+            </button>
+            <a asp-action="Index" asp-route-lopId="@ViewBag.LopId" asp-route-monHocId="@Model.MonHocId" class="btn-cancel">
+                Hủy bỏ
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    CKEDITOR.replace('editor');
+
+    // Hiển thị ngày trong tuần khi thay đổi ngày
+    document.addEventListener('DOMContentLoaded', function () {
+        var dateInput = document.querySelector('input[name="dueDate"]');
+        if (!dateInput) return;
+
+        var info = document.createElement('div');
+        info.style.marginTop = '6px';
+        info.style.fontSize = '0.85rem';
+        info.style.color = '#64748b';
+        info.style.fontWeight = '500';
+        dateInput.parentElement.appendChild(info);
+
+        function updateDay() {
+            var v = dateInput.value;
+            if (!v) { info.textContent = ''; return; }
+            var d = new Date(v + 'T00:00:00');
+            var days = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+            info.textContent = '📅 ' + d.toLocaleDateString() + ' (' + days[d.getDay()] + ')';
+        }
+
+        dateInput.addEventListener('change', updateDay);
+        updateDay();
+    });
+</script>

@@ -1,0 +1,174 @@
+@{
+    ViewData["Title"] = "Thống Kê Chất Lượng Học Tập";
+    ViewData["PageTitle"] = "Phân tích học lực";
+    Layout = "_HieuTruongLayout";
+    var thongKe = ViewBag.ThongKe;
+}
+
+<style>
+    /* Premium Stats Styling */
+    .ht-stat-box {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        text-align: center;
+        transition: all 0.3s;
+    }
+    .ht-stat-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        border-color: var(--accent-light);
+    }
+    .ht-stat-val { font-size: 2.25rem; font-weight: 800; display: block; line-height: 1.2; margin-bottom: 4px; }
+    .ht-stat-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* Performance Colors */
+    .color-gioi { color: #6366f1; } /* Indigo */
+    .color-kha { color: #10b981; } /* Emerald */
+    .color-tb { color: #f59e0b; }  /* Amber */
+    .color-yeu { color: #f43f5e; }  /* Rose */
+
+    .chart-container {
+        position: relative;
+        margin: auto;
+        height: 350px;
+        width: 100%;
+    }
+</style>
+
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">📊 Thống Kê Chất Lượng Đào Tạo</h1>
+        <div style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">
+            Phân tích chuyên sâu tỉ lệ xếp loại học lực của học sinh toàn trường
+        </div>
+    </div>
+
+</div>
+
+<!-- TỔNG QUAN SỐ LIỆU -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="ht-stat-box">
+            <span class="ht-stat-val color-gioi">@thongKe.Gioi</span>
+            <span class="ht-stat-label">Học sinh Giỏi</span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="ht-stat-box">
+            <span class="ht-stat-val color-kha">@thongKe.Kha</span>
+            <span class="ht-stat-label">Học sinh Khá</span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="ht-stat-box">
+            <span class="ht-stat-val color-tb">@thongKe.TrungBinh</span>
+            <span class="ht-stat-label">Trung Bình</span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="ht-stat-box">
+            <span class="ht-stat-val color-yeu">@thongKe.Yeu</span>
+            <span class="ht-stat-label">Loại Yếu</span>
+        </div>
+    </div>
+</div>
+
+<!-- BIỂU ĐỒ PHÂN TÍCH -->
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="admin-card" style="height: 100%;">
+            <div class="admin-card-header">
+                <h3 style="font-size: 1.1rem;">🍰 Tỉ lệ xếp loại (%)</h3>
+            </div>
+            <div class="admin-card-body">
+                <div class="chart-container">
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="admin-card" style="height: 100%;">
+            <div class="admin-card-header">
+                <h3 style="font-size: 1.1rem;">📊 So sánh số lượng chi tiết</h3>
+            </div>
+            <div class="admin-card-body">
+                <div class="chart-container">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const dataValues = [@thongKe.Gioi, @thongKe.Kha, @thongKe.TrungBinh, @thongKe.Yeu];
+        const labels = ['Loại Giỏi', 'Loại Khá', 'Trung Bình', 'Loại Yếu'];
+        const colors = ['#6366f1', '#10b981', '#f59e0b', '#f43f5e'];
+
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b';
+
+        // Doughnut Chart
+        new Chart(document.getElementById('pieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: dataValues,
+                    backgroundColor: colors,
+                    borderWidth: 0,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20, usePointStyle: true, font: { weight: '600' } }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+
+        // Bar Chart
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Số lượng học sinh',
+                    data: dataValues,
+                    backgroundColor: colors,
+                    borderRadius: 8,
+                    maxBarThickness: 50
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        grid: { borderDash: [5, 5], color: '#e2e8f0' },
+                        ticks: { stepSize: 1, font: { weight: '500' } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { weight: '600' } }
+                    }
+                }
+            }
+        });
+    </script>
+}

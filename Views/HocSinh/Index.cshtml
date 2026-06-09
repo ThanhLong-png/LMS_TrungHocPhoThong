@@ -1,0 +1,369 @@
+@{
+    ViewData["Title"] = "Dashboard Học Sinh";
+    Layout = "~/Views/Shared/_LayoutHocSinh.cshtml";
+
+    var progress = (double)ViewBag.Progress;
+    var tong = (int)ViewBag.Tong;
+    var daNop = (int)ViewBag.DaNop;
+    var chuaNop = (List<LMS_THPT.Models.BaiTap>)ViewBag.ChuaNop;
+    var sapHetHan = (List<LMS_THPT.Models.BaiTap>)ViewBag.SapHetHan;
+    var chuaNopConHan = (List<LMS_THPT.Models.BaiTap>)ViewBag.ChuaNopConHan;
+    var lichHoc = (IList<LMS_THPT.Models.LichHoc>)ViewBag.LichHoc;
+    double? diemTB = ViewBag.DiemTB;
+    int soBaiDaCham = (int)ViewBag.SoBaiDaCham;
+
+    string[] thuNames = { "", "", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật" };
+    Func<int, string> GetThuName = (t) => (t >= 2 && t <= 8) ? thuNames[t] : $"Thứ {t}";
+}
+
+<style>
+    .hs-hero {
+        background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+        border-radius: 20px;
+        padding: 2rem 2.5rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(255,107,0,0.2);
+    }
+
+    .hs-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255,255,255,0.25) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .stat-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: transform 0.2s, box-shadow 0.2s;
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+
+    .stat-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .section-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+        border: 1px solid rgba(0,0,0,0.05);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-header {
+        padding: 1.2rem 1.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .quick-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        padding: 0.85rem 1.2rem;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 2px solid transparent;
+        margin-bottom: 0.6rem;
+    }
+
+    .quick-btn:hover {
+        transform: translateX(4px);
+    }
+
+    .quick-btn-blue { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .quick-btn-blue:hover { background: #dbeafe; color: #1d4ed8; }
+    .quick-btn-green { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+    .quick-btn-green:hover { background: #dcfce7; color: #15803d; }
+    .quick-btn-orange { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+    .quick-btn-orange:hover { background: #ffedd5; color: #c2410c; }
+    .quick-btn-purple { background: #faf5ff; color: #7e22ce; border-color: #e9d5ff; }
+    .quick-btn-purple:hover { background: #f3e8ff; color: #7e22ce; }
+
+    .progress-ring-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .deadline-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.7rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.9rem;
+        transition: background 0.15s;
+    }
+
+    .deadline-item:hover { background: #f8fafc; }
+    .deadline-item:last-child { border-bottom: none; }
+
+    .schedule-table td, .schedule-table th {
+        vertical-align: middle;
+        font-size: 0.9rem;
+    }
+
+    .badge-thu {
+        background: #e0e7ff;
+        color: #3730a3;
+        padding: 0.3rem 0.8rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2.5rem 1rem;
+        color: #94a3b8;
+    }
+
+    .empty-state .emoji { font-size: 2.5rem; margin-bottom: 0.5rem; }
+</style>
+
+<!-- HERO BANNER -->
+<div class="hs-hero">
+    <div class="row align-items-center">
+        <div class="col-md-7">
+            <p class="mb-1 opacity-75" style="font-size:0.9rem;">Xin chào 👋</p>
+            <h2 class="fw-bold mb-1" style="font-size:1.8rem;">
+                @(((LMS_THPT.Models.NguoiDung)ViewBag.User)?.HoTen ?? User.Identity!.Name)
+            </h2>
+            <p class="opacity-75 mb-0" style="font-size:0.95rem;">
+                🎓 Học sinh · LMS Quốc Học Huế
+            </p>
+        </div>
+        <div class="col-md-5 mt-3 mt-md-0 text-md-end">
+            <div style="font-size:0.85rem; opacity:0.8;">Tiến độ nộp bài</div>
+            <div class="d-flex align-items-center gap-2 justify-content-md-end mt-1">
+                <div style="flex:1; max-width:200px;">
+                    <div style="background:rgba(255,255,255,0.2); border-radius:999px; height:10px;">
+                        <div style="background:#34d399; width:@progress%; height:10px; border-radius:999px; transition:width 1s;"></div>
+                    </div>
+                </div>
+                <span class="fw-bold">@progress%</span>
+            </div>
+            <small class="opacity-75">@daNop / @tong bài đã nộp</small>
+        </div>
+    </div>
+</div>
+
+<!-- STAT CARDS -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#eff6ff;">📚</div>
+            <div class="fw-bold" style="font-size:1.6rem; color:#1d4ed8;">@tong</div>
+            <div class="text-muted" style="font-size:0.85rem;">Tổng bài tập</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#f0fdf4;">✅</div>
+            <div class="fw-bold" style="font-size:1.6rem; color:#15803d;">@daNop</div>
+            <div class="text-muted" style="font-size:0.85rem;">Đã nộp</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fff7ed;">📋</div>
+            <div class="fw-bold" style="font-size:1.6rem; color:#c2410c;">@chuaNopConHan.Count</div>
+            <div class="text-muted" style="font-size:0.85rem;">Chưa nộp (còn hạn)</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#faf5ff;">🏆</div>
+            @if (diemTB.HasValue)
+            {
+                <div class="fw-bold" style="font-size:1.6rem; color:#7e22ce;">@diemTB</div>
+                <div class="text-muted" style="font-size:0.85rem;">Điểm TB (@soBaiDaCham bài)</div>
+            }
+            else
+            {
+                <div class="fw-bold" style="font-size:1.2rem; color:#7e22ce;">—</div>
+                <div class="text-muted" style="font-size:0.85rem;">Chưa có điểm</div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- LEFT: MÔN HỌC + LỊCH HỌC NHANH -->
+    <div class="col-lg-4">
+
+        <!-- Môn học của tôi -->
+        <a href="@Url.Action("MonHoc","HocSinh")" class="text-decoration-none d-block mb-3">
+            <div style="background:linear-gradient(135deg,#ff6b00 0%,#ff9f43 100%);border-radius:16px;padding:1.4rem 1.6rem;color:#fff;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;"
+                 onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 36px rgba(0,0,0,.25)'"
+                 onmouseout="this.style.transform='';this.style.boxShadow=''">
+                <div style="position:absolute;top:-20%;right:-8%;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.07)"></div>
+                <div style="position:absolute;bottom:-30%;left:5%;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.05)"></div>
+                <div style="position:relative;z-index:1">
+                    <div style="font-size:1.8rem;margin-bottom:.5rem">📚</div>
+                    <div style="font-weight:700;font-size:1.1rem;margin-bottom:.25rem">Môn học của tôi</div>
+                    <div style="font-size:.82rem;opacity:.75">Vào học từng môn, xem bài giảng và nộp bài</div>
+                    <div style="margin-top:1rem;display:inline-flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.2);border-radius:8px;padding:.35rem .9rem;font-size:.82rem;font-weight:600">
+                        Vào xem môn học <span>→</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <!-- Nộp bài nhanh -->
+        <div class="section-card">
+            <div class="section-header" style="background:linear-gradient(90deg,#fff7ed,#fff)">
+                <span>🚀</span> Thao tác nhanh
+            </div>
+            <div class="p-3">
+                <a href="@Url.Action("BaiTap","HocSinh",new{trangThai="chuaNop"})" class="quick-btn quick-btn-orange">
+                    <span>📤</span> Nộp bài còn thiếu
+                </a>
+                <a href="@Url.Action("Diem","HocSinh")" class="quick-btn quick-btn-purple">
+                    <span>🏆</span> Xem kết quả & điểm
+                </a>
+                <a href="@Url.Action("LichHoc","HocSinh")" class="quick-btn quick-btn-blue">
+                    <span>🗓️</span> Thời khóa biểu
+                </a>
+                <a href="@Url.Action("SuaThongTin","HocSinh")" class="quick-btn quick-btn-green">
+                    <span>👤</span> Thông tin cá nhân
+                </a>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- RIGHT: DEADLINES + LỊCH -->
+    <div class="col-lg-8">
+
+        <!-- BÀI TẬP CHƯA NỘP CÒN HẠN -->
+        <div class="section-card mb-4">
+            <div class="section-header" style="background: linear-gradient(90deg,#eff6ff,#fff);">
+                <span>📋</span> Bài tập chưa nộp (còn hạn)
+                @if (chuaNopConHan.Count > 0)
+                {
+                    <span class="ms-auto badge" style="background:#2563eb; border-radius:8px;">@chuaNopConHan.Count</span>
+                }
+            </div>
+
+            @if (chuaNopConHan.Count == 0)
+            {
+                <div class="empty-state">
+                    <div style="color:#94a3b8; font-size:0.95rem;">Không có bài tập chưa nộp.</div>
+                </div>
+            }
+            else
+            {
+                @foreach (var item in chuaNopConHan)
+                {
+                    var conLai = (item.HanNop - DateTime.Now).TotalHours;
+                    string urgentColor = conLai < 24 ? "#dc2626" : conLai < 72 ? "#d97706" : "#2563eb";
+                    string urgentBg = conLai < 24 ? "#fef2f2" : conLai < 72 ? "#fffbeb" : "#eff6ff";
+                    string urgentLabel = conLai < 24 ? "🔴 Hôm nay" : conLai < 72 ? "🟡 Còn " + (int)Math.Ceiling(conLai/24) + " ngày" : "🔵 " + item.HanNop.ToString("dd/MM");
+                    <div class="deadline-item" style="background:@urgentBg; border-left: 3px solid @urgentColor; margin: 0 .5rem .4rem; border-radius: 8px; padding: .65rem 1rem;">
+                        <div style="flex:1; min-width:0;">
+                            <div class="fw-semibold" style="font-size:0.92rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">@item.TieuDe</div>
+                            <small class="text-muted">@item.MonHoc?.TenMonHoc</small>
+                        </div>
+                        <div class="text-end ms-3" style="flex-shrink:0;">
+                            <div style="color:@urgentColor; font-weight:600; font-size:0.82rem; white-space:nowrap;">@urgentLabel</div>
+                            <a href="@Url.Action("NopBai","HocSinh", new { id = item.Id })"
+                               class="btn btn-sm mt-1"
+                               style="background:@urgentColor; color:#fff; border-radius:8px; font-size:0.78rem; padding:2px 12px;">
+                                Nộp ngay
+                            </a>
+                        </div>
+                    </div>
+                }
+                <div style="padding:.5rem 1rem; text-align:right;">
+                    <a href="@Url.Action("BaiTap","HocSinh",new{trangThai="chuaNop"})" style="color:#2563eb; font-size:.82rem;">Xem tất cả bài chưa nộp →</a>
+                </div>
+            }
+        </div>
+
+        <!-- LỊCH HỌC -->
+        <div class="section-card">
+            <div class="section-header" style="background: linear-gradient(90deg,#f0fdf4,#fff);">
+                <span>📅</span> Lịch học tuần này
+                <a href="@Url.Action("LichHoc","HocSinh")" class="ms-auto text-decoration-none" style="font-size:0.82rem; color:#15803d;">Xem đầy đủ →</a>
+            </div>
+
+            @if (!lichHoc.Any())
+            {
+                <div class="empty-state">
+                    <div class="emoji">🏫</div>
+                    <div>Chưa có lịch học hoặc chưa được phân lớp.</div>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table mb-0 schedule-table">
+                        <thead style="background:#f8fafc;">
+                            <tr>
+                                <th class="ps-4">Thứ</th>
+                                <th>Tiết</th>
+                                <th>Môn học</th>
+                                <th>Phòng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in lichHoc.Take(8))
+                            {
+                                <tr>
+                                    <td class="ps-4">
+                                        <span class="badge-thu">
+                                        @GetThuName(item.Thu)
+                                        </span>
+                                    </td>
+                                    <td>Tiết @item.TietHoc</td>
+                                    <td class="fw-medium">@(item.MonHoc?.TenMonHoc ?? "—")</td>
+                                    <td>
+                                        <span style="background:#f1f5f9; padding:2px 10px; border-radius:6px; font-size:0.85rem;">
+                                            @item.PhongHoc
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>

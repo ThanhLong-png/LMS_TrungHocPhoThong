@@ -1,0 +1,507 @@
+@model LMS_THPT.ViewModels.BaiTapManageViewModel
+@{
+    ViewData["Title"] = "Bài tập & Đánh giá";
+    ViewData["ActivePage"] = "BaiTap";
+    ViewData["PageTitle"] = "Bài tập & Đánh giá";
+    var lopId = (int)(ViewBag.LopHienTai ?? 0);
+    var monHocId = (int)(ViewBag.MonHocHienTai ?? 0);
+    var khoiId = (int)(ViewBag.KhoiHienTai ?? 0);
+    var lopMonHocs = ViewBag.LopMonHocs as List<LMS_THPT.Models.LopMonHoc> ?? new();
+    var danhSachKhoi = ViewBag.DanhSachKhoi as List<LMS_THPT.Models.Khoi> ?? new();
+    var tenLop = ViewBag.TenLopHienTai as string ?? "";
+    var tenMon = ViewBag.TenMonHienTai as string ?? "";
+    var danhSachBaiTap = ViewBag.DanhSachBaiTap as List<LMS_THPT.Models.BaiTap> ?? new();
+
+    var lops = lopMonHocs.Select(x => x.Lop).Where(x => x != null).DistinctBy(x => x!.Id).OrderBy(x => x!.TenLop).ToList();
+    var mons = lopMonHocs.Where(x => x.LopId == lopId).Select(x => x.MonHoc).Where(x => x != null).ToList();
+
+    var pending = Model.BaiNopChoChoam.Count(x => x.TrangThai == "pending");
+    var graded  = Model.BaiNopChoChoam.Count(x => x.TrangThai == "graded");
+    var gradedDiem = Model.BaiNopChoChoam.Where(x => x.Diem.HasValue).ToList();
+    var diemTB = gradedDiem.Any() ? gradedDiem.Average(x => x.Diem!.Value).ToString("0.#") : "--";
+
+    var now = DateTime.Now;
+    var conHanList  = danhSachBaiTap.Where(x => x.HanNop > now).ToList();
+    var quaHanList  = danhSachBaiTap.Where(x => x.HanNop <= now).ToList();
+}
+
+@Html.AntiForgeryToken()
+
+<style>
+    /* ── Page header ── */
+    .page-header {
+        background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%);
+        border-radius: 16px;
+        padding: 1.6rem 2rem;
+        color: #fff;
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(255,107,0,0.15);
+    }
+    .page-header::after {
+        content: '';
+        position: absolute;
+        top: -30%; right: -5%;
+        width: 220px; height: 220px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.06);
+    }
+
+    /* ── Khối tabs ── */
+    .khoi-tab-bar {
+        display: flex; gap: 8px; flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+    .khoi-tab {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 8px 20px; border-radius: 999px;
+        font-size: 0.88rem; font-weight: 600;
+        text-decoration: none; transition: all .18s;
+        border: 2px solid #e2e8f0; color: #475569; background: #fff;
+    }
+    .khoi-tab:hover { border-color: #ff6b00; color: #ff6b00; background: #fff7ed; }
+    .khoi-tab.active {
+        background: linear-gradient(135deg, #ff6b00, #ff8c00);
+        color: #fff; border-color: transparent;
+        box-shadow: 0 4px 12px rgba(255,107,0,0.3);
+    }
+
+    /* ── Lop/Mon tab bars ── */
+    .lop-khoi-bar {
+        display: flex; gap: 6px; flex-wrap: wrap;
+        padding: 12px 16px;
+        background: #f8fafc;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+    .lop-khoi-tab {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 6px 16px; border-radius: 8px;
+        font-size: 0.85rem; font-weight: 500;
+        text-decoration: none; transition: all .15s;
+        color: #475569; border: 1.5px solid #e2e8f0; background: #fff;
+    }
+    .lop-khoi-tab:hover { border-color: #ff6b00; color: #ff6b00; }
+    .lop-khoi-tab.active { background: #ff6b00; color: #fff; border-color: #ff6b00; font-weight: 600; }
+
+    .mon-tab-bar {
+        display: flex; gap: 8px; flex-wrap: wrap;
+        padding: 10px 14px;
+        background: #fff7ed;
+        border-radius: 12px;
+        margin-bottom: 1.2rem;
+    }
+    .mon-tab-item {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 5px 14px;
+        border-radius: 8px; font-size: 0.85rem; font-weight: 500;
+        color: #ff6b00; text-decoration: none;
+        border: 1.5px solid #fed7aa;
+        background: #fff;
+        transition: all .15s;
+    }
+    .mon-tab-item:hover { border-color: #ff6b00; background: #ffedd5; }
+    .mon-tab-item.active { background: #ff6b00; color: #fff; border-color: transparent; font-weight: 600; }
+
+    .tab-panel-body {
+        background: #fff;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    /* ── Filter chips ── */
+    .filter-bar {
+        background: #fff;
+        border-radius: 14px;
+        padding: 1rem 1.3rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,.06);
+        margin-bottom: 1.2rem;
+        display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+    }
+    .filter-chip {
+        padding: 0.32rem 1rem;
+        border-radius: 999px;
+        font-size: 0.83rem; font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all .18s;
+        display: inline-flex; align-items: center; gap: .35rem;
+        border: none; background: none;
+    }
+    .filter-chip.active { background: #ff6b00; color: #fff; }
+    .filter-chip:not(.active) { background: #f1f5f9; color: #475569; }
+    .filter-chip:not(.active):hover { background: #fff7ed; color: #ff6b00; }
+
+    /* ── Assignment card (matches student BaiTap view) ── */
+    .bt-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 3px 16px rgba(0,0,0,.06);
+        border: 1px solid rgba(0,0,0,.05);
+        overflow: hidden;
+        margin-bottom: 1rem;
+        transition: transform .2s, box-shadow .2s;
+    }
+    .bt-card:hover { transform: translateY(-2px); box-shadow: 0 7px 22px rgba(0,0,0,.09); }
+
+    .bt-header { padding: 1.1rem 1.4rem; border-bottom: 1px solid #f1f5f9; }
+    .bt-body {
+        padding: .9rem 1.4rem 1.1rem;
+        display: flex; align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap; gap: .8rem;
+    }
+
+    .status-tag {
+        display: inline-flex; align-items: center; gap: .3rem;
+        padding: 3px 11px; border-radius: 999px;
+        font-size: .78rem; font-weight: 600;
+    }
+    .st-open   { background: #dcfce7; color: #15803d; }
+    .st-urgent { background: #ffedd5; color: #c2410c; }
+    .st-closed { background: #fee2e2; color: #dc2626; }
+
+    .deadline-bar { height: 4px; border-radius: 999px; background: #e2e8f0; overflow: hidden; margin-top: .45rem; }
+
+    .btn-action-sm {
+        display: inline-flex; align-items: center; gap: .35rem;
+        padding: .38rem 1rem;
+        border-radius: 8px; font-size: .82rem; font-weight: 600;
+        text-decoration: none; transition: all .18s; border: none; cursor: pointer;
+    }
+    .btn-edit-sm  { background: #fff7ed; color: #ff6b00; }
+    .btn-edit-sm:hover  { background: #ffedd5; color: #ea580c; }
+    .btn-del-sm   { background: #fef2f2; color: #dc2626; }
+    .btn-del-sm:hover   { background: #fee2e2; color: #991b1b; }
+    .btn-view-sm  { background: linear-gradient(135deg,#ff6b00,#ea580c); color: #fff; }
+    .btn-view-sm:hover  { opacity: .88; color: #fff; }
+    .btn-create-sm{ background: linear-gradient(135deg,#ff6b00,#ea580c); color: #fff; }
+    .btn-create-sm:hover{ opacity: .88; color: #fff; }
+
+    /* ── Stats mini row ── */
+    .stats-mini { display: flex; gap: .8rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .stat-mini-card {
+        flex: 1; min-width: 110px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,.06);
+        border: 1px solid rgba(0,0,0,.05);
+        padding: .9rem 1rem;
+        display: flex; align-items: center; gap: .8rem;
+    }
+    .stat-mini-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .stat-mini-val  { font-size: 1.4rem; font-weight: 800; line-height: 1; }
+    .stat-mini-lbl  { font-size: .72rem; color: #94a3b8; margin-top: 2px; }
+
+    .empty-state { text-align: center; padding: 3rem 1rem; color: #94a3b8; }
+    .section-title {
+        font-size: .88rem; font-weight: 700;
+        color: #1e293b; margin-bottom: .8rem;
+        display: flex; align-items: center; gap: .4rem;
+    }
+</style>
+
+<!-- PAGE HEADER -->
+<div class="page-header" style="position:relative;">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3" style="position:relative;z-index:1;">
+        <div>
+            <h1 class="fw-bold mb-0" style="font-size:1.65rem; letter-spacing:-0.02em; font-weight:800;">Bài tập &amp; Đánh giá</h1>
+            <p class="mb-0 opacity-75" style="font-size:.9rem; font-weight:500; margin-top:.25rem;">
+                    @if (!string.IsNullOrEmpty(tenLop)) { <text>Lớp <strong>@tenLop</strong> · </text> }
+                    @if (!string.IsNullOrEmpty(tenMon)) { <text>Môn <strong>@tenMon</strong></text> }
+                </p>
+        </div>
+        @if (monHocId > 0)
+        {
+            <a asp-area="GiaoVien" asp-controller="GiangDay" asp-action="CreateBaiTap"
+               asp-route-lopId="@lopId" asp-route-monHocId="@monHocId"
+               class="btn-create-sm btn-action-sm">
+                 Tạo bài tập mới
+            </a>
+        }
+    </div>
+</div>
+
+@if (!lops.Any())
+{
+    <div class="empty-state">
+        <div style="font-size:3rem;margin-bottom:1rem;"></div>
+        <h5>Chưa có bài nộp nào.</h5>
+    </div>
+}
+else
+{
+    @* ── Bộ lọc Khối ── *@
+    @if (danhSachKhoi.Any())
+    {
+        <div class="khoi-tab-bar">
+            @foreach (var khoi in danhSachKhoi)
+            {
+                <a asp-action="QuanLyBaiTap" asp-route-khoiId="@khoi.Id"
+                   class="khoi-tab @(khoi.Id == khoiId ? "active" : "")">
+                     @khoi.TenKhoi
+                </a>
+            }
+        </div>
+    }
+
+    @* ── Bộ lọc Lớp trong khối ── *@
+    @if (lops.Any())
+    {
+        <div class="lop-khoi-bar">
+            <span style="font-size:0.82rem;font-weight:600;color:#64748b;align-self:center;"> Lớp:</span>
+            @foreach (var lop in lops)
+            {
+                var firstMon = lopMonHocs.FirstOrDefault(x => x.LopId == lop!.Id);
+                <a asp-action="QuanLyBaiTap"
+                   asp-route-khoiId="@khoiId"
+                   asp-route-lopId="@lop!.Id"
+                   asp-route-monHocId="@(lop.Id == lopId ? monHocId : firstMon?.MonHocId ?? 0)"
+                   class="lop-khoi-tab @(lop.Id == lopId ? "active" : "")">
+                    @lop.TenLop
+                </a>
+            }
+        </div>
+    }
+
+    <!-- Subject Sub-tabs -->
+    @if (mons.Any())
+    {
+        <div class="mon-tab-bar">
+            <span style="font-size:0.82rem;font-weight:600;color:#1d4ed8;align-self:center;"> Môn:</span>
+            @foreach (var mon in mons)
+            {
+                <a asp-action="QuanLyBaiTap"
+                   asp-route-khoiId="@khoiId"
+                   asp-route-lopId="@lopId"
+                   asp-route-monHocId="@mon!.Id"
+                   class="mon-tab-item @(mon.Id == monHocId ? "active" : "")">
+                    
+                    @mon.TenMonHoc
+                </a>
+            }
+        </div>
+    }
+
+    <div class="tab-panel-body">
+        @if (!mons.Any())
+        {
+            <div class="empty-state">
+                <div style="font-size:2.5rem;margin-bottom:.8rem;"></div>
+                <p>Chưa có bài nộp nào.</p>
+            </div>
+        }
+        else
+        {
+            <!-- Stats row -->
+            <div class="stats-mini">
+                <div class="stat-mini-card">
+                    <div class="stat-mini-icon"></div>
+                    <div>
+                        <div class="stat-mini-val" style="color:#ff6b00;">@danhSachBaiTap.Count</div>
+                        <div class="stat-mini-lbl">Tổng bài tập</div>
+                    </div>
+                </div>
+                <div class="stat-mini-card">
+                    <div class="stat-mini-icon"></div>
+                    <div>
+                        <div class="stat-mini-val" style="color:#15803d;">@conHanList.Count</div>
+                        <div class="stat-mini-lbl">Còn hạn</div>
+                    </div>
+                </div>
+                <div class="stat-mini-card">
+                    <div class="stat-mini-icon"></div>
+                    <div>
+                        <div class="stat-mini-val" style="color:#dc2626;">@quaHanList.Count</div>
+                        <div class="stat-mini-lbl">Quá hạn</div>
+                    </div>
+                </div>
+                <div class="stat-mini-card">
+                    <div class="stat-mini-icon"></div>
+                    <div>
+                        <div class="stat-mini-val" style="color:#c2410c;">@pending</div>
+                        <div class="stat-mini-lbl">Chờ chấm</div>
+                    </div>
+                </div>
+                <div class="stat-mini-card">
+                    <div class="stat-mini-icon"></div>
+                    <div>
+                        <div class="stat-mini-val" style="color:#15803d;">@graded</div>
+                        <div class="stat-mini-lbl">Đã chấm</div>
+                    </div>
+                </div>
+                <div class="stat-mini-card">
+                    <div class="stat-mini-icon"></div>
+                    <div>
+                        <div class="stat-mini-val" style="color:#ff6b00;">@diemTB</div>
+                        <div class="stat-mini-lbl">Điểm TB</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter bar -->
+            <div class="filter-bar">
+                <span class="text-muted" style="font-size:.82rem;font-weight:600;">Lọc:</span>
+                <button class="filter-chip active" onclick="filterBT('all', this)"> Tất cả (@danhSachBaiTap.Count)</button>
+                <button class="filter-chip" onclick="filterBT('open', this)"> Còn hạn (@conHanList.Count)</button>
+                <button class="filter-chip" onclick="filterBT('closed', this)"> Quá hạn (@quaHanList.Count)</button>
+            </div>
+
+            <!-- Assignment cards -->
+            @if (!danhSachBaiTap.Any())
+            {
+                <div class="empty-state">
+                    <div style="font-size:3rem;margin-bottom:.8rem;"></div>
+                    <h5>Chưa có bài nộp nào.</h5>
+                    <p style="font-size:.9rem;">Nhấn "Tạo bài tập mới" để bắt đầu.</p>
+                </div>
+            }
+            else
+            {
+                <!-- CÒNN HẠN -->
+                @if (conHanList.Any())
+                {
+                    <div class="section-title bt-section" data-section="open">
+                         Đang mở &mdash; <span style="color:#15803d;">@conHanList.Count bài tập</span>
+                    </div>
+                    @foreach (var bt in conHanList)
+                    {
+                        var daNopCount = Model.BaiNopChoChoam.Count(x => x.TenBaiTap == bt.TieuDe);
+                        bool sapHetHan = bt.HanNop <= now.AddDays(3);
+                        string stClass = sapHetHan ? "st-urgent" : "st-open";
+                        string stLabel = sapHetHan ? " Sắp hết hạn" : " Còn hạn";
+                        var tongTg = (bt.HanNop - bt.NgayTao).TotalMinutes;
+                        var daQua  = (now - bt.NgayTao).TotalMinutes;
+                        var pct    = tongTg <= 0 ? 100 : Math.Min(100, daQua / tongTg * 100);
+                        string barColor = sapHetHan ? "#d97706" : "#ff6b00";
+
+                        <div class="bt-card bt-item" data-status="open">
+                            <div class="bt-header">
+                                <div class="d-flex align-items-start justify-content-between gap-2 flex-wrap">
+                                    <div>
+                                        <div class="fw-bold" style="font-size:1rem;color:#1e293b;">@bt.TieuDe</div>
+                                        @if (!string.IsNullOrEmpty(bt.MoTa))
+                                        {
+                                            <div class="text-muted mt-1" style="font-size:.84rem;max-height:36px;overflow:hidden;">@Html.Raw(bt.MoTa.Length > 120 ? bt.MoTa.Substring(0,120) + "…" : bt.MoTa)</div>
+                                        }
+                                    </div>
+                                    <span class="status-tag @stClass">@stLabel</span>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="d-flex justify-content-between" style="font-size:.76rem;color:#94a3b8;">
+                                        <span>Tạo: @bt.NgayTao.ToString("dd/MM/yyyy")</span>
+                                        <span style="color:@barColor;font-weight:600;">Hạn: @bt.HanNop.ToString("dd/MM/yyyy HH:mm")</span>
+                                    </div>
+                                    <div class="deadline-bar">
+                                        <div style="width:@pct%;height:100%;background:@barColor;transition:width .5s;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bt-body">
+                                <div class="d-flex gap-3 align-items-center flex-wrap">
+                                    <span class="text-muted" style="font-size:.83rem;">
+                                         Điểm tối đa: <strong>@bt.DiemToiDa</strong>
+                                    </span>
+                                    <span style="background:#fff7ed;color:#ff6b00;padding:2px 10px;border-radius:8px;font-size:.78rem;font-weight:600;">
+                                         @daNopCount bài đã nộp
+                                    </span>
+                                </div>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <a asp-area="GiaoVien" asp-controller="GiangDay"
+                                       asp-action="EditBaiTap" asp-route-id="@bt.Id" asp-route-lopId="@lopId"
+                                       class="btn-action-sm btn-edit-sm">
+                                         Sửa
+                                    </a>
+                                    <a asp-area="GiaoVien" asp-controller="GiangDay"
+                                       asp-action="Submissions" asp-route-baiTapId="@bt.Id" asp-route-lopId="@lopId"
+                                       class="btn-action-sm btn-view-sm">
+                                         Chấm điểm
+                                    </a>
+                                    <form asp-area="GiaoVien" asp-controller="GiangDay" asp-action="DeleteBaiTap" method="post" onsubmit="return false;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@bt.Id" />
+                                        <input type="hidden" name="lopId" value="@lopId" />
+                                        <button type="button" class="btn-action-sm btn-del-sm" onclick="xacNhanXoa(this.closest('form'), 'Xóa bài tập này? Bài nộp của học sinh cũng bị xóa!')">
+                                             Xóa
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+
+                <!-- QUÁ HẠN -->
+                @if (quaHanList.Any())
+                {
+                    <div class="section-title bt-section mt-4" data-section="closed" style="color:#dc2626;">
+                         Đã đóng &mdash; <span>@quaHanList.Count bài tập</span>
+                    </div>
+                    @foreach (var bt in quaHanList)
+                    {
+                        var daNopCount = Model.BaiNopChoChoam.Count(x => x.TenBaiTap == bt.TieuDe);
+
+                        <div class="bt-card bt-item" data-status="closed" style="opacity:.85;">
+                            <div class="bt-header">
+                                <div class="d-flex align-items-start justify-content-between gap-2 flex-wrap">
+                                    <div>
+                                        <div class="fw-bold" style="font-size:1rem;color:#1e293b;">@bt.TieuDe</div>
+                                    </div>
+                                    <span class="status-tag st-closed"> Hết hạn</span>
+                                </div>
+                                <div class="d-flex justify-content-between mt-1" style="font-size:.76rem;color:#94a3b8;">
+                                    <span>Tạo: @bt.NgayTao.ToString("dd/MM/yyyy")</span>
+                                    <span style="color:#dc2626;font-weight:600;">Hạn: @bt.HanNop.ToString("dd/MM/yyyy HH:mm")</span>
+                                </div>
+                            </div>
+                            <div class="bt-body">
+                                <span style="background:#f1f5f9;color:#64748b;padding:2px 10px;border-radius:8px;font-size:.78rem;font-weight:600;">
+                                     @daNopCount bài đã nộp
+                                </span>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <a asp-area="GiaoVien" asp-controller="GiangDay"
+                                       asp-action="EditBaiTap" asp-route-id="@bt.Id" asp-route-lopId="@lopId"
+                                       class="btn-action-sm btn-edit-sm">
+                                         Sửa
+                                    </a>
+                                    <a asp-area="GiaoVien" asp-controller="GiangDay"
+                                       asp-action="Submissions" asp-route-baiTapId="@bt.Id" asp-route-lopId="@lopId"
+                                       class="btn-action-sm btn-view-sm">
+                                         Xem bài nộp
+                                    </a>
+                                    <form asp-area="GiaoVien" asp-controller="GiangDay" asp-action="DeleteBaiTap" method="post" onsubmit="return false;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@bt.Id" />
+                                        <input type="hidden" name="lopId" value="@lopId" />
+                                        <button type="button" class="btn-action-sm btn-del-sm" onclick="xacNhanXoa(this.closest('form'), 'Xóa bài tập này?')">
+                                             Xóa
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+        }
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function filterBT(type, el) {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+
+            document.querySelectorAll('.bt-item').forEach(card => {
+                card.style.display = (type === 'all' || card.dataset.status === type) ? '' : 'none';
+            });
+            document.querySelectorAll('.bt-section').forEach(sec => {
+                sec.style.display = (type === 'all' || sec.dataset.section === type) ? '' : 'none';
+            });
+        }
+    </script>
+}

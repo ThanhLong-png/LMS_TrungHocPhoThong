@@ -1,0 +1,82 @@
+@model IEnumerable<LMS_THPT.Models.ThongBao>
+
+@{
+    ViewData["Title"] = "Quản lý thông báo";
+    Layout = "_AdminLayout";
+}
+
+
+<div class="admin-page-header">
+    <h1 class="admin-page-title">📢 Quản lý Thông báo</h1>
+    <div class="admin-page-actions">
+        <a asp-action="Create" class="admin-btn admin-btn-primary">
+            <span>+</span> Tạo thông báo
+        </a>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="admin-card">
+        <div class="admin-empty">
+            <div class="admin-empty-icon">📭</div>
+            <div class="admin-empty-title">Không có thông báo</div>
+            <div class="admin-empty-text">Bắt đầu bằng cách tạo thông báo đầu tiên của bạn</div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="admin-card">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Tiêu đề</th>
+                    <th>Ngày đăng</th>
+                    <th>Trạng thái</th>
+                    <th style="width: 150px;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var tb in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@tb.TieuDe</strong>
+                        </td>
+                        <td>
+                            <span style="color: var(--admin-text-muted); font-size: 0.85rem;">
+                                @tb.NgayDang.ToString("dd/MM/yyyy HH:mm")
+                            </span>
+                        </td>
+                        <td>
+                            @if (tb.HienThi)
+                            {
+                                <span class="admin-badge admin-badge-success">✓ Hiển thị</span>
+                            }
+                            else
+                            {
+                                <span class="admin-badge admin-badge-danger">✗ Ẩn</span>
+                            }
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <form asp-action="ToggleHienThi" asp-route-id="@tb.Id" method="post" style="display: inline;">
+                                    <button type="submit" class="admin-btn admin-btn-secondary admin-btn-sm">
+                                        @(tb.HienThi ? "Ẩn" : "Hiển thị")
+                                    </button>
+                                </form>
+                                <form asp-action="Delete" asp-route-id="@tb.Id" method="post" style="display: inline;"
+                                      onsubmit="return confirm('Xóa thông báo này?');">
+                                    <button type="submit" class="admin-btn admin-btn-danger admin-btn-sm">
+                                        Xóa
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

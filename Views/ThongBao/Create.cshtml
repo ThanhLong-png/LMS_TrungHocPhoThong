@@ -1,0 +1,40 @@
+@model LMS_THPT.Models.ThongBao
+
+@{
+    ViewData["Title"] = "Tạo thông báo";
+    Layout = "_AdminLayout";
+}
+
+
+<div style="max-width: 700px; margin: 0 auto;">
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3>📢 Tạo Thông Báo Mới</h3>
+        </div>
+        <div class="admin-card-body">
+            <form asp-action="Create" method="post">
+                <div class="admin-form-group">
+                    <label class="admin-form-label" asp-for="TieuDe"></label>
+                    <input class="admin-form-control" asp-for="TieuDe" placeholder="Nhập tiêu đề thông báo..." />
+                </div>
+
+                <div class="admin-form-group">
+                    <label class="admin-form-label" asp-for="NoiDung"></label>
+                    <textarea class="admin-form-control" asp-for="NoiDung" placeholder="Nhập nội dung thông báo..." style="min-height: 150px;"></textarea>
+                </div>
+
+                <div class="admin-form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" asp-for="HienThi" id="HienThi" />
+                    <label for="HienThi" style="margin: 0; font-size: 0.9rem; color: var(--admin-text-primary); font-weight: 500;">
+                        Hiển thị ngay
+                    </label>
+                </div>
+
+                <div class="admin-card-footer">
+                    <a href="@Url.Action("Index")" class="admin-btn admin-btn-secondary">Hủy</a>
+                    <button type="submit" class="admin-btn admin-btn-primary">Đăng Thông Báo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

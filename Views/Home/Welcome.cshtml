@@ -1,0 +1,401 @@
+@{
+    ViewData["Title"] = "Trang chủ";
+    var thongBaoList = ViewBag.ThongBao as List<LMS_THPT.Models.ThongBao>;
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@@400;500;600;700;800&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body { font-family: 'Inter', sans-serif; }
+
+    /* ── HERO ── */
+    .wlc-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        background: linear-gradient(135deg, #1a237e 0%, #283593 40%, #3949ab 70%, #5c6bc0 100%);
+        padding: 52px 48px 44px;
+        margin-bottom: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        box-shadow: 0 20px 60px rgba(26,35,126,.35);
+    }
+
+    .wlc-hero::before {
+        content: '';
+        position: absolute;
+        width: 420px; height: 420px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.06);
+        top: -120px; right: -80px;
+        pointer-events: none;
+    }
+
+    .wlc-hero::after {
+        content: '';
+        position: absolute;
+        width: 260px; height: 260px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.04);
+        bottom: -80px; left: 30%;
+        pointer-events: none;
+    }
+
+    .hero-text { position: relative; z-index: 1; }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255,255,255,.15);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255,255,255,.25);
+        color: #e8eaf6;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .6px;
+        text-transform: uppercase;
+        padding: 5px 14px;
+        border-radius: 50px;
+        margin-bottom: 18px;
+    }
+
+    .hero-title {
+        font-size: 36px;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1.2;
+        margin-bottom: 10px;
+    }
+
+    .hero-title span {
+        background: linear-gradient(90deg, #90caf9, #ce93d8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+        color: rgba(255,255,255,.72);
+        font-size: 15px;
+        max-width: 440px;
+        line-height: 1.6;
+    }
+
+    .hero-icon {
+        position: relative;
+        z-index: 1;
+        font-size: 96px;
+        line-height: 1;
+        animation: floatY 4s ease-in-out infinite;
+        filter: drop-shadow(0 8px 24px rgba(0,0,0,.3));
+        flex-shrink: 0;
+    }
+
+    @@keyframes floatY {
+        0%,100% { transform: translateY(0); }
+        50%      { transform: translateY(-12px); }
+    }
+
+    /* ── STATS ── */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin-bottom: 32px;
+    }
+
+    .stat-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 24px 20px;
+        text-align: center;
+        box-shadow: 0 4px 24px rgba(0,0,0,.07);
+        border: 1px solid #f0f0f7;
+        transition: transform .25s, box-shadow .25s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .stat-card:nth-child(1)::before { background: linear-gradient(90deg,#5c6bc0,#7986cb); }
+    .stat-card:nth-child(2)::before { background: linear-gradient(90deg,#26a69a,#4db6ac); }
+    .stat-card:nth-child(3)::before { background: linear-gradient(90deg,#f57c00,#ffa726); }
+    .stat-card:nth-child(4)::before { background: linear-gradient(90deg,#e53935,#ef5350); }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 36px rgba(0,0,0,.12);
+    }
+
+    .stat-icon {
+        font-size: 32px;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .stat-num {
+        font-size: 30px;
+        font-weight: 800;
+        color: #1a237e;
+        line-height: 1;
+        margin-bottom: 6px;
+    }
+
+    .stat-label {
+        font-size: 13px;
+        color: #6b7a99;
+        font-weight: 500;
+    }
+
+    /* ── NOTIFICATIONS ── */
+    .tb-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 24px rgba(0,0,0,.07);
+        border: 1px solid #f0f0f7;
+        overflow: hidden;
+    }
+
+    .tb-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px;
+        background: linear-gradient(135deg,#f5f7ff,#eef0fb);
+        border-bottom: 1px solid #e8eaf6;
+    }
+
+    .tb-header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .tb-header-icon {
+        width: 38px; height: 38px;
+        background: linear-gradient(135deg,#5c6bc0,#3949ab);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+
+    .tb-header h2 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1a237e;
+    }
+
+    .tb-count {
+        background: #5c6bc0;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 50px;
+    }
+
+    .tb-body { padding: 8px 0; }
+
+    .tb-item {
+        padding: 16px 24px;
+        border-bottom: 1px solid #f5f7ff;
+        transition: background .18s;
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+    }
+
+    .tb-item:last-child { border-bottom: none; }
+    .tb-item:hover { background: #f8f9ff; }
+
+    .tb-dot {
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        background: linear-gradient(135deg,#5c6bc0,#7986cb);
+        margin-top: 5px;
+        flex-shrink: 0;
+        box-shadow: 0 0 0 3px rgba(92,107,192,.15);
+    }
+
+    .tb-content { flex: 1; }
+
+    .tb-item-title {
+        font-weight: 600;
+        color: #1a237e;
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .tb-item-body {
+        font-size: 13px;
+        color: #6b7a99;
+        line-height: 1.55;
+        margin-bottom: 6px;
+    }
+
+    .tb-time {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        color: #aab4cc;
+        font-weight: 500;
+    }
+
+    .tb-empty {
+        text-align: center;
+        padding: 48px 24px;
+        color: #aab4cc;
+    }
+
+    .tb-empty-icon { font-size: 48px; display: block; margin-bottom: 12px; }
+
+    /* ── PAGINATION ── */
+    .pagination-wrap {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        padding: 16px 24px;
+        border-top: 1px solid #f0f0f7;
+    }
+
+    .pagination-wrap a {
+        width: 34px; height: 34px;
+        border-radius: 8px;
+        background: #f5f7ff;
+        color: #3949ab;
+        font-size: 13px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        border: 1px solid #e8eaf6;
+        transition: all .2s;
+    }
+
+    .pagination-wrap a:hover { background: #e8eaf6; }
+
+    .pagination-wrap a.active {
+        background: linear-gradient(135deg,#3949ab,#5c6bc0);
+        color: #fff;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(57,73,171,.35);
+    }
+
+    @@media (max-width: 900px) {
+        .stats-grid { grid-template-columns: repeat(2,1fr); }
+        .wlc-hero { flex-direction: column; text-align: center; }
+        .hero-sub { max-width: 100%; }
+    }
+
+    @@media (max-width: 560px) {
+        .stats-grid { grid-template-columns: 1fr 1fr; }
+        .wlc-hero { padding: 32px 24px; }
+        .hero-title { font-size: 26px; }
+    }
+</style>
+
+<!-- HERO -->
+<div class="wlc-hero">
+    <div class="hero-text">
+        <div class="hero-badge">🎓 Hệ thống LMS</div>
+        <h1 class="hero-title">
+            Chào mừng đến với<br>
+            <span>LMS Quốc Học Huế</span>
+        </h1>
+        <p class="hero-sub">
+            Nền tảng quản lý học tập hiện đại — kết nối giáo viên, học sinh và nhà trường trong một hệ sinh thái giáo dục thống nhất.
+        </p>
+    </div>
+    <div class="hero-icon">🏫</div>
+</div>
+
+<!-- STATS -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <span class="stat-icon">🎒</span>
+        <div class="stat-num">@(ViewBag.SoHocSinh ?? 0)</div>
+        <div class="stat-label">Học sinh</div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon">👨‍🏫</span>
+        <div class="stat-num">@(ViewBag.SoGiaoVien ?? 0)</div>
+        <div class="stat-label">Giáo viên</div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon">🏛️</span>
+        <div class="stat-num">@(ViewBag.SoLop ?? 0)</div>
+        <div class="stat-label">Lớp học</div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon">📚</span>
+        <div class="stat-num">@(ViewBag.SoMonHoc ?? 0)</div>
+        <div class="stat-label">Môn học</div>
+    </div>
+</div>
+
+<!-- THÔNG BÁO -->
+<div class="tb-card">
+    <div class="tb-header">
+        <div class="tb-header-left">
+            <div class="tb-header-icon">🔔</div>
+            <h2>Thông báo từ nhà trường</h2>
+        </div>
+        @if (thongBaoList != null && thongBaoList.Any())
+        {
+            <span class="tb-count">@thongBaoList.Count thông báo</span>
+        }
+    </div>
+
+    <div class="tb-body">
+        @if (thongBaoList != null && thongBaoList.Any())
+        {
+            foreach (var tb in thongBaoList)
+            {
+                <div class="tb-item">
+                    <div class="tb-dot"></div>
+                    <div class="tb-content">
+                        <div class="tb-item-title">@tb.TieuDe</div>
+                        <div class="tb-item-body">
+                            @(tb.NoiDung.Length > 120 ? tb.NoiDung.Substring(0, 120) + "…" : tb.NoiDung)
+                        </div>
+                        <span class="tb-time">🕐 @tb.NgayDang.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="tb-empty">
+                <span class="tb-empty-icon">📭</span>
+                <p>Chưa có thông báo nào.</p>
+            </div>
+        }
+    </div>
+
+    @if (totalPages > 1)
+    {
+        <div class="pagination-wrap">
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <a href="?page=@i" class="@(i == currentPage ? "active" : "")">@i</a>
+            }
+        </div>
+    }
+</div>

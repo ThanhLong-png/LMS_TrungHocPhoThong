@@ -1,0 +1,256 @@
+@model LMS_THPT.Models.MonHoc
+@{
+    ViewData["Title"] = Model.TenMonHoc;
+    Layout = "~/Views/Shared/_LayoutHocSinh.cshtml";
+    var baiGiangs  = (List<LMS_THPT.Models.BaiGiang>)ViewBag.BaiGiangs;
+    var baiTaps    = (List<LMS_THPT.Models.BaiTap>)ViewBag.BaiTaps;
+    var baiNopList = (List<LMS_THPT.Models.BaiNop>)ViewBag.BaiNop;
+    var taiLieus   = (List<LMS_THPT.Models.TaiLieu>)ViewBag.TaiLieus;
+    var lopMonHoc  = (LMS_THPT.Models.LopMonHoc?)ViewBag.LopMonHoc;
+    string? gvName = lopMonHoc?.GiaoVien?.HoTen ?? Model.GiaoVien?.HoTen;
+    var now = DateTime.Now;
+}
+<style>
+.mon-hub-header{border-radius:16px;padding:2rem;color:#fff;margin-bottom:1.8rem;position:relative;overflow:hidden;background:linear-gradient(135deg,#ff6b00 0%,#ff8c00 100%);box-shadow: 0 10px 30px rgba(255,107,0,0.2)}
+.mon-hub-header::after{content:'';position:absolute;top:-30%;right:-5%;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.07)}
+.mon-hub-header::before{content:'';position:absolute;bottom:-40%;left:5%;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.05)}
+.hub-icon{width:64px;height:64px;border-radius:16px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.7rem;font-weight:800;color:#fff;position:relative;z-index:1;flex-shrink:0}
+.hub-quick-bar{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.5rem}
+.hub-quick-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.1rem;border-radius:10px;font-size:.85rem;font-weight:600;text-decoration:none;transition:all .18s;border:2px solid rgba(255,255,255,.25);color:#fff;background:rgba(255,255,255,.12)}
+.hub-quick-btn:hover{background:rgba(255,255,255,.25);color:#fff;border-color:rgba(255,255,255,.4);transform:translateY(-1px)}
+.section-card{background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.07);border:1px solid rgba(0,0,0,.05);overflow:hidden;margin-bottom:1.5rem}
+.section-head{padding:1rem 1.3rem;font-weight:700;font-size:.95rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f1f5f9;color:#1e293b}
+.section-head a{font-size:.8rem;font-weight:500;color:#ff6b00;text-decoration:none}
+.section-head a:hover{text-decoration:underline}
+/* Bài giảng mini card */
+.bg-mini{display:flex;align-items:center;gap:1rem;padding:.9rem 1.3rem;border-bottom:1px solid #f8fafc;transition:background .15s}
+.bg-mini:last-child{border-bottom:none}
+.bg-mini:hover{background:#fafbff}
+.bg-mini-icon{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#ff6b00,#ea580c);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.bg-mini-title{font-weight:600;font-size:.9rem;color:#1e293b}
+.bg-mini-meta{font-size:.78rem;color:#94a3b8;margin-top:2px}
+/* Bài tập mini */
+.bt-mini{display:flex;align-items:center;gap:1rem;padding:.9rem 1.3rem;border-bottom:1px solid #f8fafc;transition:background .15s}
+.bt-mini:last-child{border-bottom:none}
+.bt-mini:hover{background:#fafbff}
+.bt-status{display:inline-flex;align-items:center;gap:.25rem;padding:3px 10px;border-radius:999px;font-size:.75rem;font-weight:600;white-space:nowrap;flex-shrink:0}
+.st-done{background:#dcfce7;color:#15803d}
+.st-late{background:#fee2e2;color:#dc2626}
+.st-open{background:#eff6ff;color:#1d4ed8}
+.st-urgent{background:#ffedd5;color:#c2410c}
+.st-closed{background:#f1f5f9;color:#64748b}
+/* Tài liệu mini */
+.tl-mini{display:flex;align-items:center;gap:1rem;padding:.9rem 1.3rem;border-bottom:1px solid #f8fafc;transition:background .15s}
+.tl-mini:last-child{border-bottom:none}
+.tl-mini:hover{background:#f0fdf4}
+.tl-mini-icon{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+/* Stats row */
+.stat-pill{display:flex;flex-direction:column;align-items:center;padding:1rem;flex:1;min-width:100px}
+.stat-pill-val{font-size:1.8rem;font-weight:800;line-height:1}
+.stat-pill-lbl{font-size:.75rem;color:#94a3b8;margin-top:4px;text-align:center}
+.empty-mini{text-align:center;padding:2rem 1rem;color:#94a3b8;font-size:.88rem}
+.breadcrumb-hs{display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#64748b;margin-bottom:1rem}
+.breadcrumb-hs a{color:#ff6b00;text-decoration:none}
+.breadcrumb-hs a:hover{text-decoration:underline}
+</style>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb-hs">
+    <a href="@Url.Action("MonHoc","HocSinh")">📚 Môn học</a>
+    <span>›</span>
+    <span>@Model.TenMonHoc</span>
+</div>
+
+<!-- HUB HEADER -->
+<div class="mon-hub-header">
+    <div class="d-flex align-items-start gap-3" style="position:relative;z-index:1">
+        <div class="hub-icon">📖</div>
+        <div>
+            <h1 class="fw-bold mb-1" style="font-size:1.6rem">@Model.TenMonHoc</h1>
+            <div style="opacity:.8;font-size:.9rem">
+                👨‍🏫 @(gvName ?? "Chưa phân công giáo viên")
+            </div>
+            @if (!string.IsNullOrEmpty(Model.MoTa))
+            {
+                <div style="opacity:.7;font-size:.85rem;margin-top:.4rem">@Model.MoTa</div>
+            }
+        </div>
+    </div>
+
+    <!-- QUICK ACTION BUTTONS -->
+    <div class="hub-quick-bar">
+        <a href="@Url.Action("BaiGiang","HocSinh",new{monHocId=Model.Id})" class="hub-quick-btn">
+            📖 Bài giảng
+        </a>
+        <a href="@Url.Action("BaiTap","HocSinh",new{monHocId=Model.Id})" class="hub-quick-btn">
+            📝 Bài tập
+        </a>
+        <a href="@Url.Action("TaiLieu","HocSinh",new{monHocId=Model.Id})" class="hub-quick-btn">
+            📥 Tài liệu
+        </a>
+        <a href="@Url.Action("Diem","HocSinh",new{monHocId=Model.Id})" class="hub-quick-btn">
+            🏆 Điểm số
+        </a>
+    </div>
+</div>
+
+<!-- STATS ROW -->
+@{
+    int tongBt = baiTaps.Count;
+    int daNopCnt = baiTaps.Count(bt => baiNopList.Any(bn => bn.BaiTapId == bt.Id));
+    int chuaNopCnt = tongBt - daNopCnt;
+    var daCham = baiNopList.Where(x => x.Diem.HasValue).ToList();
+    double? diemTB = daCham.Count > 0 ? Math.Round(daCham.Average(x => x.Diem!.Value), 1) : null;
+}
+<div class="section-card mb-4">
+    <div class="d-flex flex-wrap" style="border-bottom:1px solid #f1f5f9">
+        <div class="stat-pill" style="border-right:1px solid #f1f5f9">
+            <div class="stat-pill-val" style="color:#ff6b00">@baiGiangs.Count</div>
+            <div class="stat-pill-lbl">Bài giảng</div>
+        </div>
+        <div class="stat-pill" style="border-right:1px solid #f1f5f9">
+            <div class="stat-pill-val" style="color:#10b981">@daNopCnt</div>
+            <div class="stat-pill-lbl">Đã nộp</div>
+        </div>
+        <div class="stat-pill" style="border-right:1px solid #f1f5f9">
+            <div class="stat-pill-val" style="color:#f59e0b">@chuaNopCnt</div>
+            <div class="stat-pill-lbl">Chưa nộp</div>
+        </div>
+        <div class="stat-pill">
+            @if (diemTB.HasValue)
+            { <div class="stat-pill-val" style="color:#d97706">@diemTB</div> }
+            else
+            { <div class="stat-pill-val" style="color:#94a3b8">—</div> }
+            <div class="stat-pill-lbl">Điểm TB</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- LEFT: BÀI GIẢNG + TÀI LIỆU -->
+    <div class="col-lg-6">
+
+        <!-- BÀI GIẢNG MỚI NHẤT -->
+        <div class="section-card">
+            <div class="section-head">
+                <span>📖 Bài giảng mới nhất</span>
+                <a href="@Url.Action("BaiGiang","HocSinh",new{monHocId=Model.Id})">Xem tất cả →</a>
+            </div>
+            @if (!baiGiangs.Any())
+            {
+                <div class="empty-mini">Chưa có bài giảng nào</div>
+            }
+            else
+            {
+                @foreach (var bg in baiGiangs)
+                {
+                    <a href="@Url.Action("ChiTietBaiGiang","HocSinh",new{id=bg.Id})" class="bg-mini text-decoration-none">
+                        <div class="bg-mini-icon">📝</div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <div class="bg-mini-title text-truncate">@bg.TieuDe</div>
+                            <div class="bg-mini-meta">📅 @bg.NgayTao.ToString("dd/MM/yyyy") · @(bg.NguoiDung?.HoTen ?? "—")</div>
+                        </div>
+                        <span style="color:#94a3b8;font-size:.9rem">›</span>
+                    </a>
+                }
+            }
+        </div>
+
+        <!-- TÀI LIỆU -->
+        <div class="section-card">
+            <div class="section-head">
+                <span>📥 Tài liệu học tập</span>
+                <a href="@Url.Action("TaiLieu","HocSinh",new{monHocId=Model.Id})">Xem tất cả →</a>
+            </div>
+            @if (!taiLieus.Any())
+            {
+                <div class="empty-mini">Chưa có tài liệu nào</div>
+            }
+            else
+            {
+                @foreach (var tl in taiLieus)
+                {
+                    string tlIcon = tl.LoaiTaiLieu switch {
+                        LMS_THPT.Models.LoaiTaiLieu.PDF   => "📄",
+                        LMS_THPT.Models.LoaiTaiLieu.Video => "🎬",
+                        LMS_THPT.Models.LoaiTaiLieu.Slide => "📊",
+                        _ => "📁"
+                    };
+                    string tlBg = tl.LoaiTaiLieu switch {
+                        LMS_THPT.Models.LoaiTaiLieu.PDF   => "#fef2f2",
+                        LMS_THPT.Models.LoaiTaiLieu.Video => "#faf5ff",
+                        LMS_THPT.Models.LoaiTaiLieu.Slide => "#eff6ff",
+                        _ => "#f8fafc"
+                    };
+                    <div class="tl-mini">
+                        <div class="tl-mini-icon" style="background:@tlBg">@tlIcon</div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <div style="font-weight:600;font-size:.88rem;color:#1e293b" class="text-truncate">@tl.TenTaiLieu</div>
+                            <div style="font-size:.76rem;color:#94a3b8">@tl.LoaiTaiLieu</div>
+                        </div>
+                        <a href="@Url.Action("DownloadTaiLieu", "GiangDay", new { area = "", id = tl.Id })"
+                           style="background:#059669;color:#fff;border-radius:8px;padding:4px 12px;font-size:.78rem;text-decoration:none;white-space:nowrap">
+                            📥 Tải
+                        </a>
+                    </div>
+                }
+            }
+        </div>
+
+    </div>
+
+    <!-- RIGHT: BÀI TẬP -->
+    <div class="col-lg-6">
+        <div class="section-card">
+            <div class="section-head">
+                <span>📝 Bài tập & Kiểm tra</span>
+                <a href="@Url.Action("BaiTap","HocSinh",new{monHocId=Model.Id})">Xem tất cả →</a>
+            </div>
+            @if (!baiTaps.Any())
+            {
+                <div class="empty-mini">Chưa có bài tập nào</div>
+            }
+            else
+            {
+                @foreach (var bt in baiTaps)
+                {
+                    var daNop2 = baiNopList.FirstOrDefault(bn => bn.BaiTapId == bt.Id);
+                    bool conHan = bt.HanNop > now;
+                    bool sapHetHan = conHan && bt.HanNop <= now.AddDays(3);
+
+                    string stClass, stLabel;
+                    if (daNop2 != null)
+                    {
+                        if (daNop2.TrangThai == LMS_THPT.Models.TrangThaiBaiNop.NopTre)
+                        { stClass = "st-late"; stLabel = "⚠ Nộp trễ"; }
+                        else { stClass = "st-done"; stLabel = "✅ Đã nộp"; }
+                    }
+                    else if (!conHan) { stClass = "st-closed"; stLabel = "🔴 Hết hạn"; }
+                    else if (sapHetHan) { stClass = "st-urgent"; stLabel = "⚠️ Sắp hết hạn"; }
+                    else { stClass = "st-open"; stLabel = "🟢 Còn hạn"; }
+
+                    <div class="bt-mini">
+                        <div class="flex-grow-1 overflow-hidden">
+                            <div style="font-weight:600;font-size:.9rem;color:#1e293b" class="text-truncate">@bt.TieuDe</div>
+                            <div style="font-size:.78rem;color:#94a3b8;margin-top:2px">
+                                ⏰ Hạn: @bt.HanNop.ToString("dd/MM/yyyy HH:mm")
+                                @if (daNop2?.Diem != null)
+                                { <text> · 🏆 @daNop2.Diem/@bt.DiemToiDa</text> }
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column align-items-end gap-1">
+                            <span class="bt-status @stClass">@stLabel</span>
+                            @if (daNop2 == null && conHan)
+                            {
+                                <a href="@Url.Action("NopBai","HocSinh",new{id=bt.Id})"
+                                   style="background:#ff6b00;color:#fff;border-radius:7px;padding:3px 10px;font-size:.75rem;text-decoration:none">
+                                    Nộp bài
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

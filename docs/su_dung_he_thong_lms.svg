@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="850" viewBox="0 0 980 850">
+  <defs>
+    <!-- Arrow marker definition -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#333" />
+    </marker>
+  </defs>
+
+  <!-- Outer frame with rounded corners -->
+  <rect x="10" y="10" width="960" height="830" rx="15" ry="15" fill="#FFFFFF" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Yellow vertical header column on the left -->
+  <path d="M 60 10 L 25 10 A 15 15 0 0 0 10 25 L 10 825 A 15 15 0 0 0 25 840 L 60 840 Z" fill="#FFF9C4" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Horizontal division lines for swimlanes -->
+  <line x1="10" y1="170" x2="970" y2="170" stroke="#333333" stroke-width="1.5" />
+  <line x1="10" y1="330" x2="970" y2="330" stroke="#333333" stroke-width="1.5" />
+  <line x1="10" y1="490" x2="970" y2="490" stroke="#333333" stroke-width="1.5" />
+  <line x1="10" y1="650" x2="970" y2="650" stroke="#333333" stroke-width="1.5" />
+
+  <!-- Vertical text labels inside the yellow header column -->
+  <text transform="rotate(-90, 35, 90)" x="35" y="95" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#333333" font-weight="bold">Admin</text>
+  <text transform="rotate(-90, 35, 250)" x="35" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#333333" font-weight="bold">Giáo viên</text>
+  <text transform="rotate(-90, 35, 410)" x="35" y="415" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#333333" font-weight="bold">Hiệu trưởng</text>
+  <text transform="rotate(-90, 35, 570)" x="35" y="575" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#333333" font-weight="bold">Hệ thống</text>
+  <text transform="rotate(-90, 35, 730)" x="35" y="735" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#333333" font-weight="bold">Học sinh</text>
+
+  <!-- ==================== LANE 1: ADMIN (y: 10 to 170) ==================== -->
+  <!-- Start Node (Black circle) -->
+  <circle cx="170" cy="22" r="8" fill="#000000" />
+
+  <!-- A1: Quản lý Tài khoản -->
+  <rect x="90" y="42" width="160" height="42" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="170" y="67" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#000000">Quản lý Tài khoản</text>
+
+  <!-- A2: Quản lý Lớp học & Môn học -->
+  <rect x="90" y="112" width="160" height="42" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="170" y="137" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#000000">Quản lý Lớp &amp; Môn học</text>
+
+  <!-- ==================== LANE 2: GIÁO VIÊN (y: 170 to 330) ==================== -->
+  <!-- GV1: Tạo & Gửi yêu cầu dạy bù/nghỉ -->
+  <rect x="280" y="225" width="150" height="50" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="355" y="248" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#000000">
+    <tspan x="355" dy="0">Tạo &amp; Gửi yêu cầu</tspan>
+    <tspan x="355" dy="15">dạy bù / nghỉ phép</tspan>
+  </text>
+
+  <!-- GV2: Nhập & Cập nhật điểm học sinh -->
+  <rect x="585" y="225" width="150" height="50" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="660" y="248" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#000000">
+    <tspan x="660" dy="0">Nhập &amp; Cập nhật</tspan>
+    <tspan x="660" dy="15">điểm số học sinh</tspan>
+  </text>
+
+  <!-- ==================== LANE 3: HIỆU TRƯỞNG (y: 330 to 490) ==================== -->
+  <!-- HT1: Xem yêu cầu chờ duyệt -->
+  <rect x="440" y="385" width="150" height="50" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="515" y="414" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#000000">Xem yêu cầu chờ duyệt</text>
+
+  <!-- HT2: Phê duyệt / Từ chối yêu cầu -->
+  <rect x="710" y="385" width="150" height="50" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="785" y="414" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#000000">Phê duyệt / Từ chối</text>
+
+  <!-- ==================== LANE 4: HỆ THỐNG (y: 490 to 650) ==================== -->
+  <!-- SYS1: Lưu CSDL & Cập nhật Trạng thái -->
+  <rect x="90" y="545" width="410" height="50" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="295" y="568" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#0d47a1">
+    <tspan x="295" dy="0">Lưu CSDL &amp; Cập nhật Trạng thái</tspan>
+    <tspan x="295" dy="15">(Tài khoản, lớp, môn học, bài làm, yêu cầu)</tspan>
+  </text>
+
+  <!-- SYS2: Tự động tính Điểm TB & Xếp loại -->
+  <rect x="585" y="545" width="150" height="50" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="660" y="568" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#0d47a1">
+    <tspan x="660" dy="0">Tự động tính Điểm TB</tspan>
+    <tspan x="660" dy="15">&amp; Xếp loại học lực</tspan>
+  </text>
+
+  <!-- SYS3: Tự động cập nhật Lịch dạy bù -->
+  <rect x="760" y="545" width="170" height="50" rx="5" ry="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5" />
+  <text x="845" y="568" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#0d47a1">
+    <tspan x="845" dy="0">Tự động cập nhật</tspan>
+    <tspan x="845" dy="15">Lịch học / dạy bù</tspan>
+  </text>
+
+  <!-- ==================== LANE 5: HỌC SINH (y: 650 to 810) ==================== -->
+  <!-- HS1: Xem điểm & Thời khóa biểu -->
+  <rect x="660" y="705" width="150" height="50" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="735" y="728" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#000000">
+    <tspan x="735" dy="0">Xem điểm số</tspan>
+    <tspan x="735" dy="15">&amp; Thời khóa biểu</tspan>
+  </text>
+
+  <!-- HS2: Làm bài & Nộp bài tập -->
+  <rect x="830" y="705" width="110" height="50" rx="5" ry="5" fill="#FFF59D" stroke="#FBC02D" stroke-width="1.5" />
+  <text x="885" y="728" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#000000">
+    <tspan x="885" dy="0">Làm bài tập</tspan>
+    <tspan x="885" dy="15">&amp; Nộp bài làm</tspan>
+  </text>
+
+  <!-- End Node (Black circle with outer border) -->
+  <circle cx="735" cy="785" r="8" fill="#000000" />
+  <circle cx="735" cy="785" r="14" fill="none" stroke="#000000" stroke-width="1.5" />
+
+  <!-- ==================== CONNECTIONS / FLOWS ==================== -->
+
+  <!-- Start to A1 -->
+  <path d="M 170 30 L 170 42" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Admin: QL Tài khoản -> QL Lớp & Môn -->
+  <path d="M 170 84 L 170 112" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Admin: QL Lớp & Môn học -> SYS1 (Straight down in Column 1, crosses no boxes) -->
+  <path d="M 170 154 L 170 545" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Giáo viên: Tạo Yêu cầu -> SYS1 (Straight down in Column 2, crosses no boxes) -->
+  <path d="M 355 275 L 355 545" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="360" y="315" text-anchor="start" font-family="Arial, sans-serif" font-size="9.5" fill="#1565C0" font-weight="bold">Gửi yêu cầu (ChoDuyet)</text>
+
+  <!-- SYS1 -> Hiệu trưởng: Xem Yêu cầu (Straight UP at x=480, enters HT1 from bottom) -->
+  <path d="M 480 545 L 480 435" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="485" y="515" text-anchor="start" font-family="Arial, sans-serif" font-size="9" fill="#555555" font-weight="bold">Hiển thị danh sách</text>
+
+  <!-- Hiệu trưởng: Xem -> Xử lý duyệt -->
+  <path d="M 590 410 L 710 410" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Hiệu trưởng: Duyệt học bù -> SYS3 (Straight down at x=800, crosses no boxes) -->
+  <path d="M 800 435 L 800 545" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="805" y="475" text-anchor="start" font-family="Arial, sans-serif" font-size="9.5" fill="#2E7D32" font-weight="bold">Duyệt dạy/học bù</text>
+
+  <!-- Hiệu trưởng: Từ chối / Duyệt thường -> SYS1 (Loops to x=500, enters SYS1 from top. No crossing with x=480 path!) -->
+  <path d="M 720 435 L 720 470 L 500 470 L 500 545" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="590" y="463" text-anchor="middle" font-family="Arial, sans-serif" font-size="9.5" fill="#C62828" font-weight="bold">Từ chối / Duyệt thường</text>
+
+  <!-- Giáo viên: Nhập điểm -> SYS2 (Straight down at x=660, runs between HT1 and HT2. No box crossing!) -->
+  <path d="M 660 275 L 660 545" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="665" y="315" text-anchor="start" font-family="Arial, sans-serif" font-size="9.5" fill="#1565C0" font-weight="bold">Gửi bảng điểm</text>
+
+  <!-- SYS2 -> Học sinh: Xem điểm (Down to corridor y=675, right to x=735, down to HS1) -->
+  <path d="M 660 595 L 660 675 L 735 675 L 735 705" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="670" y="665" text-anchor="start" font-family="Arial, sans-serif" font-size="9" fill="#2E7D32" font-weight="bold">Cập nhật điểm</text>
+
+  <!-- SYS3 -> Học sinh: Xem TKB (Down to corridor y=675, left to x=735, merges with HS1 path) -->
+  <path d="M 845 595 L 845 675 L 735 675" fill="none" stroke="#333333" stroke-width="1.2" />
+  <text x="835" y="665" text-anchor="end" font-family="Arial, sans-serif" font-size="9" fill="#2E7D32" font-weight="bold">Cập nhật TKB mới</text>
+
+  <!-- HS1 to End Node -->
+  <path d="M 735 755 L 735 771" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+
+  <!-- Học sinh: Nộp bài làm -> SYS1 (Down to bottom corridor y=815, left to x=295, up to SYS1 bottom. Runs below End Node!) -->
+  <path d="M 885 755 L 885 815 L 295 815 L 295 595" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)" />
+  <text x="590" y="810" text-anchor="middle" font-family="Arial, sans-serif" font-size="9.5" fill="#1565C0" font-weight="bold">Nộp bài làm (ChoChamDiem)</text>
+</svg>

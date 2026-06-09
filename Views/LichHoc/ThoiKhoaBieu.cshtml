@@ -1,0 +1,281 @@
+@model List<LMS_THPT.Models.LichHoc>
+@{
+    ViewData["Title"] = "Quản lý Lịch Học";
+    Layout = User.IsInRole("HieuTruong") ? "_HieuTruongLayout" : "_AdminLayout";
+    var lops = ViewBag.Lops as List<LMS_THPT.Models.Lop>;
+    var selectedLopId = Context.Request.Query["lopId"].ToString();
+    var leaves = ViewBag.Leaves as List<LMS_THPT.Models.YeuCauGiaoVien>;
+
+    DateTime selectedDate = DateTime.Parse(ViewBag.SelectedDate);
+    string dayOfWeekStr = "";
+    switch (selectedDate.DayOfWeek)
+    {
+        case DayOfWeek.Monday:    dayOfWeekStr = "Thứ Hai"; break;
+        case DayOfWeek.Tuesday:   dayOfWeekStr = "Thứ Ba"; break;
+        case DayOfWeek.Wednesday: dayOfWeekStr = "Thứ Tư"; break;
+        case DayOfWeek.Thursday:  dayOfWeekStr = "Thứ Năm"; break;
+        case DayOfWeek.Friday:    dayOfWeekStr = "Thứ Sáu"; break;
+        case DayOfWeek.Saturday:  dayOfWeekStr = "Thứ Bảy"; break;
+        case DayOfWeek.Sunday:    dayOfWeekStr = "Chủ Nhật"; break;
+    }
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+@section Styles {
+<style>
+    /* Flatpickr overrides để khớp với design system */
+    .flatpickr-calendar {
+        width: 100% !important;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+        border: 1px solid var(--admin-border) !important;
+        border-radius: var(--admin-radius) !important;
+        font-family: inherit;
+        padding: 10px;
+    }
+    .flatpickr-month { color: var(--admin-text-primary) !important; font-weight: 700 !important; }
+    .flatpickr-weekdays { border-bottom: 1px solid var(--admin-border); margin-bottom: 8px; }
+    span.flatpickr-weekday { color: var(--admin-text-muted) !important; font-weight: 600 !important; font-size: 11px; }
+    .flatpickr-day { color: var(--admin-text-primary) !important; font-weight: 500 !important; border-radius: 8px !important; }
+    .flatpickr-day:hover { background: var(--admin-surface) !important; border-color: var(--admin-border) !important; }
+    .flatpickr-day.selected {
+        background: var(--admin-accent) !important;
+        color: #fff !important;
+        border-color: var(--admin-accent) !important;
+        box-shadow: 0 2px 8px rgba(99,102,241,0.3) !important;
+    }
+    .flatpickr-day.today { border: 2px solid var(--admin-accent) !important; }
+    .flatpickr-innerContainer, .flatpickr-rContainer, .flatpickr-days { width: 100% !important; max-width: 100% !important; display: block !important; }
+    .dayContainer { display: grid !important; grid-template-columns: repeat(7,1fr) !important; width: 100% !important; max-width: 100% !important; gap: 4px 0; }
+    .flatpickr-weekdays { display: grid !important; grid-template-columns: repeat(7,1fr) !important; width: 100% !important; }
+    .flatpickr-weekdaycontainer { display: contents !important; }
+    span.flatpickr-weekday { width: 100% !important; max-width: 100% !important; }
+    .flatpickr-day { width: 100% !important; max-width: 100% !important; height: 36px !important; line-height: 36px !important; margin: 0 !important; }
+
+    /* Period list styles */
+    .period-item {
+        display: flex; border-bottom: 1px solid var(--admin-border);
+        padding: 16px 0; transition: background 0.15s;
+    }
+    .period-item:hover { background: var(--admin-surface); }
+    .period-item:last-child { border-bottom: none; }
+
+    .period-num {
+        width: 80px; font-weight: 800; color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        background: var(--admin-navy); border-radius: 8px;
+        margin-right: 20px; font-size: 12px;
+        letter-spacing: 0.5px; text-transform: uppercase; flex-shrink: 0;
+    }
+
+    .lesson-card {
+        background: #fff; border-left: 4px solid var(--admin-accent);
+        padding: 14px 18px; border-radius: 0 8px 8px 0;
+        border: 1px solid var(--admin-border); border-left-width: 4px;
+        border-left-color: var(--admin-accent);
+        flex: 1;
+    }
+    .lesson-title {
+        font-weight: 800; color: var(--admin-text-primary);
+        font-size: 1rem; margin-bottom: 5px;
+    }
+    .lesson-info { font-size: 0.82rem; color: var(--admin-text-muted); }
+
+    .leave-badge {
+        display: inline-block; background: #fef3c7; color: #92400e;
+        border: 1px solid #fde68a; padding: 4px 10px; border-radius: 6px;
+        font-size: 0.75rem; font-weight: 600; margin-top: 8px;
+    }
+
+    .empty-period {
+        color: var(--admin-text-muted); font-style: italic;
+        font-size: 0.88rem; padding-left: 10px;
+        display: flex; justify-content: space-between;
+        align-items: center; width: 100%;
+    }
+</style>
+}
+
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">📅 Quản lý Thời Khóa Biểu</h1>
+        <div style="font-size:0.85rem; color:var(--admin-text-muted); margin-top:4px;">
+            Xem và quản lý lịch học theo lớp và ngày
+        </div>
+    </div>
+
+</div>
+
+<div style="display:grid; grid-template-columns:320px 1fr; gap:1.5rem; align-items:start;">
+
+    <!-- CỘT TRÁI: BỘ LỌC -->
+    <div>
+        <div class="admin-card" style="margin-bottom:1.25rem;">
+            <div class="admin-card-header"><h3>1. Chọn lớp học</h3></div>
+            <div class="admin-card-body">
+                <form method="get" id="filterForm">
+                    <div class="admin-form-group" style="margin-bottom:0;">
+                        <select name="lopId" class="admin-form-control"
+                                onchange="document.getElementById('filterForm').submit()">
+                            <option value="">-- Chọn lớp --</option>
+                            @if (lops != null)
+                            {
+                                foreach (var lop in lops)
+                                {
+                                    <option value="@lop.Id" selected="@(selectedLopId == lop.Id.ToString())">Lớp @lop.TenLop</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="admin-card" style="margin-bottom:1.25rem;">
+            <div class="admin-card-header"><h3>2. Chọn ngày</h3></div>
+            <div class="admin-card-body">
+                <form method="get" id="dateForm">
+                    <input type="hidden" name="lopId" value="@selectedLopId" />
+                    <input type="hidden" name="date" id="selectedDate" value="@ViewBag.SelectedDate" />
+                    <div id="inlineCalendar"></div>
+                </form>
+            </div>
+        </div>
+
+        @if (!User.IsInRole("HieuTruong"))
+        {
+            <div class="admin-card">
+                <div class="admin-card-header"><h3>📥 Nhập từ Excel</h3></div>
+                <div class="admin-card-body">
+                    <form asp-action="ImportExcel" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="lopId" value="@selectedLopId" />
+                        <div class="admin-form-group">
+                            <input type="file" name="file" class="admin-form-control" accept=".xlsx, .xls" required />
+                        </div>
+                        <button type="submit" class="admin-btn admin-btn-primary" style="width:100%;"
+                                @(string.IsNullOrEmpty(selectedLopId) ? "disabled" : "")>
+                            Tải Dữ Liệu Lên
+                        </button>
+                        <a asp-action="TaiFileMau"
+                           class="admin-btn admin-btn-secondary" style="width:100%; margin-top:0.5rem; justify-content:center;">
+                            📄 Tải Form Mẫu
+                        </a>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- CỘT PHẢI: CHI TIẾT LỊCH -->
+    <div>
+        @if (string.IsNullOrEmpty(selectedLopId))
+        {
+            <div class="admin-card">
+                <div class="admin-empty" style="padding:4rem 2rem;">
+                    <div class="admin-empty-icon">📋</div>
+                    <div class="admin-empty-title">Bạn chưa chọn lớp học</div>
+                    <div class="admin-empty-text">Vui lòng chọn lớp từ bộ lọc bên trái để xem thời khóa biểu</div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="admin-card">
+                <div class="admin-card-header" style="justify-content:space-between; display:flex; align-items:center;">
+                    <div>
+                        <h3 style="margin-bottom:4px;">@selectedDate.ToString("dd/MM/yyyy")</h3>
+                        <div style="font-size:0.82rem; opacity:0.8;">@dayOfWeekStr</div>
+                    </div>
+                </div>
+                <div class="admin-card-body" style="padding:0 1.5rem;">
+                    @for (int i = 1; i <= 10; i++)
+                    {
+                        var lesson = Model?.FirstOrDefault(l => l.TietHoc == i);
+                        var leave  = lesson != null && leaves != null
+                            ? leaves.FirstOrDefault(y =>
+                                y.MaGiaoVien == lesson.GiaoVienId &&
+                                (!y.TuTiet.HasValue  || y.TuTiet  <= i) &&
+                                (!y.DenTiet.HasValue || y.DenTiet >= i))
+                            : null;
+
+                        <div class="period-item">
+                            <div class="period-num">Tiết @i</div>
+                            <div style="flex:1; display:flex; align-items:center;">
+                                @if (lesson != null)
+                                {
+                                    <div class="lesson-card">
+                                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                            <div>
+                                                <div class="lesson-title">
+                                                    @lesson.MonHoc?.TenMonHoc
+                                                    @if (lesson.IsHocBu)
+                                                    {
+                                                        <span class="admin-badge admin-badge-success" style="font-size:0.7rem; margin-left:6px; vertical-align:middle;">HỌC BÙ</span>
+                                                    }
+                                                </div>
+                                                <div class="lesson-info">
+                                                    <strong>GV:</strong> @lesson.GiaoVien?.HoTen &nbsp;|&nbsp;
+                                                    <strong>Phòng:</strong> @lesson.PhongHoc
+                                                </div>
+                                                @if (leave != null)
+                                                {
+                                                    <div class="leave-badge">⚠️ Giáo viên đã nghỉ phép</div>
+                                                }
+                                            </div>
+                                            <div style="display:flex; gap:6px; flex-shrink:0; margin-left:12px;">
+                                                <a asp-action="Edit" asp-route-id="@lesson.Id"
+                                                   asp-route-date="@selectedDate.ToString("yyyy-MM-dd")"
+                                                   class="admin-btn admin-btn-secondary admin-btn-sm"
+                                                   title="Chỉnh sửa">✏️</a>
+                                                <form asp-action="Delete" asp-route-id="@lesson.Id"
+                                                      asp-route-date="@selectedDate.ToString("yyyy-MM-dd")"
+                                                      method="post" style="display:inline;">
+                                                    @Html.AntiForgeryToken()
+                                                    <button class="admin-btn admin-btn-danger admin-btn-sm"
+                                                            title="Xóa tiết"
+                                                            onclick="return confirm('Xóa tiết học này?')">🗑️</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="empty-period">
+                                        <span>(Khoảng thời gian trống)</span>
+                                        <a asp-action="Create"
+                                           asp-route-thu="@((int)selectedDate.DayOfWeek == 0 ? 8 : (int)selectedDate.DayOfWeek + 1)"
+                                           asp-route-tietHoc="@i"
+                                           asp-route-lopId="@selectedLopId"
+                                           asp-route-date="@selectedDate.ToString("yyyy-MM-dd")"
+                                           class="admin-btn admin-btn-primary admin-btn-sm">+ Thêm mới</a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var selectedDate = document.getElementById('selectedDate').value;
+            flatpickr("#inlineCalendar", {
+                inline: true,
+                defaultDate: selectedDate,
+                locale: "vn",
+                dateFormat: "Y-m-d",
+                onChange: function (selectedDates, dateStr) {
+                    document.getElementById('selectedDate').value = dateStr;
+                    document.getElementById('dateForm').submit();
+                }
+            });
+        });
+    </script>
+}
